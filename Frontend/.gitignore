@@ -42,6 +42,9 @@ app.*.map.json
 # Claude Code local config
 .claude/
 
+# Visual Studio IDE folder
+.vs/
+
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
