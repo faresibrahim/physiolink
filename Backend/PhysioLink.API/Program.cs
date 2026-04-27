@@ -74,10 +74,13 @@ await DbSeeder.SeedAsync(app.Services);
 
 
 // Configure the HTTP request pipeline.
+//
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHttpsRedirection(); // In development, we can allow HTTP for easier testing. In production, we should enforce HTTPS.
+
 }
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
