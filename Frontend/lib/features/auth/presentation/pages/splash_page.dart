@@ -110,7 +110,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 const SizedBox(height: 6),
 
                 Text(
-                  'Your recovery, guided.',
+                  'Your partner in recovery wherever you are',
                   style: AppTextStyles.callout.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -225,10 +225,7 @@ class _EcgLinePainter extends CustomPainter {
   }
 
   List<double> _segmentLengths(List<Offset> pts) {
-    return List.generate(
-      pts.length - 1,
-      (i) => (pts[i + 1] - pts[i]).distance,
-    );
+    return List.generate(pts.length - 1, (i) => (pts[i + 1] - pts[i]).distance);
   }
 
   @override
