@@ -97,51 +97,50 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
 
           // ── Filter chips ───────────────────────────────────────────────────
           exercisesAsync.when(
-            data: (result) => result.fold(
-              (_) => const SizedBox.shrink(),
-              (exercises) {
-                final activeCount =
-                    exercises.where((e) => e.feedback == null).length;
-                final completedCount =
-                    exercises.where((e) => e.feedback != null).length;
+            data: (result) =>
+                result.fold((_) => const SizedBox.shrink(), (exercises) {
+                  final activeCount = exercises
+                      .where((e) => e.feedback == null)
+                      .length;
+                  final completedCount = exercises
+                      .where((e) => e.feedback != null)
+                      .length;
 
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.md,
-                    AppSpacing.sm,
-                    AppSpacing.md,
-                    0,
-                  ),
-                  child: Row(
-                    children: [
-                      _FilterChip(
-                        label: 'All',
-                        count: exercises.length,
-                        selected: _filter == _FilterTab.all,
-                        onTap: () =>
-                            setState(() => _filter = _FilterTab.all),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      _FilterChip(
-                        label: 'Active',
-                        count: activeCount,
-                        selected: _filter == _FilterTab.active,
-                        onTap: () =>
-                            setState(() => _filter = _FilterTab.active),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      _FilterChip(
-                        label: 'Completed',
-                        count: completedCount,
-                        selected: _filter == _FilterTab.completed,
-                        onTap: () =>
-                            setState(() => _filter = _FilterTab.completed),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.sm,
+                      AppSpacing.md,
+                      0,
+                    ),
+                    child: Row(
+                      children: [
+                        _FilterChip(
+                          label: 'All',
+                          count: exercises.length,
+                          selected: _filter == _FilterTab.all,
+                          onTap: () => setState(() => _filter = _FilterTab.all),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        _FilterChip(
+                          label: 'Active',
+                          count: activeCount,
+                          selected: _filter == _FilterTab.active,
+                          onTap: () =>
+                              setState(() => _filter = _FilterTab.active),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        _FilterChip(
+                          label: 'Completed',
+                          count: completedCount,
+                          selected: _filter == _FilterTab.completed,
+                          onTap: () =>
+                              setState(() => _filter = _FilterTab.completed),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
           ),
@@ -187,8 +186,8 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
         title: _searchQuery.isNotEmpty
             ? 'No matches for "$_searchQuery"'
             : _filter == _FilterTab.completed
-                ? 'No completed exercises'
-                : 'No exercises found',
+            ? 'No completed exercises'
+            : 'No exercises found',
         subtitle: _searchQuery.isNotEmpty
             ? 'Try a different keyword, or browse your full exercise plan.'
             : "Your therapist hasn't assigned any exercises yet.",
@@ -214,8 +213,8 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
               ),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+                crossAxisSpacing: AppSpacing.md,
+                mainAxisSpacing: AppSpacing.md,
                 childAspectRatio: 1.5,
               ),
               itemCount: filtered.length,
@@ -235,7 +234,8 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
                 AppSpacing.xl,
               ),
               itemCount: filtered.length,
-              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+              separatorBuilder: (_, __) =>
+                  const SizedBox(height: AppSpacing.sm),
               itemBuilder: (context, index) {
                 final exercise = filtered[index];
                 return ExerciseCard(
