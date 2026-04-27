@@ -1,0 +1,7 @@
+[build]
+builder = "nixpacks"
+buildCommand = "dotnet publish PhysioLink.API/PhysioLink.API.csproj -c Release -o out"
+
+[deploy]
+startCommand = "dotnet out/PhysioLink.API.dll"
+healthcheckPath = "/swagger"
