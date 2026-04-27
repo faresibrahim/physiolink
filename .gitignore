@@ -4,3 +4,7 @@ Thumbs.db
 
 # Zip artifacts
 *.zip
+
+# Local secrets — never commit
+.env
+secrets.md
