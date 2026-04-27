@@ -71,33 +71,10 @@ class _SplashPageState extends ConsumerState<SplashPage>
               children: [
                 const Spacer(flex: 2),
 
-                // Logo in card
-                Container(
-                  width: 84,
-                  height: 84,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withOpacity(0.14),
-                        blurRadius: 28,
-                        offset: const Offset(0, 10),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      'assets/images/physiolink_logo.svg',
-                      width: 46,
-                      height: 46,
-                    ),
-                  ),
+                SvgPicture.asset(
+                  'assets/images/physiolink_logo.svg',
+                  width: 96,
+                  height: 96,
                 ),
 
                 const SizedBox(height: 22),

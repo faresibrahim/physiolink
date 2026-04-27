@@ -4,7 +4,10 @@ class DioClient {
   DioClient() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: 'http://192.168.1.69:5218',
+        baseUrl: String.fromEnvironment(
+          'BASE_URL',
+          defaultValue: 'http://192.168.1.69:5218',
+        ),
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
         headers: {'Content-Type': 'application/json'},
@@ -22,7 +25,14 @@ class DioClient {
 
 class _AuthInterceptor extends Interceptor {
   final DioClient _client;
-  final refreshDio = Dio(BaseOptions(baseUrl: 'http://192.168.1.69:5218'));
+  final refreshDio = Dio(
+    BaseOptions(
+      baseUrl: String.fromEnvironment(
+        'BASE_URL',
+        defaultValue: 'http://192.168.1.69:5218',
+      ),
+    ),
+  );
 
   _AuthInterceptor(this._client);
 

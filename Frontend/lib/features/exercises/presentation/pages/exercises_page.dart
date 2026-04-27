@@ -199,26 +199,51 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
       );
     }
 
+    final isWide = MediaQuery.sizeOf(context).width >= 600;
+
     return RefreshIndicator(
       color: AppColors.primary,
       onRefresh: () async => ref.invalidate(exercisesProvider),
-      child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
-          AppSpacing.md,
-          AppSpacing.md,
-          AppSpacing.xl,
-        ),
-        itemCount: filtered.length,
-        separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-        itemBuilder: (context, index) {
-          final exercise = filtered[index];
-          return ExerciseCard(
-            exercise: exercise,
-            onTap: () => context.push('/exercise', extra: exercise),
-          );
-        },
-      ),
+      child: isWide
+          ? GridView.builder(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.xl,
+              ),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.5,
+              ),
+              itemCount: filtered.length,
+              itemBuilder: (context, index) {
+                final exercise = filtered[index];
+                return ExerciseCard(
+                  exercise: exercise,
+                  onTap: () => context.push('/exercise', extra: exercise),
+                );
+              },
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.xl,
+              ),
+              itemCount: filtered.length,
+              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+              itemBuilder: (context, index) {
+                final exercise = filtered[index];
+                return ExerciseCard(
+                  exercise: exercise,
+                  onTap: () => context.push('/exercise', extra: exercise),
+                );
+              },
+            ),
     );
   }
 
