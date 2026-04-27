@@ -33,6 +33,7 @@ bld/
 
 # Secrets / environment
 appsettings.Development.json
+**/Properties/launchSettings.json
 *.pfx
 *.p12
 secrets.json
