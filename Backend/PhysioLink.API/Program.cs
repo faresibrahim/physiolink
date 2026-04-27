@@ -70,20 +70,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 //Phase 2 configure http request pipelines(this is what happens when a request comes in)
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PhysioLinkDbContext>();
+    await db.Database.MigrateAsync();
+}
+
 await DbSeeder.SeedAsync(app.Services);
 
-
 // Configure the HTTP request pipeline.
-//
+app.UseSwagger();
+app.UseSwaggerUI();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseHttpsRedirection(); // In development, we can allow HTTP for easier testing. In production, we should enforce HTTPS.
-
+    app.UseHttpsRedirection();
 }
+
 app.UseExceptionHandler();
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
