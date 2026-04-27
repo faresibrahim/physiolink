@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "Read(//c/Users/Lenovo/Downloads/PhysioLink/physiolink_ui_template/**)",
+      "Read(//c/Users/Lenovo/Downloads/PhysioLink/**)",
+      "Bash(python3 \"C:\\\\Users\\\\Lenovo\\\\AppData\\\\Roaming\\\\Claude\\\\local-agent-mode-sessions\\\\skills-plugin\\\\2c2e08db-911d-484c-bacd-55143adffbcd\\\\c855bdb1-cfeb-49ac-8a05-6d143f75a771\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"healthcare physiotherapy patient mobile app appointments clean minimal\" --design-system -p \"PhysioLink\" -f markdown)",
+      "Bash(py \"C:\\\\Users\\\\Lenovo\\\\AppData\\\\Roaming\\\\Claude\\\\local-agent-mode-sessions\\\\skills-plugin\\\\2c2e08db-911d-484c-bacd-55143adffbcd\\\\c855bdb1-cfeb-49ac-8a05-6d143f75a771\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"healthcare physiotherapy patient mobile appointments clean minimal\" --design-system -p \"PhysioLink\" -f markdown)",
+      "Bash(where python *)",
+      "Bash(where python3 *)",
+      "Bash(where py *)",
+      "Read(//usr/**)",
+      "Bash(cmd /c \"python --version\")",
+      "Bash(cmd /c \"py --version\")",
+      "Bash(xargs grep *)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__962af3c8-53ca-4c63-8394-11ea39820877__search_files",
+      "Bash(flutter analyze *)",
+      "Bash(ng build *)",
+      "Bash(powershell -Command \"New-NetFirewallRule -DisplayName 'PhysioLink API Port 5218' -Direction Inbound -Protocol TCP -LocalPort 5218 -Action Allow -Profile Any 2>&1\")",
+      "Bash(flutter pub *)",
+      "Bash(gh auth *)",
+      "Bash(git rm *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}
