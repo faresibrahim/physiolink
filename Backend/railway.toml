@@ -5,6 +5,3 @@ buildCommand = "dotnet publish PhysioLink.API/PhysioLink.API.csproj -c Release -
 [deploy]
 startCommand = "dotnet out/PhysioLink.API.dll"
 healthcheckPath = "/swagger"
-
-[build.nixpacksPlan.phases.setup]
-nixPkgs = ["dotnet-sdk_9"]
