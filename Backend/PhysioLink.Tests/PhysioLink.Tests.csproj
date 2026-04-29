@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PhysioLink.API\PhysioLink.API.csproj" />
     <ProjectReference Include="..\PhysioLink.Application\PhysioLink.Application.csproj" />
+    <ProjectReference Include="..\PhysioLink.Infrastructure\PhysioLink.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

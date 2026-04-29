@@ -40,6 +40,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<AppointmentValidator>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails(); //this line is required because it tells ASP.Net Core to use the ProblemDetails
                                       //format throughout the pipeline, not only in the handler.
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -51,6 +52,7 @@ builder.Services.AddScoped<IAppointmentRepository,AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IPatientRepository,PatientRepository>();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<ICurrentClinicService, CurrentClinicService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

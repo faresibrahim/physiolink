@@ -22,7 +22,10 @@ namespace PhysioLink.Infrastructure.Data.Configurations
             builder.Property(p=>p.Difficulty)
             .IsRequired();
             
+            builder.Property(p=>p.VideoUrl)
+            .HasMaxLength(500);
 
+            builder.Property(p => p.ClinicId);
         }
     }
 }

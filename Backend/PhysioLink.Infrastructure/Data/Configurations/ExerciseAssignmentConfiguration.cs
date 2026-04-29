@@ -14,15 +14,17 @@ namespace PhysioLink.Infrastructure.Data.Configurations
             builder.Property(p=>p.PatientId)
             .IsRequired();
             
-            builder.Property(p=>p.TherapistId)
-            .IsRequired();
-            
-            
+            builder.Property(p=>p.TherapistName)
+            .IsRequired()
+            .HasMaxLength(200);
+
+
             builder.Property(p=>p.Sets)
             .IsRequired();
             
+            builder.Property(p=>p.Status)
+                .IsRequired();
 
-            
             builder.Property(p=>p.Reps)
             .IsRequired();
             
@@ -31,9 +33,15 @@ namespace PhysioLink.Infrastructure.Data.Configurations
             .IsRequired();
             
 
-            
+            builder.Property(p=> p.ScheduledDate)
+            .IsRequired();
+
+            builder.Property(p=> p.FrequencyPerWeek)
+            .IsRequired();
+
              builder.Property(p=>p.AssignedAt)
             .IsRequired();            
+            
             
 
         }

@@ -23,7 +23,8 @@ namespace PhysioLink.Infrastructure.Repositories
                 AppointmentStatus.Pending,
                 DateTime.SpecifyKind(request.AppointmentTime, DateTimeKind.Utc),
                 request.PatientId,
-                Guid.Empty,
+                request.TherapistName, //To-do, wire therapistname from request in week 17
+                Guid.Empty,// TODO: replace with ClinicId from JWT claim in Week 17
                 request.Notes
             );
 
@@ -34,7 +35,7 @@ namespace PhysioLink.Infrastructure.Repositories
             {
                 AppointmentId = appointment.AppointmentId,
                 PatientId = appointment.PatientId,
-                TherapistId = appointment.TherapistId,
+                TherapistName = appointment.TherapistName,
                 Title = appointment.Title,
                 Notes = appointment.Notes,
                 AppointmentTime = appointment.AppointmentTime,
@@ -57,7 +58,7 @@ namespace PhysioLink.Infrastructure.Repositories
                 {
                     AppointmentId = ea.AppointmentId,
                     PatientId = ea.PatientId,
-                    TherapistId = ea.TherapistId,
+                    TherapistName = ea.TherapistName,
                     Title = ea.Title,
                     Notes = ea.Notes,
                     AppointmentTime = ea.AppointmentTime,

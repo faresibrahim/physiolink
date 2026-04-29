@@ -10,6 +10,8 @@ namespace PhysioLink.Domain.Entities
         public int Reps { get; set; }
         public int DurationMinutes {get; set; }
         public string Description {get; set; }
+        public string? VideoUrl {get; set; }
+        public Guid? ClinicId {get; set; }
 
         public DifficultyLevel Difficulty {get; set;}
 

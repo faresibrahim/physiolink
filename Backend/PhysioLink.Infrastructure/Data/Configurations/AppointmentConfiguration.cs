@@ -22,14 +22,20 @@ namespace PhysioLink.Infrastructure.Data.Configurations
             builder.Property(p => p.PatientId)
                 .IsRequired();
 
-            builder.Property(p => p.TherapistId)
-                .IsRequired();
+            builder.Property(p => p.TherapistName)
+                .IsRequired()
+                .HasMaxLength(200);
 
             builder.Property(p => p.AppointmentTime)
                 .IsRequired();
 
             builder.Property(p => p.Status)
                 .IsRequired();
+
+            builder.HasOne<Clinic>()
+                .WithMany()
+                .HasForeignKey(c => c.ClinicId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

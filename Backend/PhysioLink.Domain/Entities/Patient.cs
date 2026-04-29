@@ -1,7 +1,7 @@
 
 
 namespace PhysioLink.Domain.Entities{
-public class Patient : AuditableEntity
+public class Patient : ClinicScopedEntity
 {
     public Guid PatientId { get; set;}
     public string FirstName { get; set; }
@@ -10,8 +10,9 @@ public class Patient : AuditableEntity
     public string PhoneNumber { get; set;}
 
     public Guid ApplicationUserId {get; set;}
+    public Guid? TherapistId { get; set; }
 
-    public string Email { get; set;}
+       public string Email { get; set;}
     public string Diagnosis { get; set;}
 
     public bool IsActive { get; set; } 

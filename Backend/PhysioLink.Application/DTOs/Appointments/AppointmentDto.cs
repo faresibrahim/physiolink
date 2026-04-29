@@ -6,7 +6,7 @@ namespace PhysioLink.Application.DTOs
     {
         public Guid AppointmentId { get; set; }
         public Guid PatientId { get; set; }
-        public Guid TherapistId { get; set; }
+        public string TherapistName { get; set; } = null!;
         public string Title { get; set; } = null!;
         public string? Notes { get; set; }
         public DateTime AppointmentTime { get; set; }
