@@ -10,13 +10,6 @@
 
 ---
 
-## Screenshots
-
-> _Login · Exercises (phone list / tablet grid) · Exercise Detail + RPE Dialog · Appointments · Profile_
-
-_(Add screenshots after recording your demo)_
-
----
 
 ## Key Features
 
