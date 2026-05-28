@@ -11,7 +11,6 @@ namespace PhysioLink.Application.Services
 
         private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
         private readonly ITokenService _tokenService;
-
         private readonly IUserRepository _userRepository;
         private readonly IPatientRepository _patientRepository;
 
@@ -43,25 +42,26 @@ namespace PhysioLink.Application.Services
                 return null;
             }
 
-            // LoginAsync — after password verification passes:
-            var patient = await _patientRepository.GetPatientByUserIdAsync(user.ApplicationUserId);
-            var accessToken = _tokenService.GenerateAccessToken(user, patient?.PatientId);
-
+            // LoginAsync ï¿½ after password verification passes:
             
+            var accessToken = _tokenService.GenerateAccessToken(user);
 
             var refreshToken = _tokenService.GenerateRefreshToken();
-            
+
             user.RefreshToken=refreshToken;
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            
-        
-            
+
             await _userRepository.UpdateAsync(user);
+
+            var patient = await _patientRepository.GetPatientByUserIdAsync(user.ApplicationUserId);
+            var clinicName = await _userRepository.GetClinicNameAsync(user.ClinicId);
 
             return new AuthResponseDto
             {
                 AccessToken = accessToken,
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
+                PatientId = patient?.PatientId ?? Guid.Empty,
+                ClinicName = clinicName
             };
 
         }
@@ -93,20 +93,23 @@ namespace PhysioLink.Application.Services
                return null;
             }
 
-            // RefreshAsync — same:
-            var patient = await _patientRepository.GetPatientByUserIdAsync(user.ApplicationUserId);
-            var generatedAccessToken = _tokenService.GenerateAccessToken(user, patient?.PatientId);
+            // RefreshAsync ï¿½ same:
+           
+            var generatedAccessToken = _tokenService.GenerateAccessToken(user);
 
-            
             var generatedRefreshToken = _tokenService.GenerateRefreshToken();
 
             user.RefreshToken=generatedRefreshToken;
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
             await _userRepository.UpdateAsync(user);
+
+            var patient = await _patientRepository.GetPatientByUserIdAsync(user.ApplicationUserId);
+
             return new AuthResponseDto
             {
                 AccessToken = generatedAccessToken,
-                RefreshToken = generatedRefreshToken
+                RefreshToken = generatedRefreshToken,
+                PatientId = patient?.PatientId ?? Guid.Empty
             };
         }
     }

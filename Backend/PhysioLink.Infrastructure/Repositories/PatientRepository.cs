@@ -20,19 +20,28 @@ namespace PhysioLink.Infrastructure.Repositories
 
         public async Task<Patient?> GetPatientByUserIdAsync(Guid applicationUserId)
         {
+            // Bypass the ClinicScoped filter — during login the JWT hasn't been
+            // issued yet, so CurrentClinicService.GetCurrentClinicId() returns null
+            // and the filter would exclude every patient.
             return await _dbContext.Patients
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(p => p.ApplicationUserId == applicationUserId);
         }
 
 
         public async Task<PatientProfileDto> GetPatientProfileAsync(Guid patientId)
         {
-
-            //Add AsNoTracking because this operation is read only
-         var patient = await _dbContext.Patients.AsNoTracking().FirstOrDefaultAsync(p => p.PatientId == patientId);
-            if(patient is null) 
+            // PatientId is unique — bypass clinic filter so the endpoint works
+            // regardless of JWT-claim state.
+            var patient = await _dbContext.Patients
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .Include(p => p.Therapist)
+                .Include(p => p.Clinic)
+                .FirstOrDefaultAsync(p => p.PatientId == patientId);
+            if(patient is null)
                 return null!;
-            
+
             return new PatientProfileDto
             {
                 PatientId = patient.PatientId,
@@ -40,14 +49,18 @@ namespace PhysioLink.Infrastructure.Repositories
                 LastName = patient.LastName,
                 Email = patient.Email,
                 Diagnosis = patient.Diagnosis,
-                PhoneNumber = patient.PhoneNumber
-
+                PhoneNumber = patient.PhoneNumber,
+                TherapistName = patient.Therapist != null
+                    ? $"{patient.Therapist.FirstName} {patient.Therapist.LastName}"
+                    : null,
+                ClinicName = patient.Clinic?.Name,
             };
         }
 
         public async Task<bool> UpdatePatientProfileAsync(Guid patientId, UpdatePatientProfileDto request)
 {
     var patient = await _dbContext.Patients
+        .IgnoreQueryFilters()
         .FirstOrDefaultAsync(p => p.PatientId == patientId);
 
     if (patient is null)
@@ -67,16 +80,18 @@ namespace PhysioLink.Infrastructure.Repositories
     public async Task<PatientProgressDto> GetPatientProgressAsync(Guid patientId)
     {
         var totalAppointments = await _dbContext.Appointments
+            .IgnoreQueryFilters()
             .Where(p => p.PatientId == patientId)
-            .CountAsync();  
+            .CountAsync();
 
-        var feedbackExercises = await _dbContext.ExerciseAssignments.Where(p=>p.PatientId == patientId && p.Feedback != default).CountAsync();
+        var feedbackExercises = await _dbContext.ExerciseAssignments.IgnoreQueryFilters().Where(p=>p.PatientId == patientId && p.Feedback != default).CountAsync();
 
         var totalAssignedExercises = await _dbContext.ExerciseAssignments
+            .IgnoreQueryFilters()
             .Where(p=>p.PatientId == patientId)
             .CountAsync();
 
-        var lastRecentAppointment = await _dbContext.Appointments.Where(p=>p.PatientId == patientId).MaxAsync(p=> (DateTime?)p.AppointmentTime);
+        var lastRecentAppointment = await _dbContext.Appointments.IgnoreQueryFilters().Where(p=>p.PatientId == patientId).MaxAsync(p=> (DateTime?)p.AppointmentTime);
 
         return new PatientProgressDto
         {

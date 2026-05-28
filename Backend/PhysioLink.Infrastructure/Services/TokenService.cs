@@ -1,5 +1,4 @@
 using System.IdentityModel.Tokens.Jwt;
-
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,19 +9,24 @@ using PhysioLink.Domain.Entities;
 namespace PhysioLink.Infrastructure.Services {
     public class TokenService : ITokenService
     {
+        private readonly string _jwt;
+        public TokenService() {
+           _jwt = Environment.GetEnvironmentVariable("JWT_SECRET")!;
+        }
         
-    public string GenerateAccessToken(ApplicationUser user, Guid? patientId)
+    public string GenerateAccessToken(ApplicationUser user)
     {
     var claims = new List <Claim>
     {
-        new Claim(JwtRegisteredClaimNames.Sub, patientId?.ToString() ?? user.ApplicationUserId.ToString()),
+        new Claim(JwtRegisteredClaimNames.Sub, user.ApplicationUserId.ToString()),
         new Claim(JwtRegisteredClaimNames.Email, user.Email),
         new Claim(JwtRegisteredClaimNames.Name, user.FirstName + " " + user.LastName),
-
+        new Claim(ClaimTypes.Role, user.Role),
+        new Claim("ClinicId", user.ClinicId.ToString()),
     };
 
-    var secret = Environment.GetEnvironmentVariable("JWT_SECRET")!;
-    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+   
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt));
     var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
     var token = new JwtSecurityToken(

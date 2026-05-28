@@ -30,8 +30,17 @@ namespace PhysioLink.Infrastructure.Repositories
 
         public async Task UpdateAsync(ApplicationUser user)
         {
-            _dbContext.Users.Update(user); //what does this line do?
+            _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
-        }   
+        }
+
+        public async Task<string?> GetClinicNameAsync(Guid clinicId)
+        {
+            return await _dbContext.Clinics
+                .IgnoreQueryFilters()
+                .Where(c => c.ClinicId == clinicId)
+                .Select(c => c.Name)
+                .FirstOrDefaultAsync();
+        }
     }
 }

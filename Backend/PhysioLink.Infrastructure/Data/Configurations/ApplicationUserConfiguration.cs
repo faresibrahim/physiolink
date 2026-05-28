@@ -25,9 +25,19 @@ namespace PhysioLink.Infrastructure.Data.Configurations
 
             builder.Property(p=>p.PasswordHash)
             .IsRequired();
-            
 
-            
+            builder.Property(u => u.Role)
+                .HasDefaultValue("Patient")
+                .IsRequired();
+
+            builder.Property(u => u.ClinicId)
+                .IsRequired();
+
+            builder.HasOne<Clinic>()
+    .WithMany()
+    .HasForeignKey(u => u.ClinicId)
+    .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

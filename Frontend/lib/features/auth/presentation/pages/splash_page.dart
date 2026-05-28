@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -82,7 +82,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 // ECG line
                 AnimatedBuilder(
                   animation: _ecgProgress,
-                  builder: (_, __) => SizedBox(
+                  builder: (_, _) => SizedBox(
                     width: 130,
                     height: 36,
                     child: CustomPaint(
@@ -129,7 +129,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                       decoration: BoxDecoration(
                         color: i == 0
                             ? AppColors.primary
-                            : AppColors.primary.withOpacity(0.22),
+                            : AppColors.primary.withValues(alpha: 0.22),
                         borderRadius: BorderRadius.circular(3),
                       ),
                     );
@@ -144,13 +144,13 @@ class _SplashPageState extends ConsumerState<SplashPage>
                     Icon(
                       Icons.lock_outline,
                       size: 10,
-                      color: AppColors.textSecondary.withOpacity(0.45),
+                      color: AppColors.textSecondary.withValues(alpha: 0.45),
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'HIPAA SECURED · V2.4.0',
+                      'HIPAA SECURED آ· V2.4.0',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary.withOpacity(0.45),
+                        color: AppColors.textSecondary.withValues(alpha: 0.45),
                         fontSize: 10,
                         letterSpacing: 0.5,
                       ),
@@ -168,7 +168,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
   }
 }
 
-// ECG line painter — draws a flat line that transitions into a heartbeat spike
+// ECG line painter â€” draws a flat line that transitions into a heartbeat spike
 class _EcgLinePainter extends CustomPainter {
   const _EcgLinePainter({required this.progress, required this.color});
 

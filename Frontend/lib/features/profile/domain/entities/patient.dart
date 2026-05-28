@@ -14,6 +14,8 @@ abstract class Patient with _$Patient {
     required String phoneNumber,
     required String email,
     required String diagnosis,
+    String? therapistName,
+    String? clinicName,
     DateTime? createdAt,
     @Default(false) bool isActive,
     @Default([]) List<ExerciseAssignment> exercises,

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:practice/core/error/app_failure.dart';
@@ -32,7 +32,7 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Header ─────────────────────────────────────────────────────────
+          // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.md,
@@ -71,7 +71,7 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
             ),
           ),
 
-          // ── Search ─────────────────────────────────────────────────────────
+          // â”€â”€ Search â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.md,
@@ -95,7 +95,7 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
             ),
           ),
 
-          // ── Filter chips ───────────────────────────────────────────────────
+          // â”€â”€ Filter chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           exercisesAsync.when(
             data: (result) =>
                 result.fold((_) => const SizedBox.shrink(), (exercises) {
@@ -142,10 +142,10 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
                   );
                 }),
             loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
           ),
 
-          // ── List ───────────────────────────────────────────────────────────
+          // â”€â”€ List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Expanded(
             child: exercisesAsync.when(
               data: (result) => result.fold(
@@ -153,7 +153,7 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
                 (exercises) => _buildList(exercises),
               ),
               loading: () => _buildLoading(),
-              error: (_, __) => EmptyState(
+              error: (_, _) => EmptyState(
                 icon: Icons.wifi_off_rounded,
                 title: 'Something went wrong',
                 subtitle: 'An unexpected error occurred.',
@@ -234,7 +234,7 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
                 AppSpacing.xl,
               ),
               itemCount: filtered.length,
-              separatorBuilder: (_, __) =>
+              separatorBuilder: (_, _) =>
                   const SizedBox(height: AppSpacing.sm),
               itemBuilder: (context, index) {
                 final exercise = filtered[index];
@@ -272,8 +272,8 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
       ),
       physics: const NeverScrollableScrollPhysics(),
       itemCount: 6,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-      itemBuilder: (_, __) => const ShimmerCard(height: 76),
+      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+      itemBuilder: (_, _) => const ShimmerCard(height: 76),
     );
   }
 }
@@ -321,7 +321,7 @@ class _FilterChip extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
               decoration: BoxDecoration(
                 color: selected
-                    ? Colors.white.withOpacity(0.25)
+                    ? Colors.white.withValues(alpha: 0.25)
                     : AppColors.background,
                 borderRadius: BorderRadius.circular(10),
               ),

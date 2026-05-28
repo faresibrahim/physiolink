@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:practice/core/error/app_failure.dart';
@@ -20,7 +20,7 @@ class AppointmentsPage extends ConsumerWidget {
     return SafeArea(
       child: CustomScrollView(
         slivers: [
-          // ── Header (Request button shown only when appointments exist) ───────
+          // â”€â”€ Header (Request button shown only when appointments exist) â”€â”€â”€â”€â”€â”€â”€
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -52,14 +52,14 @@ class AppointmentsPage extends ConsumerWidget {
                             ),
                     ),
                     loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
                   ),
                 ],
               ),
             ),
           ),
 
-          // ── Body ──────────────────────────────────────────────────────────
+          // â”€â”€ Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           appointmentsAsync.when(
             loading: () => SliverPadding(
               padding: const EdgeInsets.fromLTRB(
@@ -70,12 +70,12 @@ class AppointmentsPage extends ConsumerWidget {
               ),
               sliver: SliverList.separated(
                 itemCount: 4,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     const SizedBox(height: AppSpacing.sm),
-                itemBuilder: (_, __) => const ShimmerCard(height: 88),
+                itemBuilder: (_, _) => const ShimmerCard(height: 88),
               ),
             ),
-            error: (_, __) => SliverFillRemaining(
+            error: (_, _) => SliverFillRemaining(
               child: EmptyState(
                 icon: Icons.wifi_off_rounded,
                 title: 'Something went wrong',
@@ -194,7 +194,7 @@ class AppointmentsPage extends ConsumerWidget {
 
     return SliverMainAxisGroup(
       slivers: [
-        // ── Upcoming section ──────────────────────────────────────────────
+        // â”€â”€ Upcoming section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if (upcoming.isNotEmpty) ...[
           SliverToBoxAdapter(
             child: Padding(
@@ -205,7 +205,7 @@ class AppointmentsPage extends ConsumerWidget {
                 AppSpacing.sm,
               ),
               child: Text(
-                'Upcoming · ${upcoming.length}',
+                'Upcoming آ· ${upcoming.length}',
                 style: AppTextStyles.footnote.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
@@ -218,14 +218,14 @@ class AppointmentsPage extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             sliver: SliverList.separated(
               itemCount: upcoming.length,
-              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
               itemBuilder: (_, i) =>
                   _AppointmentRow(appointment: upcoming[i], muted: false),
             ),
           ),
         ],
 
-        // ── Past section ──────────────────────────────────────────────────
+        // â”€â”€ Past section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if (past.isNotEmpty) ...[
           SliverToBoxAdapter(
             child: Padding(
@@ -236,7 +236,7 @@ class AppointmentsPage extends ConsumerWidget {
                 AppSpacing.sm,
               ),
               child: Text(
-                'Past · ${past.length}',
+                'Past آ· ${past.length}',
                 style: AppTextStyles.footnote.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
@@ -249,7 +249,7 @@ class AppointmentsPage extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             sliver: SliverList.separated(
               itemCount: past.length,
-              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
               itemBuilder: (_, i) =>
                   _AppointmentRow(appointment: past[i], muted: true),
             ),
@@ -260,7 +260,7 @@ class AppointmentsPage extends ConsumerWidget {
   }
 }
 
-// ── Request button widget ─────────────────────────────────────────────────────
+// â”€â”€ Request button widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _RequestButton extends StatelessWidget {
   const _RequestButton({required this.onTap});
@@ -296,7 +296,7 @@ class _RequestButton extends StatelessWidget {
   }
 }
 
-// ── Appointment row (matches design: date block + content + badge) ────────────
+// â”€â”€ Appointment row (matches design: date block + content + badge) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _AppointmentRow extends StatelessWidget {
   const _AppointmentRow({required this.appointment, required this.muted});
@@ -338,7 +338,7 @@ class _AppointmentRow extends StatelessWidget {
     final eh = endDt.hour % 12 == 0 ? 12 : endDt.hour % 12;
     final em = endDt.minute.toString().padLeft(2, '0');
     final ep = endDt.hour >= 12 ? 'pm' : 'am';
-    return '$h:$m $p – $eh:$em $ep';
+    return '$h:$m $p â€“ $eh:$em $ep';
   }
 
   @override

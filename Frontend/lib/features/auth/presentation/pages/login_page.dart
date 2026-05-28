@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:practice/core/theme/app_colors.dart';
@@ -104,7 +104,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 28,
                         offset: const Offset(0, 10),
                       ),
@@ -116,7 +116,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // ── Email ──────────────────────────────────────────
+                        // â”€â”€ Email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                         Text(
                           'Email',
                           style: AppTextStyles.footnote.copyWith(
@@ -151,7 +151,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                         const SizedBox(height: AppSpacing.md),
 
-                        // ── Password ────────────────────────────────────────
+                        // â”€â”€ Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                         Text(
                           'Password',
                           style: AppTextStyles.footnote.copyWith(
@@ -176,7 +176,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             return null;
                           },
                           decoration: InputDecoration(
-                            hintText: '••••••••',
+                            hintText: 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
                             hintStyle: AppTextStyles.body.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -208,7 +208,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
                         ),
 
-                        // ── Error ───────────────────────────────────────────
+                        // â”€â”€ Error â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                         AnimatedSize(
                           duration: const Duration(milliseconds: 200),
                           child: _errorMessage != null
@@ -238,7 +238,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                         const SizedBox(height: AppSpacing.lg),
 
-                        // ── Log In Button ───────────────────────────────────
+                        // â”€â”€ Log In Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                         GestureDetector(
                           onTap: _isLoading ? null : _submit,
                           child: AnimatedContainer(
@@ -257,7 +257,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                       end: Alignment.bottomRight,
                                     ),
                               color: _isLoading
-                                  ? AppColors.secondary.withOpacity(0.5)
+                                  ? AppColors.secondary.withValues(alpha: 0.5)
                                   : null,
                               borderRadius: BorderRadius.circular(
                                 AppRadius.pill,
@@ -266,7 +266,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   ? null
                                   : [
                                       BoxShadow(
-                                        color: AppColors.secondary.withOpacity(
+                                        color: AppColors.secondary.withValues(alpha: 
                                           0.35,
                                         ),
                                         blurRadius: 16,
@@ -309,13 +309,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     Icon(
                       Icons.lock_outline,
                       size: 11,
-                      color: AppColors.textSecondary.withOpacity(0.45),
+                      color: AppColors.textSecondary.withValues(alpha: 0.45),
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Secured by PhysioLink • v2.4.0',
+                      'Secured by PhysioLink â€¢ v2.4.0',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary.withOpacity(0.45),
+                        color: AppColors.textSecondary.withValues(alpha: 0.45),
                       ),
                     ),
                   ],

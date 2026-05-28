@@ -8,5 +8,6 @@ namespace PhysioLink.Application.Interfaces
         public Task<ApplicationUser?> GetUserByEmailAsync(string email);
         public Task<ApplicationUser?> GetUserByTokenAsync(string token);
         public Task UpdateAsync(ApplicationUser user);
+        public Task<string?> GetClinicNameAsync(Guid clinicId);
     }
 }

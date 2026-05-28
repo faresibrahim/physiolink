@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthNotifier extends ChangeNotifier {
+  static const _emptyGuid = '00000000-0000-0000-0000-000000000000';
+
   String? _accessToken;
   String? _refreshToken;
   String? _patientId;
@@ -17,6 +19,9 @@ class AuthNotifier extends ChangeNotifier {
   String? get accessToken => _accessToken;
   String? get patientId => _patientId;
 
+  bool _isInvalidPatientId(String? id) =>
+      id == null || id.isEmpty || id == _emptyGuid;
+
   AuthNotifier(
     this._secureStorage,
     this._dio,
@@ -25,15 +30,24 @@ class AuthNotifier extends ChangeNotifier {
   Future<void> tryRestoreSession() async {
     final storedAccess = await _secureStorage.read(key: 'access_token');
     final storedRefresh = await _secureStorage.read(key: 'refresh_token');
+    final storedPatientId = await _secureStorage.read(key: 'patient_id');
 
     if (storedAccess == null) return; // Nothing stored → go to login
 
+    // Legacy / broken session: patient_id missing or Guid.Empty.
+    // Clear everything and force a fresh login so the new flow runs.
+    if (_isInvalidPatientId(storedPatientId)) {
+      await _secureStorage.delete(key: 'access_token');
+      await _secureStorage.delete(key: 'refresh_token');
+      await _secureStorage.delete(key: 'patient_id');
+      return;
+    }
+
     // Access token still valid → restore immediately, no network call needed
     if (_isTokenValid(storedAccess)) {
-      final claims = _decodeJwt(storedAccess);
       _accessToken = storedAccess;
       _refreshToken = storedRefresh;
-      _patientId = claims['sub'] as String;
+      _patientId = storedPatientId;
       notifyListeners();
       return;
     }
@@ -48,20 +62,22 @@ class AuthNotifier extends ChangeNotifier {
       );
       final newAccess = response.data['accessToken'] as String;
       final newRefresh = response.data['refreshToken'] as String;
+      final newPatientId = response.data['patientId'] as String;
 
       await _secureStorage.write(key: 'access_token', value: newAccess);
       await _secureStorage.write(key: 'refresh_token', value: newRefresh);
+      await _secureStorage.write(key: 'patient_id', value: newPatientId);
 
-      final claims = _decodeJwt(newAccess);
       _accessToken = newAccess;
       _refreshToken = newRefresh;
-      _patientId = claims['sub'] as String;
+      _patientId = newPatientId;
       notifyListeners();
     } catch (_) {
       // Refresh failed (token revoked or server error) → clear storage,
       // do nothing, user will be sent to login by the router
       await _secureStorage.delete(key: 'access_token');
       await _secureStorage.delete(key: 'refresh_token');
+      await _secureStorage.delete(key: 'patient_id');
     }
   }
 
@@ -86,20 +102,31 @@ class AuthNotifier extends ChangeNotifier {
         data: {'email': email, 'password': password},
       );
 
+      final receivedPatientId = response.data['patientId'] as String?;
+      if (_isInvalidPatientId(receivedPatientId)) {
+        throw StateError(
+          'Login response missing a valid patientId — backend may be out of date.',
+        );
+      }
+
       _accessToken = response.data['accessToken'] as String;
       _refreshToken = response.data['refreshToken'] as String;
-      final claims = _decodeJwt(_accessToken!);
-      await _secureStorage.write(key: 'access_token', value: accessToken);
-      await _secureStorage.write(key: 'refresh_token', value: refreshToken);
+      _patientId = receivedPatientId;
 
-      _patientId = claims['sub'] as String;
+      await _secureStorage.write(key: 'access_token', value: _accessToken);
+      await _secureStorage.write(key: 'refresh_token', value: _refreshToken);
+      await _secureStorage.write(key: 'patient_id', value: _patientId);
+
       notifyListeners();
     } catch (ex) {
       rethrow;
     }
   }
 
-  void logout() {
+  Future<void> logout() async {
+    await _secureStorage.delete(key: 'access_token');
+    await _secureStorage.delete(key: 'refresh_token');
+    await _secureStorage.delete(key: 'patient_id');
     _accessToken = null;
     _refreshToken = null;
     _patientId = null;

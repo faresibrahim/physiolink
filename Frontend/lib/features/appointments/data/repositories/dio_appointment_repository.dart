@@ -17,12 +17,38 @@ class DioAppointmentRepository implements AppointmentsRepository {
         '/api/v1/patients/$patientId/appointments',
       );
       final appointments = (response.data['items'] as List)
-          .map((item) => Appointment.fromJson(item))
+          .map((item) => Appointment.fromJson(_normalize(item)))
           .toList();
       return Right(appointments);
     } catch (ex) {
       return Left(_mapError(ex));
     }
+  }
+
+  // Backend's AppointmentDto uses `therapistName`, `appointmentStatus`
+  // (serialized as int), and no `therapistId`. Reshape into the JSON the
+  // Flutter freezed model expects.
+  Map<String, dynamic> _normalize(dynamic item) {
+    final map = item as Map<String, dynamic>;
+    return {
+      'appointmentId': map['appointmentId'],
+      'title': map['title'] ?? 'Appointment',
+      'patientId': map['patientId'],
+      'therapistId': map['therapistName'] ?? '',
+      'appointmentTime': map['appointmentTime'],
+      'status': _statusFromBackend(map['appointmentStatus']),
+      'createdAt': map['createdAt'],
+    };
+  }
+
+  static const _statusNames = ['Pending', 'Confirmed', 'Cancelled', 'Completed'];
+
+  String _statusFromBackend(dynamic value) {
+    if (value is String) return value;
+    if (value is int && value >= 0 && value < _statusNames.length) {
+      return _statusNames[value];
+    }
+    return 'Pending';
   }
 
   @override

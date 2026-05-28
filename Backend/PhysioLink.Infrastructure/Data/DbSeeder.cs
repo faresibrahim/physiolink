@@ -32,7 +32,9 @@ namespace PhysioLink.Infrastructure.Data
                     firstName: "Fares",
                     lastName: "Ibrahim",
                     email: "fares.a.ibrahim@gmail.com",
-                    passwordHash: hashedPassword
+                    passwordHash: hashedPassword,
+                    role: "ClinicAdmin",
+                    clinicId: Clinic1Id
                 );
                 context.Users.Add(therapist);
                 await context.SaveChangesAsync();
@@ -61,7 +63,9 @@ namespace PhysioLink.Infrastructure.Data
                     firstName: "John",
                     lastName: "Smith",
                     email: "john.smith@example.com",
-                    passwordHash: hashedPassword
+                    passwordHash: hashedPassword,
+                    role: "Patient",
+                    clinicId: Clinic1Id
                 );
                 context.Users.Add(patientUser);
 
@@ -79,6 +83,7 @@ namespace PhysioLink.Infrastructure.Data
 
                 var therapist = await context.Users.IgnoreQueryFilters().FirstAsync(u => u.Email == "fares.a.ibrahim@gmail.com");
                 var exercises = await context.Exercises.IgnoreQueryFilters().ToListAsync();
+                var today = DateTime.UtcNow.Date;
 
                 foreach (var exercise in exercises)
                 {
@@ -89,7 +94,7 @@ namespace PhysioLink.Infrastructure.Data
                         sets: exercise.Sets,
                         reps: exercise.Reps,
                         durationMinutes: exercise.DurationMinutes,
-                        scheduledDate: DateTime.UtcNow.AddDays(1),
+                        scheduledDate: today,
                         frequencyPerWeek: 3,
                         assignedAt: DateTime.UtcNow
                     ));
@@ -104,6 +109,37 @@ namespace PhysioLink.Infrastructure.Data
                 {
                     johnSmith.ClinicId = Clinic1Id;
                     await context.SaveChangesAsync();
+                }
+
+                // Ensure john.smith has exercise assignments scheduled for today
+                if (johnSmith != null)
+                {
+                    var today = DateTime.UtcNow.Date;
+                    var hasAssignmentsToday = await context.ExerciseAssignments
+                        .IgnoreQueryFilters()
+                        .AnyAsync(ea => ea.PatientId == johnSmith.PatientId && ea.ScheduledDate.Date == today);
+
+                    if (!hasAssignmentsToday)
+                    {
+                        var therapist = await context.Users.IgnoreQueryFilters().FirstAsync(u => u.Email == "fares.a.ibrahim@gmail.com");
+                        var exercises = await context.Exercises.IgnoreQueryFilters().ToListAsync();
+
+                        foreach (var exercise in exercises)
+                        {
+                            context.ExerciseAssignments.Add(new ExerciseAssignment(
+                                therapistName: therapist.FirstName + " " + therapist.LastName,
+                                patientId: johnSmith.PatientId,
+                                exerciseId: exercise.ExerciseId,
+                                sets: exercise.Sets,
+                                reps: exercise.Reps,
+                                durationMinutes: exercise.DurationMinutes,
+                                scheduledDate: today,
+                                frequencyPerWeek: 3,
+                                assignedAt: DateTime.UtcNow
+                            ));
+                        }
+                        await context.SaveChangesAsync();
+                    }
                 }
             }
 
@@ -139,10 +175,10 @@ namespace PhysioLink.Infrastructure.Data
             {
                 var c1Users = new[]
                 {
-                    new ApplicationUser("Alice", "Cooper", "alice.cooper@example.com", passwordHasher.HashPassword(null!, "patient@123")),
-                    new ApplicationUser("Bob", "Williams", "bob.williams@example.com", passwordHasher.HashPassword(null!, "patient@123")),
-                    new ApplicationUser("Carol", "Jones", "carol.jones@example.com", passwordHasher.HashPassword(null!, "patient@123")),
-                    new ApplicationUser("David", "Lee", "david.lee@example.com", passwordHasher.HashPassword(null!, "patient@123")),
+                    new ApplicationUser("Alice", "Cooper", "alice.cooper@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id),
+                    new ApplicationUser("Bob", "Williams", "bob.williams@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id),
+                    new ApplicationUser("Carol", "Jones", "carol.jones@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id),
+                    new ApplicationUser("David", "Lee", "david.lee@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id),
                 };
                 context.Users.AddRange(c1Users);
                 await context.SaveChangesAsync();
@@ -162,11 +198,11 @@ namespace PhysioLink.Infrastructure.Data
             {
                 var c2Users = new[]
                 {
-                    new ApplicationUser("Emma", "Clark", "emma.clark@example.com", passwordHasher.HashPassword(null!, "patient@123")),
-                    new ApplicationUser("Frank", "Lewis", "frank.lewis@example.com", passwordHasher.HashPassword(null!, "patient@123")),
-                    new ApplicationUser("Grace", "Hall", "grace.hall@example.com", passwordHasher.HashPassword(null!, "patient@123")),
-                    new ApplicationUser("Henry", "Young", "henry.young@example.com", passwordHasher.HashPassword(null!, "patient@123")),
-                    new ApplicationUser("Iris", "King", "iris.king@example.com", passwordHasher.HashPassword(null!, "patient@123")),
+                    new ApplicationUser("Emma", "Clark", "emma.clark@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id),
+                    new ApplicationUser("Frank", "Lewis", "frank.lewis@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id),
+                    new ApplicationUser("Grace", "Hall", "grace.hall@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id),
+                    new ApplicationUser("Henry", "Young", "henry.young@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id),
+                    new ApplicationUser("Iris", "King", "iris.king@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id),
                 };
                 context.Users.AddRange(c2Users);
                 await context.SaveChangesAsync();

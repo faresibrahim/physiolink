@@ -3,8 +3,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'exercise_assignment.freezed.dart';
 part 'exercise_assignment.g.dart';
 
-@JsonEnum(valueField: 'index')
-enum DifficultyLevel { easy, moderate, hard }
+enum DifficultyLevel {
+  @JsonValue('Easy') easy,
+  @JsonValue('Moderate') moderate,
+  @JsonValue('Hard') hard,
+}
 
 @freezed
 abstract class ExerciseAssignment with _$ExerciseAssignment {

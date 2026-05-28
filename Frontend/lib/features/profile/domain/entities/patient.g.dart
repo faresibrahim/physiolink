@@ -13,6 +13,8 @@ _Patient _$PatientFromJson(Map<String, dynamic> json) => _Patient(
   phoneNumber: json['phoneNumber'] as String,
   email: json['email'] as String,
   diagnosis: json['diagnosis'] as String,
+  therapistName: json['therapistName'] as String?,
+  clinicName: json['clinicName'] as String?,
   createdAt: json['createdAt'] == null
       ? null
       : DateTime.parse(json['createdAt'] as String),
@@ -36,6 +38,8 @@ Map<String, dynamic> _$PatientToJson(_Patient instance) => <String, dynamic>{
   'phoneNumber': instance.phoneNumber,
   'email': instance.email,
   'diagnosis': instance.diagnosis,
+  'therapistName': instance.therapistName,
+  'clinicName': instance.clinicName,
   'createdAt': instance.createdAt?.toIso8601String(),
   'isActive': instance.isActive,
   'exercises': instance.exercises,

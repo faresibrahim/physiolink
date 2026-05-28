@@ -1,0 +1,61 @@
+@model PhysioLink.AdminPanel.ViewModels.TherapistFormViewModel
+@{
+    var formAction = Model.IsEdit ? "Edit" : "Create";
+}
+
+<div style="background:white; border-radius:14px; border:0.5px solid #e5e5ea; padding:24px; max-width:600px;">
+
+    <h2 style="font-size:1.2rem; font-weight:600; color:#323232; margin:0 0 24px;">
+        @(Model.IsEdit ? "Edit Therapist" : "Add Therapist")
+    </h2>
+
+    <form asp-action="@formAction" asp-route-id="@Model.TherapistId" method="post">
+        @Html.AntiForgeryToken()
+
+        @if (Model.IsEdit)
+        {
+            <input type="hidden" asp-for="TherapistId" />
+        }
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+            <div>
+                <label style="font-size:13px; color:#8E8E93; display:block; margin-bottom:6px;">First Name</label>
+                <input asp-for="FirstName" style="width:100%; padding:10px 12px; border:0.5px solid #e5e5ea; border-radius:8px; font-size:14px; outline:none;" />
+                <span asp-validation-for="FirstName" style="color:#FF3B30; font-size:12px;"></span>
+            </div>
+            <div>
+                <label style="font-size:13px; color:#8E8E93; display:block; margin-bottom:6px;">Last Name</label>
+                <input asp-for="LastName" style="width:100%; padding:10px 12px; border:0.5px solid #e5e5ea; border-radius:8px; font-size:14px; outline:none;" />
+                <span asp-validation-for="LastName" style="color:#FF3B30; font-size:12px;"></span>
+            </div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <label style="font-size:13px; color:#8E8E93; display:block; margin-bottom:6px;">Specialty</label>
+            <input asp-for="Specialty" style="width:100%; padding:10px 12px; border:0.5px solid #e5e5ea; border-radius:8px; font-size:14px; outline:none;" />
+            <span asp-validation-for="Specialty" style="color:#FF3B30; font-size:12px;"></span>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <label style="font-size:13px; color:#8E8E93; display:block; margin-bottom:6px;">Phone</label>
+            <input asp-for="PhoneNumber" style="width:100%; padding:10px 12px; border:0.5px solid #e5e5ea; border-radius:8px; font-size:14px; outline:none;" />
+            <span asp-validation-for="PhoneNumber" style="color:#FF3B30; font-size:12px;"></span>
+        </div>
+
+        <div style="margin-bottom:24px;">
+            <label style="font-size:13px; color:#8E8E93; display:block; margin-bottom:6px;">Email</label>
+            <input asp-for="Email" style="width:100%; padding:10px 12px; border:0.5px solid #e5e5ea; border-radius:8px; font-size:14px; outline:none;" />
+            <span asp-validation-for="Email" style="color:#FF3B30; font-size:12px;"></span>
+        </div>
+
+        <div style="display:flex; gap:12px;">
+            <button type="submit" style="background:#004AAD; color:white; padding:10px 24px; border:none; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer;">
+                @(Model.IsEdit ? "Save Changes" : "Add Therapist")
+            </button>
+            <a asp-action="Index" style="padding:10px 24px; border:0.5px solid #e5e5ea; border-radius:8px; text-decoration:none; color:#323232; font-size:14px;">
+                Cancel
+            </a>
+        </div>
+
+    </form>
+</div>

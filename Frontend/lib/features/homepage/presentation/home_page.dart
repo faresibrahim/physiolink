@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:practice/core/theme/app_colors.dart';
@@ -32,7 +32,7 @@ class HomePage extends ConsumerWidget {
     return DateTime(local.year, local.month, local.day);
   }
 
-  // Number of exercises completed this week (Mon–now)
+  // Number of exercises completed this week (Monâ€“now)
   static int _weeklyCompleted(List<ExerciseAssignment> exercises) {
     final now = DateTime.now();
     final monday = _dateOnly(now).subtract(Duration(days: now.weekday - 1));
@@ -43,8 +43,8 @@ class HomePage extends ConsumerWidget {
         .length;
   }
 
-  // Set of weekday numbers (1=Mon … 7=Sun) where at least one exercise
-  // was completed this week — used to light up the day circles
+  // Set of weekday numbers (1=Mon â€¦ 7=Sun) where at least one exercise
+  // was completed this week â€” used to light up the day circles
   static Set<int> _weekDaysDone(List<ExerciseAssignment> exercises) {
     final now = DateTime.now();
     final monday = _dateOnly(now).subtract(Duration(days: now.weekday - 1));
@@ -123,7 +123,7 @@ class HomePage extends ConsumerWidget {
     final exercises = exercisesAsync.when(
       data: (r) => r.fold((_) => <ExerciseAssignment>[], (list) => list),
       loading: () => <ExerciseAssignment>[],
-      error: (_, __) => <ExerciseAssignment>[],
+      error: (_, _) => <ExerciseAssignment>[],
     );
     final streak = _calculateStreak(exercises);
     final weeklyCompleted = _weeklyCompleted(exercises);
@@ -148,13 +148,13 @@ class HomePage extends ConsumerWidget {
         },
       ),
       loading: () => null,
-      error: (_, __) => null,
+      error: (_, _) => null,
     );
 
     final firstName = profileAsync.when(
       data: (result) => result.fold((_) => null, (p) => p.firstName),
       loading: () => null,
-      error: (_, __) => null,
+      error: (_, _) => null,
     );
 
     return SafeArea(
@@ -167,7 +167,7 @@ class HomePage extends ConsumerWidget {
         },
         child: CustomScrollView(
           slivers: [
-            // ── Hero Header ──────────────────────────────────────────────────
+            // â”€â”€ Hero Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             SliverToBoxAdapter(
               child: _HeroHeader(
                 greeting: firstName != null
@@ -177,7 +177,7 @@ class HomePage extends ConsumerWidget {
               ),
             ),
 
-            // ── Stat cards ────────────────────────────────────────────────────
+            // â”€â”€ Stat cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -195,17 +195,17 @@ class HomePage extends ConsumerWidget {
                         iconBg: const Color(0xFFF0ECFF),
                         value: exercisesAsync.when(
                           data: (r) => r.fold(
-                            (_) => '—',
+                            (_) => 'â€”',
                             (list) {
                               final done =
                                   list.where((e) => e.feedback != null).length;
                               return '$done / ${list.length}';
                             },
                           ),
-                          loading: () => '…',
-                          error: (_, __) => '—',
+                          loading: () => 'â€¦',
+                          error: (_, _) => 'â€”',
                         ),
-                        label: 'Exercises · today',
+                        label: 'Exercises آ· today',
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
@@ -215,7 +215,7 @@ class HomePage extends ConsumerWidget {
                         iconColor: const Color(0xFFF59E0B),
                         iconBg: const Color(0xFFFFF8E6),
                         value: '$streak',
-                        label: 'Streak · days',
+                        label: 'Streak آ· days',
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
@@ -226,10 +226,10 @@ class HomePage extends ConsumerWidget {
                         iconBg: AppColors.secondaryLight,
                         value: nextAppointment != null
                             ? _dayAbbr(nextAppointment.appointmentTime!)
-                            : '—',
+                            : 'â€”',
                         label: nextAppointment != null
-                            ? 'Next · ${_timeLabel(nextAppointment.appointmentTime!)}'
-                            : 'Next · none',
+                            ? 'Next آ· ${_timeLabel(nextAppointment.appointmentTime!)}'
+                            : 'Next آ· none',
                       ),
                     ),
                   ],
@@ -237,7 +237,7 @@ class HomePage extends ConsumerWidget {
               ),
             ),
 
-            // ── Weekly progress ───────────────────────────────────────────────
+            // â”€â”€ Weekly progress â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -254,7 +254,7 @@ class HomePage extends ConsumerWidget {
               ),
             ),
 
-            // ── Today's Exercises ─────────────────────────────────────────────
+            // â”€â”€ Today's Exercises â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -343,7 +343,7 @@ class HomePage extends ConsumerWidget {
                     ),
                     sliver: SliverList.separated(
                       itemCount: preview.length,
-                      separatorBuilder: (_, __) =>
+                      separatorBuilder: (_, _) =>
                           const SizedBox(height: AppSpacing.sm),
                       itemBuilder: (context, i) => ExerciseCard(
                         exercise: preview[i],
@@ -358,12 +358,12 @@ class HomePage extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 sliver: SliverList.separated(
                   itemCount: 3,
-                  separatorBuilder: (_, __) =>
+                  separatorBuilder: (_, _) =>
                       const SizedBox(height: AppSpacing.sm),
-                  itemBuilder: (_, __) => const ShimmerCard(height: 76),
+                  itemBuilder: (_, _) => const ShimmerCard(height: 76),
                 ),
               ),
-              error: (_, __) => SliverToBoxAdapter(
+              error: (_, _) => SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.md,
@@ -377,7 +377,7 @@ class HomePage extends ConsumerWidget {
               ),
             ),
 
-            // ── Next Appointment ──────────────────────────────────────────────
+            // â”€â”€ Next Appointment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -416,7 +416,7 @@ class HomePage extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 child: appointmentsAsync.when(
                   loading: () => const ShimmerCard(height: 76),
-                  error: (_, __) => const SizedBox.shrink(),
+                  error: (_, _) => const SizedBox.shrink(),
                   data: (_) => _NextAppointmentCard(appointment: nextAppointment),
                 ),
               ),
@@ -430,7 +430,7 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-// ── Private Widgets ──────────────────────────────────────────────────────────
+// â”€â”€ Private Widgets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _HeroHeader extends StatelessWidget {
   const _HeroHeader({required this.greeting, required this.date});
@@ -457,7 +457,7 @@ class _HeroHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF004AAD).withOpacity(0.28),
+            color: const Color(0xFF004AAD).withValues(alpha: 0.28),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -473,7 +473,7 @@ class _HeroHeader extends StatelessWidget {
                 Text(
                   date,
                   style: AppTextStyles.footnote.copyWith(
-                    color: Colors.white.withOpacity(0.65),
+                    color: Colors.white.withValues(alpha: 0.65),
                     letterSpacing: 0.2,
                   ),
                 ),
@@ -495,7 +495,7 @@ class _HeroHeader extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
@@ -583,13 +583,13 @@ class _WeeklyProgressCard extends StatelessWidget {
 
   final int completed;
   final int total;
-  final Set<int> weekDaysDone; // weekday numbers 1=Mon…7=Sun
+  final Set<int> weekDaysDone; // weekday numbers 1=Monâ€¦7=Sun
 
   @override
   Widget build(BuildContext context) {
     final ratio = total > 0 ? (completed / total).clamp(0.0, 1.0) : 0.0;
     final now = DateTime.now();
-    final weekday = now.weekday; // 1=Mon … 7=Sun
+    final weekday = now.weekday; // 1=Mon â€¦ 7=Sun
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),

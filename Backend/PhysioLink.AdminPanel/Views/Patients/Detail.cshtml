@@ -1,0 +1,478 @@
+@model PhysioLink.AdminPanel.ViewModels.PatientDetailViewModel
+@{
+    ViewData["Title"] = "Patient Detail";
+    ViewData["ActivePage"] = "Patients";
+}
+
+@* =========================================================================
+   PAGE HEADER — title row above the two-column layout
+   ========================================================================= *@
+<div style="margin-bottom:1.5rem;">
+    <a asp-action="Index" style="color:#8E8E93; text-decoration:none; font-size:14px;">
+        ← Back to Patients
+    </a>
+</div>
+
+<div class="detail-grid">
+
+    @* =====================================================================
+       LEFT COLUMN — profile, exercises
+       ===================================================================== *@
+    <div class="detail-main">
+
+        @* --- Profile card ---------------------------------------------- *@
+        <div class="card">
+            <div class="profile-header">
+                <div class="profile-id">
+                    <div class="avatar avatar-lg">
+                        @Model.Patient.FirstName[0]@Model.Patient.LastName[0]
+                    </div>
+                    <div>
+                        <h2 class="profile-name">@Model.Patient.FirstName @Model.Patient.LastName</h2>
+                        <p class="profile-meta">@Model.Patient.Diagnosis</p>
+                        @await Html.PartialAsync("_StatusBadge", Model.Patient.IsActive ? "Active" : "Inactive")
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <a asp-action="Edit" asp-route-id="@Model.Patient.PatientId" class="btn btn-ghost btn-sm">
+                        Edit Patient
+                    </a>
+                </div>
+            </div>
+
+            <div class="profile-divider"></div>
+
+            <div class="profile-info-row">
+                <div class="info-item">
+                    <p class="info-label">Phone</p>
+                    <p class="info-value">@Model.Patient.PhoneNumber</p>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">Email</p>
+                    <p class="info-value">@Model.Patient.Email</p>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">Clinic</p>
+                    <p class="info-value">@Model.Patient.ClinicName</p>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">Assigned Therapist</p>
+                    <p class="info-value">
+                        @if (!string.IsNullOrEmpty(Model.Patient.TherapistName))
+                        {
+                            <span class="therapist-chip">@Model.Patient.TherapistName</span>
+                        }
+                        else
+                        {
+                            <span style="color:#8E8E93;">Unassigned</span>
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        @* --- Assigned Exercises ---------------------------------------- *@
+        <div class="card">
+            <div class="card-header-row">
+                <div>
+                    <h3 class="card-title">Assigned Exercises</h3>
+                    <p class="card-subtitle">@Model.Patient.Exercises.Count active programs · personalized per patient</p>
+                </div>
+                <button type="button" onclick="openAssignModal()" class="btn btn-primary btn-sm">
+                    + Assign Exercise
+                </button>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Exercise</th>
+                        <th>Sets × Reps</th>
+                        <th>Duration</th>
+                        <th>Feedback</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Patient.Exercises.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="empty-row">No exercises assigned.</td>
+                        </tr>
+                    }
+                    @foreach (var exercise in Model.Patient.Exercises)
+                    {
+                        <tr>
+                            <td class="primary-cell">@exercise.ExerciseName</td>
+                            <td class="muted-cell">@exercise.Sets × @exercise.Reps</td>
+                            <td class="muted-cell">@exercise.DurationMinutes min</td>
+                            <td class="muted-cell">
+                                @if (exercise.Feedback.HasValue)
+                                {
+                                    var fbVal = exercise.Feedback.Value;
+                                    var fbColor = fbVal <= 3 ? "#4CAF82" : fbVal <= 5 ? "#f59e0b" : fbVal <= 7 ? "#FF6B35" : "#FF3B30";
+                                    var fbLabel = fbVal switch {
+                                        1 => "Very Easy", 2 => "Easy", 3 => "Fairly Easy",
+                                        4 => "Somewhat Easy", 5 => "Moderate", 6 => "Somewhat Hard",
+                                        7 => "Fairly Hard", 8 => "Hard", 9 => "Very Hard",
+                                        10 => "Maximum Effort", _ => $"Level {fbVal}"
+                                    };
+                                    <span style="font-weight:600; color:@fbColor; font-size:13px;">@fbVal</span>
+                                    <span class="muted-cell" style="font-size:12px;"> · @fbLabel</span>
+                                }
+                                else
+                                {
+                                    <span>—</span>
+                                }
+                            </td>
+                            <td>
+                                @await Html.PartialAsync("_StatusBadge", exercise.Status)
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-ghost btn-xs"
+                                        onclick="openEditModal('@exercise.ExerciseAssignmentId')">
+                                    Edit
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+        
+
+    @* =====================================================================
+       RIGHT COLUMN — sidebar (stats, appointments, danger zone)
+       ===================================================================== *@
+    <aside class="detail-sidebar">
+
+        @* --- Completion ring (placeholder) ----------------------------- *@
+        @* CompletionRate isn't on PatientDetailResponse yet — placeholder value *@
+        <div class="card stat-card">
+            <p class="stat-label">Completion Rate</p>
+            <div class="ring-wrapper">
+                <svg class="ring-svg" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="52" stroke="#F2F2F7" stroke-width="10" fill="none" />
+                    @{
+                        var completion = 68; // placeholder
+                        var circumference = 2 * Math.PI * 52;
+                        var dash = circumference * completion / 100;
+                    }
+                    <circle cx="60" cy="60" r="52" stroke="#004AAD" stroke-width="10" fill="none"
+                            stroke-dasharray="@dash @circumference"
+                            stroke-linecap="round"
+                            transform="rotate(-90 60 60)" />
+                </svg>
+                <div class="ring-value">@completion%</div>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-item">
+                    <p class="stat-num">@Model.Patient.Exercises.Count</p>
+                    <p class="stat-label-sm">Total Assignments</p>
+                </div>
+                <div class="stat-item">
+                    <p class="stat-num">@Model.Patient.Exercises.Count(e => e.Status == "Active")</p>
+                    <p class="stat-label-sm">Active</p>
+                </div>
+            </div>
+        </div>
+
+        @* --- Feedback breakdown (placeholder bars) --------------------- *@
+        <div class="card">
+            <h4 class="sidebar-title">Feedback Breakdown</h4>
+            @* All three counts are placeholders — wire when feedback API is ready *@
+            <div class="feedback-row">
+                <div class="feedback-label">
+                    <span class="feedback-dot" style="background:#4CAF82;"></span>
+                    <span>Easy</span>
+                </div>
+                <div class="feedback-bar"><div class="feedback-fill" style="width:50%; background:#4CAF82;"></div></div>
+                <span class="feedback-count">—</span>
+            </div>
+            <div class="feedback-row">
+                <div class="feedback-label">
+                    <span class="feedback-dot" style="background:#F59E0B;"></span>
+                    <span>Moderate</span>
+                </div>
+                <div class="feedback-bar"><div class="feedback-fill" style="width:30%; background:#F59E0B;"></div></div>
+                <span class="feedback-count">—</span>
+            </div>
+            <div class="feedback-row">
+                <div class="feedback-label">
+                    <span class="feedback-dot" style="background:#FF3B30;"></span>
+                    <span>Hard</span>
+                </div>
+                <div class="feedback-bar"><div class="feedback-fill" style="width:20%; background:#FF3B30;"></div></div>
+                <span class="feedback-count">—</span>
+            </div>
+        </div>
+
+        @* --- Appointments ---------------------------------------------- *@
+        <div class="card">
+            <div class="card-header-row">
+                <h4 class="sidebar-title">Appointments</h4>
+                @* Placeholder Book button — wires to Appointments controller when built (Day 7-8) *@
+                <button type="button" class="btn btn-ghost btn-xs" disabled>+ Book</button>
+            </div>
+
+            @if (Model.Patient.Appointments.Count == 0)
+            {
+                <p class="placeholder-block">No appointments yet.</p>
+            }
+            else
+            {
+                var now = DateTime.Now;
+                var upcoming = Model.Patient.Appointments.Where(a => a.AppointmentTime >= now).OrderBy(a => a.AppointmentTime);
+                var past = Model.Patient.Appointments.Where(a => a.AppointmentTime < now).OrderByDescending(a => a.AppointmentTime);
+                var sortedAppts = upcoming.Concat(past).Take(4).ToList();
+                @foreach (var appt in sortedAppts)
+                {
+                    <div class="appt-entry">
+                        <div class="appt-date-block">
+                            <span class="appt-month">@appt.AppointmentTime.ToString("MMM")</span>
+                            <span class="appt-day">@appt.AppointmentTime.Day</span>
+                        </div>
+                        <div class="appt-entry-body">
+                            <p class="appt-entry-title">@appt.Title</p>
+                            <p class="appt-entry-meta">@appt.AppointmentTime.ToString("HH:mm") · @(string.IsNullOrEmpty(appt.TherapistName) ? "Unassigned" : appt.TherapistName)</p>
+                        </div>
+                        @await Html.PartialAsync("_StatusBadge", appt.Status)
+                    </div>
+                }
+
+                @if (Model.Patient.Appointments.Count > 4)
+                {
+                    <a href="#" class="view-all-link">View all @Model.Patient.Appointments.Count →</a>
+                }
+            }
+        </div>
+
+        @* --- Danger zone ----------------------------------------------- *@
+        <div class="card danger-card">
+            <h4 class="danger-title">⚠ Deactivate Patient</h4>
+            <p class="danger-text">Patient will lose access to the app and exercise programs. Data is retained.</p>
+            <form asp-action="Deactivate" asp-route-id="@Model.Patient.PatientId" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger btn-block">Deactivate Account</button>
+            </form>
+        </div>
+
+    </aside>
+</div>
+
+@* =========================================================================
+   ASSIGN EXERCISE MODAL 
+   ========================================================================= *@
+<div class="modal-overlay" id="assignModal" aria-modal="true" role="dialog" aria-labelledby="assignModalTitle">
+    <div class="modal">
+
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title" id="assignModalTitle">Assign Exercise</h2>
+                <p class="modal-subtitle">Add an exercise from the library to @Model.Patient.FirstName's program.</p>
+            </div>
+            <button type="button" class="modal-close" onclick="closeAssignModal()" aria-label="Close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <form method="post" asp-action="Create" asp-controller="Assignment" class="modal-form">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="PatientId" value="@Model.Patient.PatientId" />
+            <input type="hidden" name="TherapistName" value="@Model.Patient.TherapistName" />
+            <input type="hidden" id="ExerciseAssignmentId" name="ExerciseAssignmentId" value="" disabled />
+
+            @* Create mode — exercise picker *@
+            <div class="form-group" id="exercisePickerGroup">
+                <label class="form-label" for="ExerciseId">Exercise</label>
+                <select id="ExerciseId" name="ExerciseId" class="form-input">
+                    <option value="">— Select an exercise —</option>
+                    @foreach (var exercise in Model.Exercises)
+                    {
+                        <option value="@exercise.ExerciseId">
+                            @exercise.Name (@exercise.Sets × @exercise.Reps · @exercise.DurationMinutes min)
+                        </option>
+                    }
+                </select>
+            </div>
+
+            @* Edit mode — exercise name display (read-only) *@
+            <div class="form-group" id="exerciseNameGroup" style="display:none;">
+                <label class="form-label">Exercise</label>
+                <p id="EditExerciseName" style="font-size:14px; font-weight:500; color:#323232; margin:0; padding:10px 0;"></p>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="Sets">Sets</label>
+                    <input type="number" id="Sets" name="Sets" class="form-input" value="3" min="1" max="20" />
+                    <span class="form-hint">Default: 3 — adjust for this patient</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="Reps">Reps</label>
+                    <input type="number" id="Reps" name="Reps" class="form-input" value="10" min="1" max="100" />
+                    <span class="form-hint">Default: 10 — adjust for this patient</span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="DurationMinutes">Duration (minutes)</label>
+                    <input type="number" id="DurationMinutes" name="DurationMinutes" class="form-input" value="30" min="1" max="120" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="FrequencyPerWeek">Frequency (per week)</label>
+                    <input type="number" id="FrequencyPerWeek" name="FrequencyPerWeek" class="form-input" value="3" min="1" max="7" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ScheduledDate">Scheduled date</label>
+                <input type="date" id="ScheduledDate" name="ScheduledDate" class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="Status">Status</label>
+                <select id="Status" name="Status" class="form-input">
+                    <option value="Active" selected>Active</option>
+                    <option value="Paused">Paused</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" onclick="closeAssignModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Assign Exercise</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function () {
+        function init() {
+            var modalEl = document.getElementById('assignModal');
+            if (!modalEl) {
+                console.error('[assign] #assignModal element not found in DOM');
+                return;
+            }
+
+            var formEl = modalEl.querySelector('form');
+            if (!formEl) {
+                console.error('[assign] form not found inside #assignModal');
+                return;
+            }
+
+            var tomSelect = null;
+
+            function setModalMode(mode) {
+                var isEdit = mode === 'edit';
+
+                formEl.action = isEdit ? '/Assignment/Edit' : '/Assignment/Create';
+
+                var picker = document.getElementById('exercisePickerGroup');
+                var nameGroup = document.getElementById('exerciseNameGroup');
+                var idInput = document.getElementById('ExerciseAssignmentId');
+                var titleEl = document.getElementById('assignModalTitle');
+                var submitBtn = modalEl.querySelector('.btn-primary[type="submit"]');
+
+                if (picker)    picker.style.display    = isEdit ? 'none' : 'block';
+                if (nameGroup) nameGroup.style.display = isEdit ? 'block' : 'none';
+                if (idInput)   idInput.disabled        = !isEdit;
+                if (titleEl)   titleEl.textContent     = isEdit ? 'Edit Assignment' : 'Assign Exercise';
+                if (submitBtn) submitBtn.textContent   = isEdit ? 'Save Changes' : 'Assign Exercise';
+            }
+
+            function openAssignModal() {
+                setModalMode('create');
+                modalEl.classList.add('modal-visible');
+            }
+
+            async function openEditModal(assignmentId) {
+                try {
+                    var response = await fetch('/Assignment/GetById/' + encodeURIComponent(assignmentId));
+                    if (!response.ok) {
+                        alert('Could not load assignment.');
+                        return;
+                    }
+                    var data = await response.json();
+                    if (data.error) {
+                        alert('Could not load assignment.');
+                        return;
+                    }
+
+                    document.getElementById('ExerciseAssignmentId').value = data.exerciseAssignmentId;
+                    document.getElementById('EditExerciseName').textContent = data.exerciseName;
+                    document.getElementById('Sets').value = data.sets;
+                    document.getElementById('Reps').value = data.reps;
+                    document.getElementById('DurationMinutes').value = data.durationMinutes;
+                    document.getElementById('FrequencyPerWeek').value = data.frequencyPerWeek;
+                    if (data.scheduledDate) {
+                        document.getElementById('ScheduledDate').value = String(data.scheduledDate).split('T')[0];
+                    }
+                    document.getElementById('Status').value = data.status;
+
+                    setModalMode('edit');
+                    modalEl.classList.add('modal-visible');
+                } catch (err) {
+                    console.error('[assign] failed to load assignment:', err);
+                    alert('Could not load assignment.');
+                }
+            }
+
+            function closeAssignModal() {
+                modalEl.classList.remove('modal-visible');
+                formEl.reset();
+                if (tomSelect) tomSelect.clear();
+                setModalMode('create');
+            }
+
+            // Expose for inline onclick handlers in the markup
+            window.openAssignModal  = openAssignModal;
+            window.openEditModal    = openEditModal;
+            window.closeAssignModal = closeAssignModal;
+
+            // Initialise TomSelect on the exercise picker (optional)
+            if (typeof TomSelect !== 'undefined') {
+                try {
+                    tomSelect = new TomSelect('#ExerciseId', {
+                        placeholder: 'Search exercise library...',
+                        searchField: 'text',
+                        maxOptions: 500
+                    });
+                } catch (e) {
+                    console.warn('[assign] TomSelect failed to initialise:', e);
+                }
+            }
+
+            // Close when clicking the overlay (but not the modal content)
+            modalEl.addEventListener('click', function (e) {
+                if (e.target === modalEl) closeAssignModal();
+            });
+
+            // Submit validation
+            formEl.addEventListener('submit', function (e) {
+                var isEdit = formEl.action.indexOf('Edit') !== -1;
+                var picker = document.getElementById('ExerciseId');
+                if (!isEdit && picker && !picker.value) {
+                    e.preventDefault();
+                    alert('Please select an exercise.');
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+</script>

@@ -126,7 +126,7 @@ class _FeedbackChipsState extends State<FeedbackChips> {
               bottom: 4,
             ),
             itemCount: FeedbackChips.options.length,
-            separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+            separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
             itemBuilder: (context, index) {
               final (value, _) = FeedbackChips.options[index];
               final isSelected = selected == value;

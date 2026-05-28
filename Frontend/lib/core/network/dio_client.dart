@@ -6,7 +6,7 @@ class DioClient {
       BaseOptions(
         baseUrl: String.fromEnvironment(
           'BASE_URL',
-          defaultValue: 'http://192.168.1.69:5218',
+          defaultValue: 'http://192.168.1.58:5218',
         ),
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
@@ -29,7 +29,7 @@ class _AuthInterceptor extends Interceptor {
     BaseOptions(
       baseUrl: String.fromEnvironment(
         'BASE_URL',
-        defaultValue: 'http://192.168.1.69:5218',
+        defaultValue: 'http://192.168.1.58:5218',
       ),
     ),
   );

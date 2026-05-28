@@ -33,7 +33,9 @@ class ProfilePage extends ConsumerWidget {
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
               'Cancel',
-              style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
           TextButton(
@@ -50,7 +52,7 @@ class ProfilePage extends ConsumerWidget {
       ),
     );
     if (confirmed == true) {
-      ref.read(authNotifierProvider).logout();
+      await ref.read(authNotifierProvider).logout();
     }
   }
 
@@ -61,7 +63,7 @@ class ProfilePage extends ConsumerWidget {
     return SafeArea(
       child: CustomScrollView(
         slivers: [
-          // ── Title ─────────────────────────────────────────────────────────
+          // ── Title ─────────────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -81,18 +83,18 @@ class ProfilePage extends ConsumerWidget {
             ),
           ),
 
-          // ── Content ───────────────────────────────────────────────────────
+          // ── Content ───────────────────────────────────────────────────
           profileAsync.when(
             loading: () => SliverPadding(
               padding: const EdgeInsets.all(AppSpacing.md),
               sliver: SliverList.separated(
                 itemCount: 4,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     const SizedBox(height: AppSpacing.sm),
-                itemBuilder: (_, __) => const ShimmerCard(height: 80),
+                itemBuilder: (_, _) => const ShimmerCard(height: 80),
               ),
             ),
-            error: (_, __) => SliverFillRemaining(
+            error: (_, _) => SliverFillRemaining(
               child: EmptyState(
                 icon: Icons.wifi_off_rounded,
                 title: 'Something went wrong',
@@ -102,9 +104,8 @@ class ProfilePage extends ConsumerWidget {
               ),
             ),
             data: (result) => result.fold(
-              (failure) => SliverFillRemaining(
-                child: _buildError(failure, ref),
-              ),
+              (failure) =>
+                  SliverFillRemaining(child: _buildError(failure, ref)),
               (patient) => _buildProfile(context, ref, patient),
             ),
           ),
@@ -135,7 +136,7 @@ class ProfilePage extends ConsumerWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       sliver: SliverList(
         delegate: SliverChildListDelegate([
-          // ── Identity card ────────────────────────────────────────────────
+          // ── Identity card ─────────────────────────────────────────────
           Container(
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
@@ -205,7 +206,7 @@ class ProfilePage extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.sm),
 
-          // ── Personal info ────────────────────────────────────────────────
+          // ── Personal info ─────────────────────────────────────────────
           _SectionLabel(label: 'Personal info'),
           const SizedBox(height: AppSpacing.sm),
 
@@ -226,6 +227,18 @@ class ProfilePage extends ConsumerWidget {
                   icon: Icons.phone_outlined,
                   label: 'PHONE',
                   value: patient.phoneNumber,
+                  showDivider: true,
+                ),
+                _InfoRow(
+                  icon: Icons.local_hospital_outlined,
+                  label: 'CLINIC',
+                  value: patient.clinicName ?? 'Unassigned',
+                  showDivider: true,
+                ),
+                _InfoRow(
+                  icon: Icons.medical_services_outlined,
+                  label: 'THERAPIST',
+                  value: patient.therapistName ?? 'Unassigned',
                   showDivider: false,
                 ),
               ],
@@ -234,7 +247,7 @@ class ProfilePage extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
-          // ── Preferences ──────────────────────────────────────────────────
+          // Preferences
           _SectionLabel(label: 'Preferences'),
           const SizedBox(height: AppSpacing.sm),
 
@@ -273,7 +286,7 @@ class ProfilePage extends ConsumerWidget {
                   trailing: Switch(
                     value: true,
                     onChanged: (_) {},
-                    activeColor: AppColors.secondary,
+                    activeThumbColor: AppColors.secondary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   showDivider: false,
@@ -284,7 +297,7 @@ class ProfilePage extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.xl),
 
-          // ── Log out button ───────────────────────────────────────────────
+          //Log out button
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -316,12 +329,12 @@ class ProfilePage extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.lg),
 
-          // ── Version footer ───────────────────────────────────────────────
+          //Version footer
           Center(
             child: Text(
               'PhysioLink · Version 2.4.0',
               style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary.withOpacity(0.5),
+                color: AppColors.textSecondary.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -331,7 +344,7 @@ class ProfilePage extends ConsumerWidget {
   }
 }
 
-// ── Private Widgets ──────────────────────────────────────────────────────────
+//Private Widgets
 
 class _SectionLabel extends StatelessWidget {
   const _SectionLabel({required this.label});

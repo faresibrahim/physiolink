@@ -41,7 +41,7 @@ Map<String, dynamic> _$ExerciseAssignmentToJson(_ExerciseAssignment instance) =>
     };
 
 const _$DifficultyLevelEnumMap = {
-  DifficultyLevel.easy: 0,
-  DifficultyLevel.moderate: 1,
-  DifficultyLevel.hard: 2,
+  DifficultyLevel.easy: 'Easy',
+  DifficultyLevel.moderate: 'Moderate',
+  DifficultyLevel.hard: 'Hard',
 };

@@ -9,6 +9,8 @@ namespace PhysioLink.Application.DTOs.Profile
         public string Email {get; set;} = null!;
 
         public string Diagnosis {get; set;} = null!;
+        public string? TherapistName { get; set; }
+        public string? ClinicName { get; set; }
 
     }
 }

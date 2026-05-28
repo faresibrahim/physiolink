@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysioLink.Infrastructure",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysioLink.Tests", "PhysioLink.Tests\PhysioLink.Tests.csproj", "{93838AF5-388E-4F61-9461-51ACFE593AEA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysioLink.AdminPanel", "PhysioLink.AdminPanel\PhysioLink.AdminPanel.csproj", "{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{93838AF5-388E-4F61-9461-51ACFE593AEA}.Release|x64.Build.0 = Release|Any CPU
 		{93838AF5-388E-4F61-9461-51ACFE593AEA}.Release|x86.ActiveCfg = Release|Any CPU
 		{93838AF5-388E-4F61-9461-51ACFE593AEA}.Release|x86.Build.0 = Release|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Debug|x64.Build.0 = Debug|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Debug|x86.Build.0 = Debug|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Release|x64.ActiveCfg = Release|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Release|x64.Build.0 = Release|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Release|x86.ActiveCfg = Release|Any CPU
+		{230DC32F-0DED-4E21-8D35-0E9723B6B6E1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

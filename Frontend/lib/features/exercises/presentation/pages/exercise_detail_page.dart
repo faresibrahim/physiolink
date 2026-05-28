@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 import 'package:practice/core/theme/app_colors.dart';
@@ -47,10 +47,10 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          // ── Dark video hero ───────────────────────────────────────────────
+          // â”€â”€ Dark video hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           _VideoHero(onBack: () => Navigator.pop(context)),
 
-          // ── Scrollable content ────────────────────────────────────────────
+          // â”€â”€ Scrollable content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -109,7 +109,7 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
 
                   const SizedBox(height: AppSpacing.sm),
 
-                  // ── Stats row ───────────────────────────────────────────────
+                  // â”€â”€ Stats row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.md,
@@ -146,7 +146,7 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
 
                   const SizedBox(height: AppSpacing.sm),
 
-                  // ── Instructions ────────────────────────────────────────────
+                  // â”€â”€ Instructions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.md,
@@ -176,7 +176,7 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
 
                   const SizedBox(height: AppSpacing.sm),
 
-                  // ── Feedback section ────────────────────────────────────────
+                  // â”€â”€ Feedback section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.md,
@@ -211,7 +211,7 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  '$_feedback — ${FeedbackChips.labelFor(_feedback!)}',
+                                  '$_feedback â€” ${FeedbackChips.labelFor(_feedback!)}',
                                   style: AppTextStyles.footnote.copyWith(
                                     color: FeedbackChips.colorFor(_feedback!),
                                     fontWeight: FontWeight.w600,
@@ -233,7 +233,7 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
         ],
       ),
 
-      // ── Bottom Button ────────────────────────────────────────────────────
+      // â”€â”€ Bottom Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
@@ -259,7 +259,7 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
                 boxShadow: [
                   BoxShadow(
                     color: (_feedback == null ? AppColors.secondary : AppColors.primary)
-                        .withOpacity(0.30),
+                        .withValues(alpha: 0.30),
                     blurRadius: 14,
                     offset: const Offset(0, 5),
                   ),
@@ -422,7 +422,7 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
   }
 }
 
-// ── Private Widgets ──────────────────────────────────────────────────────────
+// â”€â”€ Private Widgets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _VideoHero extends StatefulWidget {
   const _VideoHero({required this.onBack});
@@ -474,14 +474,18 @@ class _VideoHeroState extends State<_VideoHero> {
           ColoredBox(
             color: const Color(0xFF0D1B2E),
             child: _error != null
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text(
-                        'Error: $_error',
-                        style: const TextStyle(color: Colors.redAccent, fontSize: 11),
-                        textAlign: TextAlign.center,
-                      ),
+                ? const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.movie_outlined,
+                            color: Colors.white24, size: 48),
+                        SizedBox(height: 8),
+                        Text(
+                          'Video preview unavailable',
+                          style: TextStyle(color: Colors.white54, fontSize: 13),
+                        ),
+                      ],
                     ),
                   )
                 : _initialized
@@ -511,7 +515,7 @@ class _VideoHeroState extends State<_VideoHero> {
             },
             child: AnimatedBuilder(
               animation: _controller,
-              builder: (_, __) {
+              builder: (_, _) {
                 final playing = _controller.value.isPlaying;
                 return Center(
                   child: AnimatedOpacity(
@@ -521,10 +525,10 @@ class _VideoHeroState extends State<_VideoHero> {
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.18),
+                        color: Colors.white.withValues(alpha: 0.18),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.4),
+                          color: Colors.white.withValues(alpha: 0.4),
                           width: 1.5,
                         ),
                       ),
@@ -546,7 +550,7 @@ class _VideoHeroState extends State<_VideoHero> {
             right: 12,
             child: AnimatedBuilder(
               animation: _controller,
-              builder: (_, __) {
+              builder: (_, _) {
                 final duration = _initialized
                     ? _controller.value.duration
                     : Duration.zero;
@@ -554,7 +558,7 @@ class _VideoHeroState extends State<_VideoHero> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -579,7 +583,7 @@ class _VideoHeroState extends State<_VideoHero> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(

@@ -3,7 +3,12 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'appointment.freezed.dart';
 part 'appointment.g.dart';
 
-enum AppointmentStatus { pending, confirmed, cancelled, completed }
+enum AppointmentStatus {
+  @JsonValue('Pending') pending,
+  @JsonValue('Confirmed') confirmed,
+  @JsonValue('Cancelled') cancelled,
+  @JsonValue('Completed') completed,
+}
 
 @freezed
 abstract class Appointment with _$Appointment {

@@ -28,6 +28,9 @@ namespace PhysioLink.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -59,10 +62,18 @@ namespace PhysioLink.Infrastructure.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiry")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Patient");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ApplicationUserId");
+
+                    b.HasIndex("ClinicId");
 
                     b.ToTable("Users", (string)null);
                 });
@@ -386,6 +397,15 @@ namespace PhysioLink.Infrastructure.Migrations
                     b.HasIndex("ClinicId");
 
                     b.ToTable("Therapists", (string)null);
+                });
+
+            modelBuilder.Entity("PhysioLink.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.HasOne("PhysioLink.Domain.Entities.Clinic", null)
+                        .WithMany()
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PhysioLink.Domain.Entities.Appointment", b =>

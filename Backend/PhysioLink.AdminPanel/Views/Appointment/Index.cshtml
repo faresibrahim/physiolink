@@ -1,0 +1,268 @@
+﻿@model PhysioLink.AdminPanel.ViewModels.AppointmentListViewModel
+@{
+    ViewData["Title"] = "Appointments";
+    ViewData["ActivePage"] = "Appointments";
+
+    var prevWeek = Model.WeekStart.AddDays(-7);
+    var nextWeek = Model.WeekStart.AddDays(7);
+    var weekEnd = Model.WeekStart.AddDays(6);
+}
+
+@* =========================================================================
+   PAGE HEADER
+   ========================================================================= *@
+<div class="appt-page-header">
+    <div>
+        <h1 class="library-title">Appointments</h1>
+        <p class="library-subtitle">
+            @Model.WeekStart.ToString("MMM d") – @weekEnd.ToString("MMM d, yyyy")
+            · @Model.TotalAppointmentCount appointments scheduled.
+        </p>
+    </div>
+</div>
+
+@* =========================================================================
+   FILTER BAR
+   ========================================================================= *@
+<div class="appt-filter-bar">
+    <div class="appt-filter-left">
+
+        @* --- Week range pill with prev/next arrows --- *@
+        <div class="week-pill">
+            <a asp-action="Index"
+               asp-route-weekStart="@prevWeek.ToString("yyyy-MM-dd")"
+               asp-route-viewMode="@Model.ViewMode"
+               asp-route-status="@Model.StatusFilter"
+               asp-route-therapistFilter="@Model.TherapistFilter"
+               class="week-arrow" aria-label="Previous week">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </a>
+            <span class="week-label">
+                @Model.WeekStart.ToString("MMM d") – @weekEnd.ToString("MMM d")
+            </span>
+            <a asp-action="Index"
+               asp-route-weekStart="@nextWeek.ToString("yyyy-MM-dd")"
+               asp-route-viewMode="@Model.ViewMode"
+               asp-route-status="@Model.StatusFilter"
+               asp-route-therapistFilter="@Model.TherapistFilter"
+               class="week-arrow" aria-label="Next week">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </a>
+        </div>
+
+        @* --- Status filter --- *@
+        <form method="get" asp-action="Index" id="statusForm">
+            <input type="hidden" name="viewMode" value="@Model.ViewMode" />
+            <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
+            <input type="hidden" name="weekStart" value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
+            <div class="select-field">
+                <select name="status" class="filter-select" onchange="this.form.submit()">
+                    <option value="" selected="@(string.IsNullOrEmpty(Model.StatusFilter))">Status: All</option>
+                    <option value="Requested" selected="@(Model.StatusFilter == "Requested")">Requested</option>
+                    <option value="Confirmed" selected="@(Model.StatusFilter == "Confirmed")">Confirmed</option>
+                    <option value="Completed" selected="@(Model.StatusFilter == "Completed")">Completed</option>
+                    <option value="Cancelled" selected="@(Model.StatusFilter == "Cancelled")">Cancelled</option>
+                </select>
+                <svg class="select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+        </form>
+
+        @* --- Therapist filter --- *@
+        <form method="get" asp-action="Index" id="therapistForm">
+            <input type="hidden" name="viewMode" value="@Model.ViewMode" />
+            <input type="hidden" name="status" value="@Model.StatusFilter" />
+            <input type="hidden" name="weekStart" value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
+            <div class="select-field">
+                <select name="therapistFilter" class="filter-select" onchange="this.form.submit()">
+                    <option value="" selected="@(string.IsNullOrEmpty(Model.TherapistFilter))">All therapists</option>
+                    @foreach (var therapist in Model.Therapists)
+                    {
+                        var fullName = $"{therapist.FirstName} {therapist.LastName}";
+                        <option value="@fullName" selected="@(Model.TherapistFilter == fullName)">
+                            @fullName
+                        </option>
+                    }
+                </select>
+                <svg class="select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+        </form>
+
+    </div>
+
+    <div class="appt-filter-right">
+
+        @* --- List / Week toggle --- *@
+        <div class="view-toggle">
+            <a asp-action="Index"
+               asp-route-viewMode="list"
+               asp-route-weekStart="@Model.WeekStart.ToString("yyyy-MM-dd")"
+               asp-route-status="@Model.StatusFilter"
+               asp-route-therapistFilter="@Model.TherapistFilter"
+               class="toggle-btn @(Model.ViewMode == "list" ? "toggle-active" : "")">
+                List
+            </a>
+            <a asp-action="Index"
+               asp-route-viewMode="week"
+               asp-route-weekStart="@Model.WeekStart.ToString("yyyy-MM-dd")"
+               asp-route-status="@Model.StatusFilter"
+               asp-route-therapistFilter="@Model.TherapistFilter"
+               class="toggle-btn @(Model.ViewMode == "week" ? "toggle-active" : "")">
+                Week
+            </a>
+        </div>
+
+        @* --- New Appointment CTA --- *@
+        <a asp-action="Create" class="btn btn-primary btn-sm">
+            + New Appointment
+        </a>
+
+    </div>
+</div>
+
+@* =========================================================================
+   LIST VIEW
+   ========================================================================= *@
+@if (Model.ViewMode == "list")
+{
+    @if (Model.Appointments.Count == 0)
+    {
+        <div class="card" style="text-align:center; padding:48px;">
+            <p style="color:#8E8E93; font-size:14px; margin:0;">No appointments found for this period.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card" style="padding:0; overflow:hidden;">
+            <table class="appt-table">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Therapist</th>
+                        <th>Date &amp; Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var appt in Model.Appointments)
+                    {
+                        @* Derive initials from PatientName *@
+                        var nameParts = appt.PatientName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        var initials = nameParts.Length >= 2
+                        ? $"{nameParts[0][0]}{nameParts[1][0]}"
+                        : appt.PatientName.Length > 0 ? appt.PatientName[0].ToString() : "?";
+
+                        var (statusBg, statusFg, statusDot) = appt.Status switch
+                        {
+                            "Confirmed" => ("#e8f0fb", "#004AAD", "#004AAD"),
+                            "Requested" => ("#fff8e1", "#f59e0b", "#f59e0b"),
+                            "Cancelled" => ("#fef2f2", "#FF3B30", "#FF3B30"),
+                            "Completed" => ("#f5f5f5", "#8E8E93", "#8E8E93"),
+                            _ => ("#f5f5f5", "#8E8E93", "#8E8E93")
+                        };
+
+                        <tr class="appt-row">
+                            <td>
+                                <div class="appt-patient-cell">
+                                    <div class="avatar" style="background:#e8f0fb; color:#004AAD; font-size:13px; width:36px; height:36px; flex-shrink:0;">
+                                        @initials.ToUpper()
+                                    </div>
+                                    <div>
+                                        <p class="appt-patient-name">@appt.PatientName</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="appt-therapist">@appt.TherapistName</td>
+                            <td class="appt-datetime">
+                                <strong>@appt.AppointmentTime.ToString("ddd, MMM d")</strong>
+                                · @appt.AppointmentTime.ToString("HH:mm")
+                            </td>
+                            <td>
+                                <span class="appt-status-pill" style="background:@statusBg; color:@statusFg;">
+                                    <span class="status-dot" style="background:@statusDot;"></span>
+                                    @appt.Status
+                                </span>
+                            </td>
+                            <td>
+                                <div class="appt-actions">
+                                    <a asp-action="Edit" asp-route-id="@appt.AppointmentId"
+                                       class="icon-btn" title="Edit appointment">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @* --- Pagination footer --- *@
+            @if (Model.TotalPages > 1)
+            {
+                <div class="appt-pagination">
+                    <span class="appt-pagination-info">
+                        Showing @((Model.CurrentPage - 1) * 10 + 1)–@(Math.Min(Model.CurrentPage * 10, Model.TotalAppointmentCount)) of @Model.TotalAppointmentCount appointments
+                    </span>
+                    <div class="pagination-controls">
+                        @if (Model.CurrentPage > 1)
+                        {
+                            <a asp-action="Index"
+                               asp-route-page="@(Model.CurrentPage - 1)"
+                               asp-route-status="@Model.StatusFilter"
+                               asp-route-therapistFilter="@Model.TherapistFilter"
+                               asp-route-weekStart="@Model.WeekStart.ToString("yyyy-MM-dd")"
+                               asp-route-viewMode="@Model.ViewMode"
+                               class="page-btn">‹</a>
+                        }
+
+                        @for (int p = 1; p <= Model.TotalPages; p++)
+                        {
+                            <a asp-action="Index"
+                               asp-route-page="@p"
+                               asp-route-status="@Model.StatusFilter"
+                               asp-route-therapistFilter="@Model.TherapistFilter"
+                               asp-route-weekStart="@Model.WeekStart.ToString("yyyy-MM-dd")"
+                               asp-route-viewMode="@Model.ViewMode"
+                               class="page-btn @(p == Model.CurrentPage ? "page-btn-active" : "")">
+                                @p
+                            </a>
+                        }
+
+                        @if (Model.CurrentPage < Model.TotalPages)
+                        {
+                            <a asp-action="Index"
+                               asp-route-page="@(Model.CurrentPage + 1)"
+                               asp-route-status="@Model.StatusFilter"
+                               asp-route-therapistFilter="@Model.TherapistFilter"
+                               asp-route-weekStart="@Model.WeekStart.ToString("yyyy-MM-dd")"
+                               asp-route-viewMode="@Model.ViewMode"
+                               class="page-btn">›</a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+
+@* =========================================================================
+   WEEK VIEW — placeholder 
+   ========================================================================= *@
+@if (Model.ViewMode == "week")
+{
+    <div class="card" style="text-align:center; padding:48px;">
+        <p style="font-size:15px; font-weight:600; color:#323232; margin:0 0 6px;">Week view</p>
+        <p style="color:#8E8E93; font-size:13px; margin:0;">Coming in Day 8 — use List view for now.</p>
+    </div>
+}

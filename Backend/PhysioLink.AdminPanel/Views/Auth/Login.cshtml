@@ -1,0 +1,51 @@
+﻿@model LoginViewModel
+
+@{
+    Layout = null;
+
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In - PhysioLink Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/physiolink.css" asp-append-version="true" />
+</head>
+
+<body>
+<div style="min-height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;">
+    <div class="card" style="width:100%;max-width:400px;padding:40px;">
+
+        <div class="brand" style="justify-content:center;margin-bottom:32px;">
+            <img src="~/images/physiolink_logo.svg" alt="PhysioLink" width="40" height="40" />
+            <div>
+                <div class="brand-name">PhysioLink</div>
+                <div class="brand-sub">Admin Panel</div>
+            </div>
+        </div>
+
+        @if (TempData["ErrorMessage"] is string err)
+        {
+            <div class="error-banner">@err</div>
+        }
+
+        <form asp-action="Login" asp-controller="Auth" method="post">
+                <div class="field" style="margin-bottom: 8px;">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="input" type="email" placeholder="admin@clinic.com" />
+            </div>
+            <div class="field">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="input" type="password" placeholder="••••••••" />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:24px;">Sign in</button>
+        </form>
+
+    </div>
+</div>
+</body>
+</html>

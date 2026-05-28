@@ -1,0 +1,161 @@
+﻿@model PhysioLink.AdminPanel.ViewModels.ExerciseListViewModel
+@{
+    ViewData["Title"] = "Exercises";
+}
+
+@* =========================================================================
+   PAGE HEADER — title + subtitle (stat line)
+   Create CTA is intentionally hidden — exercises are curated centrally.
+   ========================================================================= *@
+<div class="library-header">
+    <div>
+        <h1 class="library-title">Exercise Library</h1>
+        <p class="library-subtitle">
+            @Model.Exercises.Count exercises available.
+        </p>
+    </div>
+</div>
+
+@* =========================================================================
+   FILTER BAR — search input + difficulty dropdown
+   ========================================================================= *@
+<section class="library-filters">
+    @{
+        bool allSelected      = string.IsNullOrEmpty(Model.DifficultyFilter);
+        bool easySelected     = Model.DifficultyFilter == "Easy";
+        bool moderateSelected = Model.DifficultyFilter == "Moderate";
+        bool hardSelected     = Model.DifficultyFilter == "Hard";
+    }
+    <form method="get" asp-action="Index" class="filter-form">
+        <div class="search-field">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text"
+                   name="search"
+                   value="@Model.SearchQuery"
+                   placeholder="Search exercises..."
+                   class="search-input"
+                   autocomplete="off" />
+        </div>
+
+        <div class="select-field">
+            <select name="difficulty" class="filter-select" onchange="this.form.submit()">
+                <option value="" selected="@allSelected">All difficulties</option>
+                <option value="Easy" selected="@easySelected">Easy</option>
+                <option value="Moderate" selected="@moderateSelected">Moderate</option>
+                <option value="Hard" selected="@hardSelected">Hard</option>
+            </select>
+            <svg class="select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+    </form>
+</section>
+
+@* =========================================================================
+   CATEGORY CHIPS — body region chips per the mock.
+   Body region isn't on ExerciseResponse yet. "All" is wired, the rest
+   are visually present but disabled — easy to wire once BodyRegion lands.
+   ========================================================================= *@
+<div class="chip-row">
+    <a asp-action="Index"
+       asp-route-search="@Model.SearchQuery"
+       class="chip chip-active">
+        All <span class="chip-count">@Model.Exercises.Count</span>
+    </a>
+    <span class="chip chip-disabled">Knee &amp; Lower Leg <span class="chip-count">—</span></span>
+    <span class="chip chip-disabled">Hip &amp; Pelvis <span class="chip-count">—</span></span>
+    <span class="chip chip-disabled">Lower Back <span class="chip-count">—</span></span>
+    <span class="chip chip-disabled">Shoulder <span class="chip-count">—</span></span>
+    <span class="chip chip-disabled">Neck <span class="chip-count">—</span></span>
+    <span class="chip chip-disabled">Ankle &amp; Foot <span class="chip-count">—</span></span>
+</div>
+
+@* =========================================================================
+   GRID
+   ========================================================================= *@
+@if (Model.Exercises.Count == 0)
+{
+    <div class="empty-state card">
+        <h3 class="empty-state-title">No exercises found</h3>
+        <p class="empty-state-subtitle">Try adjusting your search or filter.</p>
+    </div>
+}
+else
+{
+    <div class="exercise-grid">
+        @foreach (var exercise in Model.Exercises)
+        {
+            string difficultyClass = exercise.Difficulty switch
+            {
+                "Easy" => "diff-beginner",
+                "Moderate" => "diff-intermediate",
+                "Hard" => "diff-advanced",
+                _ => "diff-neutral"
+            };
+
+            <article class="exercise-card">
+                @* Top visual — hatched background + region tag + icon disc *@
+                <div class="exercise-visual">
+                    <span class="region-tag">@(exercise.IsGlobal ? "GLOBAL" : "CLINIC")</span>
+
+                    <div class="exercise-icon-disc">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#004AAD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                    </div>
+                </div>
+
+                @* Body — title + difficulty + description + meta *@
+                <div class="exercise-body">
+                    <div class="exercise-title-row">
+                        <h3 class="exercise-name">@exercise.Name</h3>
+                        <span class="difficulty-pill @difficultyClass">
+                            <span class="difficulty-dot"></span>
+                            @exercise.Difficulty?.ToUpper()
+                        </span>
+                    </div>
+
+                    <p class="exercise-description">@exercise.Description</p>
+
+                    <div class="exercise-meta">
+                        <span class="meta-item">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            @exercise.DurationMinutes min
+                        </span>
+                        <span class="meta-item">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                            </svg>
+                            @exercise.Sets×@exercise.Reps reps
+                        </span>
+                    </div>
+                </div>
+
+                @* Footer — assignment label + action icons (disabled until wired) *@
+                <footer class="exercise-card-footer">
+                    <span class="assigned-count">Available to assign</span>
+                    <div class="card-actions">
+                        <button type="button" class="icon-btn" disabled aria-label="Edit exercise">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                        <button type="button" class="icon-btn" disabled aria-label="View exercise">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </footer>
+            </article>
+        }
+    </div>
+}

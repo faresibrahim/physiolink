@@ -1,0 +1,105 @@
+﻿@model PhysioLink.AdminPanel.ViewModels.TherapistListViewModel
+
+@{
+    ViewData["Title"] = "Therapists";
+    ViewData["ActivePage"] = "Therapists";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2rem;">
+    <div>
+        <h1 style="font-size:1.5rem; font-weight:600; color:#323232; margin:0;">Therapists</h1>
+        <p style="color:#8E8E93; margin:4px 0 0;">
+            @Model.TotalCount active practitioners.
+        </p>
+    </div>
+
+    <a asp-action="Create" class="btn btn-primary">
+        + Add Therapist
+    </a>
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;">
+
+    @if (Model.Therapists.Count == 0)
+    {
+        <div style="grid-column:1/-1; text-align:center; padding:60px 20px; background:white; border-radius:14px; border:0.5px solid #e5e5ea;">
+            <p style="color:#8E8E93; font-size:15px; margin:0 0 16px;">
+                No therapists yet. Add your first one.
+            </p>
+
+            <a asp-action="Create"
+               style="background:#004AAD; color:white; padding:10px 20px; border-radius:10px; text-decoration:none; font-weight:500; font-size:14px;">
+                Add Therapist
+            </a>
+        </div>
+    }
+
+    @foreach (var therapist in Model.Therapists)
+    {
+        <div style="background:white; border-radius:14px; border:0.5px solid #e5e5ea; padding:20px;">
+
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+
+                <div style="display:flex; align-items:center; gap:12px;">
+
+                    <div style="width:44px; height:44px; border-radius:50%; background:#e8f0fb; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; color:#004AAD;">
+                        @therapist.FirstName[0]@therapist.LastName[0]
+                    </div>
+
+                    <div>
+                        <p style="font-weight:600; font-size:15px; color:#323232; margin:0;">
+                            @therapist.FirstName @therapist.LastName
+                        </p>
+
+                        <p style="font-size:13px; color:#8E8E93; margin:2px 0 0;">
+                            @therapist.Specialty
+                        </p>
+                    </div>
+
+                </div>
+
+                @await Html.PartialAsync("_StatusBadge", therapist.IsActive ? "Active" : "Inactive")
+
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px; font-size:13px; color:#8E8E93;">
+                <span>📞 @therapist.PhoneNumber</span>
+                <span>✉ @therapist.Email</span>
+            </div>
+
+            <div style="display:flex; gap:8px; border-top:0.5px solid #f2f2f7; padding-top:16px;">
+
+                <a asp-action="Detail"
+                   asp-route-id="@therapist.Id"
+                   style="flex:1; text-align:center; padding:8px; border:0.5px solid #004AAD; color:#004AAD; border-radius:8px; text-decoration:none; font-size:13px; font-weight:500;">
+                    View
+                </a>
+
+                <a asp-action="Edit"
+                   asp-route-id="@therapist.Id"
+                   style="flex:1; text-align:center; padding:8px; border:0.5px solid #e5e5ea; color:#323232; border-radius:8px; text-decoration:none; font-size:13px; font-weight:500;">
+                    Edit
+                </a>
+
+                <form asp-action="Deactivate"
+                      asp-route-id="@therapist.Id"
+                      method="post"
+                      style="flex:1;">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            style="width:100%; padding:8px; border:0.5px solid #FF3B30; color:#FF3B30; border-radius:8px; background:transparent; font-size:13px; font-weight:500; cursor:pointer;">
+                        Deactivate
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+@await Html.PartialAsync("_Pagination", Model.Pagination)

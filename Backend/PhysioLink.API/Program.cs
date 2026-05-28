@@ -14,6 +14,8 @@ using FluentValidation.AspNetCore;
 using PhysioLink.Infrastructure.Services;
 using FluentValidation;
 using PhysioLink.Application.Validators.Appointments;
+using Microsoft.OpenApi.Models;
+
 
 
 //Phase 1 build services(This is where the tools I need)
@@ -22,9 +24,38 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 //add swagger services
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddAuthorization();
 
@@ -53,6 +84,13 @@ builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IPatientRepository,PatientRepository>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<ICurrentClinicService, CurrentClinicService>();
+builder.Services.AddScoped<IAdminTherapistService, AdminTherapistService>();
+builder.Services.AddScoped<IAdminPatientService, AdminPatientService>();
+builder.Services.AddScoped<IAdminAssignmentService, AdminAssignmentService>();
+builder.Services.AddScoped<IAdminAppointmentService, AdminAppointmentService>();
+builder.Services.AddScoped<IAdminExerciseService, AdminExerciseService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

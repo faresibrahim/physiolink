@@ -1,3 +1,5 @@
+
+
 using Microsoft.EntityFrameworkCore;
 using PhysioLink.Application.DTOs;
 using PhysioLink.Application.DTOs.Appointments;
@@ -11,20 +13,24 @@ namespace PhysioLink.Infrastructure.Repositories
     public class AppointmentRepository : IAppointmentRepository
     {
         private readonly PhysioLinkDbContext _dbContext;
+        private readonly ICurrentClinicService _currentClinicService;
 
-        public AppointmentRepository(PhysioLinkDbContext dbContext)
+        public AppointmentRepository(PhysioLinkDbContext dbContext, ICurrentClinicService currentClinicService)
         {
             _dbContext = dbContext;
+            _currentClinicService = currentClinicService;
         }
 
         public async Task<AppointmentDto> CreateAppointmentAsync(AppointmentRequestDto request)
         {
+            var clinicId = _currentClinicService.GetCurrentClinicId()
+                ?? throw new InvalidOperationException("No clinic context. Ensure the patient is authenticated.");
             var appointment = new Appointment(
                 AppointmentStatus.Pending,
                 DateTime.SpecifyKind(request.AppointmentTime, DateTimeKind.Utc),
                 request.PatientId,
-                request.TherapistName, //To-do, wire therapistname from request in week 17
-                Guid.Empty,// TODO: replace with ClinicId from JWT claim in Week 17
+                request.TherapistName ?? string.Empty,
+                clinicId,
                 request.Notes
             );
 
@@ -47,10 +53,12 @@ namespace PhysioLink.Infrastructure.Repositories
         public async Task<PagedResult<AppointmentDto>> GetPatientAppointmentAsync(Guid patientId, int page, int pageSize)
         {
             var totalCount = await _dbContext.Appointments
+                .IgnoreQueryFilters()
                 .Where(p => p.PatientId == patientId)
                 .CountAsync();
 
             var items = await _dbContext.Appointments
+                .IgnoreQueryFilters()
                 .Where(p => p.PatientId == patientId)
                 .Include(p => p.Patient)
                 .AsNoTracking()

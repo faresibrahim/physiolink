@@ -12,6 +12,9 @@ public class Patient : ClinicScopedEntity
     public Guid ApplicationUserId {get; set;}
     public Guid? TherapistId { get; set; }
 
+    public Therapist? Therapist { get; set; }
+    public Clinic? Clinic { get; set; }
+
        public string Email { get; set;}
     public string Diagnosis { get; set;}
 

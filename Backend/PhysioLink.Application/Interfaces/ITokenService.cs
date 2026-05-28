@@ -8,7 +8,7 @@ namespace PhysioLink.Application.Interfaces
     //No async calls because these are only calculations 
     public interface ITokenService
     {
-        public string GenerateAccessToken(ApplicationUser user, Guid? patientId);
+        public string GenerateAccessToken(ApplicationUser user);
         public string GenerateRefreshToken();
     }
 }

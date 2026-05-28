@@ -31,12 +31,12 @@ namespace PhysioLink.Infrastructure.Data.Configurations
             .IsRequired()
             .HasMaxLength(500);
 
-            builder.HasOne<Therapist>()
+            builder.HasOne(p => p.Therapist)
                 .WithMany()
                 .HasForeignKey(p=>p.TherapistId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            builder.HasOne<Clinic>()
+            builder.HasOne(p => p.Clinic)
                 .WithMany()
                 .HasForeignKey(p=>p.ClinicId)
                 .OnDelete(DeleteBehavior.Restrict);
