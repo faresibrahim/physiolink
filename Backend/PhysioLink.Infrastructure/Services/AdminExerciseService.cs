@@ -10,79 +10,63 @@ namespace PhysioLink.Infrastructure.Services
     public class AdminExerciseService : IAdminExerciseService
     {
         private readonly PhysioLinkDbContext _dbContext;
-        private readonly ICurrentClinicService _currentClinicService;
 
-        public AdminExerciseService(PhysioLinkDbContext dbContext, ICurrentClinicService currentClinicService)
+        public AdminExerciseService(PhysioLinkDbContext dbContext)
         {
             _dbContext = dbContext;
-            _currentClinicService = currentClinicService;
         }
 
-        public async Task<List<AdminExerciseDto>> GetAllAsync(string? search = null, string? difficulty = null)
+        public async Task<List<AdminExerciseDto>> GetAllAsync(string? search = null, string? difficulty = null, string? category = null)
         {
-            var clinicId = _currentClinicService.GetCurrentClinicId()
-                ?? throw new InvalidOperationException("No clinic in context.");
-
             bool filterByDifficulty = Enum.TryParse<DifficultyLevel>(difficulty, ignoreCase: true, out var parsedDifficulty);
+            bool filterByCategory   = Enum.TryParse<ExerciseCategory>(category,  ignoreCase: true, out var parsedCategory);
 
-            // Clinic-specific — manually filter by clinicId + IsDeleted (Exercise is AuditableEntity, no automatic clinic scoping)
-            var clinicExercises = _dbContext.Exercises
+            return await _dbContext.Exercises
                 .AsNoTracking()
-                .Where(e => e.ClinicId == clinicId && !e.IsDeleted)
                 .Where(e => !filterByDifficulty || e.Difficulty == parsedDifficulty)
+                .Where(e => !filterByCategory   || e.Category   == parsedCategory)
                 .Where(e => search == null || e.Name.ToLower().Contains(search.ToLower()))
-                .Select(e => new AdminExerciseDto
-                {
-                    ExerciseId = e.ExerciseId,
-                    Name = e.Name,
-                    Sets = e.Sets,
-                    Reps = e.Reps,
-                    DurationMinutes = e.DurationMinutes,
-                    Description = e.Description,
-                    VideoUrl = e.VideoUrl,
-                    Difficulty = e.Difficulty,
-                    IsGlobal = false
-                });
-
-            // Global exercises — bypass filter, manually enforce IsDeleted
-            var globalExercises = _dbContext.Exercises
-                .IgnoreQueryFilters()
-                .AsNoTracking()
-                .Where(e => e.ClinicId == null && !e.IsDeleted)
-                .Where(e => !filterByDifficulty || e.Difficulty == parsedDifficulty)
-                .Where(e => search == null || e.Name.Contains(search))
-                .Select(e => new AdminExerciseDto
-                {
-                    ExerciseId = e.ExerciseId,
-                    Name = e.Name,
-                    Sets = e.Sets,
-                    Reps = e.Reps,
-                    DurationMinutes = e.DurationMinutes,
-                    Description = e.Description,
-                    VideoUrl = e.VideoUrl,
-                    Difficulty = e.Difficulty,
-                    IsGlobal = true
-                });
-
-            return await clinicExercises.Concat(globalExercises)
                 .OrderBy(e => e.Name)
+                .Select(e => new AdminExerciseDto
+                {
+                    ExerciseId = e.ExerciseId,
+                    Name = e.Name,
+                    Sets = e.Sets,
+                    Reps = e.Reps,
+                    DurationMinutes = e.DurationMinutes,
+                    Description = e.Description,
+                    VideoUrl = e.VideoUrl,
+                    Difficulty = e.Difficulty,
+                    Category = e.Category
+                })
                 .ToListAsync();
+        }
+
+        public async Task<AdminExerciseDto?> GetByIdAsync(Guid id)
+        {
+            return await _dbContext.Exercises
+                .AsNoTracking()
+                .Where(e => e.ExerciseId == id)
+                .Select(e => new AdminExerciseDto
+                {
+                    ExerciseId = e.ExerciseId,
+                    Name = e.Name,
+                    Sets = e.Sets,
+                    Reps = e.Reps,
+                    DurationMinutes = e.DurationMinutes,
+                    Description = e.Description,
+                    VideoUrl = e.VideoUrl,
+                    Difficulty = e.Difficulty,
+                    Category = e.Category
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<AdminExerciseDto> CreateAsync(CreateAdminExerciseDto dto)
         {
-            var clinicId = _currentClinicService.GetCurrentClinicId()
-                ?? throw new InvalidOperationException("No clinic in context.");
-
             var exercise = new Exercise(
-                dto.Name,
-                dto.Reps,
-                dto.Sets,
-                dto.DurationMinutes,
-                dto.Description,
-                dto.Difficulty
-            );
-            exercise.ClinicId = clinicId;
+                dto.Name, dto.Reps, dto.Sets, dto.DurationMinutes,
+                dto.Description, dto.Difficulty, dto.Category);
             exercise.VideoUrl = dto.VideoUrl;
 
             _dbContext.Exercises.Add(exercise);
@@ -98,7 +82,7 @@ namespace PhysioLink.Infrastructure.Services
                 Description = exercise.Description,
                 VideoUrl = exercise.VideoUrl,
                 Difficulty = exercise.Difficulty,
-                IsGlobal = false
+                Category = exercise.Category
             };
         }
     }

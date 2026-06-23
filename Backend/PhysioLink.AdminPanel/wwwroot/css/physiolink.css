@@ -3694,3 +3694,116 @@ textarea.input {
     border-radius: 6px;
     padding: 1px 7px;
 }
+
+/* =============================================================================
+   EXERCISE DETAIL MODAL — sizing, rhythm, video, stats
+   Overrides .modal's 520px cap and adds proper body padding + vertical rhythm
+   so the video frame, description, and stats row breathe inside the shell.
+   ============================================================================= */
+
+/* Larger shell — must override .modal's max-width: 520px, not just set width */
+.modal.modal-lg {
+    max-width: min(720px, 92vw);
+}
+
+/* Header — slightly more generous gutters; subtitle treated as a meta line */
+.modal-lg .modal-header {
+    padding: 24px 28px 20px;
+    gap: 16px;
+}
+
+.modal-lg .modal-title {
+    font-size: 20px;
+    letter-spacing: -0.01em;
+}
+
+.modal-lg .modal-subtitle {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #8E8E93;
+}
+
+/* Body container — single source of truth for inner padding and block rhythm */
+.modal-body {
+    padding: 0 28px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 16:9 video frame — aspect-ratio locked so frame + empty state share footprint */
+.video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0A0A0A;
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+.video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Empty state matches the real frame's 16:9 footprint instead of a magic 280px */
+.video-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    background: #F2F2F7;
+    border: 1px dashed #E5E5EA;
+    color: #8E8E93;
+    text-align: center;
+}
+.video-empty p {
+    margin: 0;
+    font-size: 13px;
+}
+
+/* Description */
+.modal-description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #323232;
+    margin: 0;
+}
+
+/* Hairline divider — full-bleed across the body's 28px gutters */
+.modal-divider {
+    height: 1px;
+    background: #E5E5EA;
+    margin: 4px -28px 0;
+}
+
+/* Stats row inside the modal — slightly wider gap than the default */
+.modal-body .profile-info-row {
+    margin-top: 4px;
+    gap: 24px;
+}
+
+/* Loading state shares the body's gutters */
+.modal-loading {
+    padding: 56px 28px;
+    text-align: center;
+    color: #8E8E93;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+}
+
+@media (max-width: 560px) {
+    .modal-lg .modal-header { padding: 20px 20px 16px; }
+    .modal-body              { padding: 0 20px 20px; gap: 16px; }
+    .modal-divider           { margin: 4px -20px 0; }
+    .modal-loading           { padding: 40px 20px; }
+}

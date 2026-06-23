@@ -16,34 +16,75 @@ namespace PhysioLink.AdminPanel.Controllers
             _apiClient = apiClient;
         }
 
+        private const int PageSize = 12;
+
         [HttpGet]
-        public async Task<IActionResult> Index(string? search, string? difficulty, int page = 1)
+        public async Task<IActionResult> Index(string? search, string? difficulty, string? category, int page = 1)
         {
-            var exercises = await _apiClient.GetExercisesAsync(search, difficulty);
+            var exercises = await _apiClient.GetExercisesAsync(search, difficulty, category);
             if(exercises == null)
             {
                 return SessionExpiredRedirect();
             }
 
-            var filters = new Dictionary<string, string>();
+            // Client-side pagination — the exercises API returns a flat list, so we
+            // slice here. The Pagination partial then renders identically to other pages.
+            var totalCount = exercises.Count;
+            var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)PageSize));
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
 
-            if (!string.IsNullOrWhiteSpace(search))
-                filters["searchQuery"] = search;
-            
+            var pageItems = exercises
+                .Skip((page - 1) * PageSize)
+                .Take(PageSize)
+                .ToList();
+
+            var filters = new Dictionary<string, string>();
+            if (!string.IsNullOrWhiteSpace(search))     filters["search"]     = search;
+            if (!string.IsNullOrWhiteSpace(difficulty)) filters["difficulty"] = difficulty;
+            if (!string.IsNullOrWhiteSpace(category))   filters["category"]   = category;
 
             var viewModel = new ExerciseListViewModel
             {
-                Exercises = exercises,
+                Exercises = pageItems,
+                TotalCount = totalCount,
                 SearchQuery = search,
                 DifficultyFilter = difficulty,
+                CategoryFilter = category,
                 Pagination = new PaginationViewModel
                 {
                     CurrentPage = page,
-                    TotalPages = 1,
-
+                    TotalPages = totalPages,
+                    ActionName = "Index",
+                    Filters = filters,
                 }
             };
             return View(viewModel);
+        }
+
+        // JSON proxy for the detail modal — runs server-side so the API call uses
+        // the panel's HttpOnly auth cookie via ApiClient (no token exposed to JS).
+        [HttpGet]
+        public async Task<IActionResult> GetJson(Guid id)
+        {
+            var exercise = await _apiClient.GetExerciseByIdAsync(id);
+            if (exercise is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new
+            {
+                exerciseId      = exercise.ExerciseId,
+                name            = exercise.Name,
+                description     = exercise.Description,
+                sets            = exercise.Sets,
+                reps            = exercise.Reps,
+                durationMinutes = exercise.DurationMinutes,
+                difficulty      = exercise.Difficulty,
+                category        = exercise.Category,
+                videoUrl        = exercise.VideoUrl
+            });
         }
     }
 }

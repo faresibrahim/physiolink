@@ -25,7 +25,7 @@ namespace PhysioLink.Infrastructure.Data
             var context = scope.ServiceProvider.GetRequiredService<PhysioLinkDbContext>();
             var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<ApplicationUser>>();
 
-            if (!context.Users.Any())
+            if (!context.Users.IgnoreQueryFilters().Any())
             {
                 var hashedPassword = passwordHasher.HashPassword(null!, "test@123");
                 var therapist = new ApplicationUser(
@@ -40,18 +40,18 @@ namespace PhysioLink.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
-            if (!context.Exercises.Any())
+            if (!context.Exercises.IgnoreQueryFilters().Any())
             {
                 context.Exercises.AddRange(
                     new Exercise(name: "Knee Extension", reps: 15, sets: 3, durationMinutes: 10,
                         description: "Sit on a chair and slowly extend your knee to full straightness, hold for 2 seconds, then lower.",
-                        difficulty: DifficultyLevel.Moderate),
+                        difficulty: DifficultyLevel.Moderate, category: ExerciseCategory.Knee),
                     new Exercise(name: "Hip Abduction", reps: 12, sets: 3, durationMinutes: 15,
                         description: "Lie on your side and raise your top leg to 45 degrees, hold for 3 seconds, then lower slowly.",
-                        difficulty: DifficultyLevel.Hard),
+                        difficulty: DifficultyLevel.Easy, category: ExerciseCategory.Hip),
                     new Exercise(name: "Single Leg Balance", reps: 10, sets: 4, durationMinutes: 20,
                         description: "Stand on one leg with slight knee bend, maintain balance for 30 seconds, switch legs.",
-                        difficulty: DifficultyLevel.Hard)
+                        difficulty: DifficultyLevel.Hard, category: ExerciseCategory.Ankle)
                 );
                 await context.SaveChangesAsync();
             }

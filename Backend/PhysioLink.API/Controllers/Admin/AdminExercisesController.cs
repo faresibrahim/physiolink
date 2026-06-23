@@ -18,10 +18,17 @@ namespace PhysioLink.API.Controllers.Admin
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? search = null, [FromQuery] string? difficulty = null)
+        public async Task<IActionResult> GetAll([FromQuery] string? search = null, [FromQuery] string? difficulty = null, [FromQuery] string? category = null)
         {
-            var result = await _adminExerciseService.GetAllAsync(search, difficulty);
+            var result = await _adminExerciseService.GetAllAsync(search, difficulty, category);
             return Ok(result);
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var result = await _adminExerciseService.GetByIdAsync(id);
+            return result is null ? NotFound() : Ok(result);
         }
 
         [HttpPost]

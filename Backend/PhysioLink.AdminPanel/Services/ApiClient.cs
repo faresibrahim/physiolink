@@ -249,7 +249,7 @@ public class ApiClient
     // search/difficulty are forwarded for future backend support; currently ignored by the API.
     // -------------------------------------------------------------------------
 
-    public async Task<List<ExerciseResponse>?> GetExercisesAsync(string? search = null, string? difficulty = null)
+    public async Task<List<ExerciseResponse>?> GetExercisesAsync(string? search = null, string? difficulty = null, string? category = null)
     {
         return await ExecuteWithRefreshAsync(async client =>
         {
@@ -257,6 +257,7 @@ public class ApiClient
             var qs  = new List<string>();
             if (!string.IsNullOrEmpty(search))     qs.Add($"search={Uri.EscapeDataString(search)}");
             if (!string.IsNullOrEmpty(difficulty)) qs.Add($"difficulty={Uri.EscapeDataString(difficulty)}");
+            if (!string.IsNullOrEmpty(category))   qs.Add($"category={Uri.EscapeDataString(category)}");
             if (qs.Count > 0) url += "?" + string.Join("&", qs);
 
             var response = await client.GetAsync(url);
@@ -274,6 +275,10 @@ public class ApiClient
             }
         });
     }
+
+    public Task<ExerciseResponse?> GetExerciseByIdAsync(Guid id)
+        => ExecuteWithRefreshAsync<ExerciseResponse>(
+               c => c.GetAsync($"api/v1/admin/exercises/{id}"));
 
     public async Task<bool> CreateExerciseAsync(CreateExerciseRequest request)
     {

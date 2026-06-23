@@ -11,5 +11,6 @@ namespace PhysioLink.Application.DTOs.Exercises
         public required string Description { get; set; }
         public string? VideoUrl { get; set; }
         public DifficultyLevel Difficulty { get; set; }
+        public ExerciseCategory Category { get; set; }
     }
 }

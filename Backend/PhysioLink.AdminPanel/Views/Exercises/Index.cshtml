@@ -9,9 +9,9 @@
    ========================================================================= *@
 <div class="library-header">
     <div>
-        <h1 class="library-title">Exercise Library</h1>
-        <p class="library-subtitle">
-            @Model.Exercises.Count exercises available.
+        <h1 style="font-size:1.5rem; font-weight:600; color:#323232; margin:0;">Exercise Library</h1>
+        <p style="color:#8E8E93; margin:4px 0 0;">
+            @Model.TotalCount exercises available.
         </p>
     </div>
 </div>
@@ -27,6 +27,9 @@
         bool hardSelected     = Model.DifficultyFilter == "Hard";
     }
     <form method="get" asp-action="Index" class="filter-form">
+        @* Preserve the active category when the user searches or changes difficulty *@
+        <input type="hidden" name="category" value="@Model.CategoryFilter" />
+
         <div class="search-field">
             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -55,22 +58,32 @@
 </section>
 
 @* =========================================================================
-   CATEGORY CHIPS — body region chips per the mock.
-   Body region isn't on ExerciseResponse yet. "All" is wired, the rest
-   are visually present but disabled — easy to wire once BodyRegion lands.
+   CATEGORY CHIPS — one chip per ExerciseCategory enum value.
+   Each is a GET link that re-enters Index with ?category=<Value>,
+   preserving the active search and difficulty filters.
    ========================================================================= *@
+@{
+    var categories = new[] { "Shoulder", "Elbow", "Wrist", "Spine", "Core", "Hip", "Knee", "Ankle" };
+    bool allActive = string.IsNullOrEmpty(Model.CategoryFilter);
+}
 <div class="chip-row">
     <a asp-action="Index"
        asp-route-search="@Model.SearchQuery"
-       class="chip chip-active">
-        All <span class="chip-count">@Model.Exercises.Count</span>
+       asp-route-difficulty="@Model.DifficultyFilter"
+       class="chip @(allActive ? "chip-active" : "")">
+        All <span class="chip-count">@Model.TotalCount</span>
     </a>
-    <span class="chip chip-disabled">Knee &amp; Lower Leg <span class="chip-count">—</span></span>
-    <span class="chip chip-disabled">Hip &amp; Pelvis <span class="chip-count">—</span></span>
-    <span class="chip chip-disabled">Lower Back <span class="chip-count">—</span></span>
-    <span class="chip chip-disabled">Shoulder <span class="chip-count">—</span></span>
-    <span class="chip chip-disabled">Neck <span class="chip-count">—</span></span>
-    <span class="chip chip-disabled">Ankle &amp; Foot <span class="chip-count">—</span></span>
+    @foreach (var cat in categories)
+    {
+        bool isActive = string.Equals(Model.CategoryFilter, cat, StringComparison.OrdinalIgnoreCase);
+        <a asp-action="Index"
+           asp-route-search="@Model.SearchQuery"
+           asp-route-difficulty="@Model.DifficultyFilter"
+           asp-route-category="@cat"
+           class="chip @(isActive ? "chip-active" : "")">
+            @cat
+        </a>
+    }
 </div>
 
 @* =========================================================================
@@ -96,10 +109,10 @@ else
                 _ => "diff-neutral"
             };
 
-            <article class="exercise-card">
+            <article class="exercise-card" onclick="openExerciseModal('@exercise.ExerciseId')" style="cursor:pointer;">
                 @* Top visual — hatched background + region tag + icon disc *@
                 <div class="exercise-visual">
-                    <span class="region-tag">@(exercise.IsGlobal ? "GLOBAL" : "CLINIC")</span>
+                    <span class="region-tag">@exercise.Category.ToUpper()</span>
 
                     <div class="exercise-icon-disc">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#004AAD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -147,15 +160,165 @@ else
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                         </button>
-                        <button type="button" class="icon-btn" disabled aria-label="View exercise">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                        </button>
                     </div>
                 </footer>
             </article>
         }
     </div>
 }
+
+@* =========================================================================
+   PAGINATION — uses the shared _Pagination partial so it matches every
+   other listing page byte-for-byte.
+   ========================================================================= *@
+@await Html.PartialAsync("_Pagination", Model.Pagination)
+
+@* =========================================================================
+   EXERCISE DETAIL MODAL
+   ========================================================================= *@
+<div class="modal-overlay" id="exerciseDetailModal" aria-modal="true" role="dialog" aria-labelledby="exerciseModalTitle">
+    <div class="modal modal-lg">
+
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title" id="exerciseModalTitle">Exercise Detail</h2>
+            </div>
+            <button type="button" class="modal-close" onclick="closeExerciseModal()" aria-label="Close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        @* Loading state *@
+        <div id="exerciseModalLoading" class="modal-loading">Loading...</div>
+
+        @* Content (hidden until loaded) *@
+        <div id="exerciseModalContent" class="modal-body" style="display:none;">
+
+            @* Video player *@
+            <div id="exerciseVideoSection">
+                <div class="video-frame">
+                    <iframe id="exerciseVideoFrame"
+                            src=""
+                            title="Exercise demonstration"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen></iframe>
+                </div>
+            </div>
+
+            @* No video placeholder *@
+            <div id="exerciseNoVideo" class="video-empty" style="display:none;">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C7C7CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <p>No demonstration video for this exercise yet.</p>
+            </div>
+
+            @* Description *@
+            <p id="exerciseModalDescription" class="modal-description"></p>
+
+            @* Divider *@
+            <div class="modal-divider"></div>
+
+            @* Stats row *@
+            <div class="profile-info-row">
+                <div class="info-item">
+                    <p class="info-label">Difficulty</p>
+                    <p class="info-value" id="exerciseModalDifficulty"></p>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">Sets</p>
+                    <p class="info-value" id="exerciseModalSets"></p>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">Reps</p>
+                    <p class="info-value" id="exerciseModalReps"></p>
+                </div>
+                <div class="info-item">
+                    <p class="info-label">Duration</p>
+                    <p class="info-value" id="exerciseModalDuration"></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function () {
+    var modal     = document.getElementById('exerciseDetailModal');
+    var loading   = document.getElementById('exerciseModalLoading');
+    var content   = document.getElementById('exerciseModalContent');
+    var iframe    = document.getElementById('exerciseVideoFrame');
+    var videoSec  = document.getElementById('exerciseVideoSection');
+    var noVideo   = document.getElementById('exerciseNoVideo');
+
+    async function openExerciseModal(id) {
+        // Reset state
+        loading.textContent    = 'Loading...';
+        loading.style.display  = 'block';
+        content.style.display  = 'none';
+        iframe.src             = '';
+        modal.classList.add('modal-visible');
+
+        try {
+            // Goes through the panel's own controller — same origin, HttpOnly auth cookie
+            // is sent automatically; the panel forwards to the API server-side.
+            var response = await fetch('/Exercises/GetJson/' + id, {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) {
+                loading.textContent = 'Could not load exercise.';
+                return;
+            }
+
+            var data = await response.json();
+
+            // Title
+            document.getElementById('exerciseModalTitle').textContent = data.name;
+
+            // Video
+            if (data.videoUrl) {
+                videoSec.style.display = 'block';
+                noVideo.style.display  = 'none';
+                iframe.src             = 'https://www.youtube.com/embed/' + data.videoUrl;
+            } else {
+                videoSec.style.display = 'none';
+                noVideo.style.display  = 'flex';
+            }
+
+            // Description + stats
+            document.getElementById('exerciseModalDescription').textContent = data.description;
+            document.getElementById('exerciseModalDifficulty').textContent  = data.difficulty;
+            document.getElementById('exerciseModalSets').textContent        = data.sets;
+            document.getElementById('exerciseModalReps').textContent        = data.reps;
+            document.getElementById('exerciseModalDuration').textContent    = data.durationMinutes + ' min';
+
+            loading.style.display = 'none';
+            content.style.display = 'flex';
+
+        } catch (err) {
+            console.error('[exercise-modal]', err);
+            loading.textContent = 'Could not load exercise.';
+        }
+    }
+
+    function closeExerciseModal() {
+        modal.classList.remove('modal-visible');
+        iframe.src = ''; // stops YouTube audio
+    }
+
+    // Close on overlay click
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeExerciseModal();
+    });
+
+    // Expose for onclick
+    window.openExerciseModal  = openExerciseModal;
+    window.closeExerciseModal = closeExerciseModal;
+})();
+</script>

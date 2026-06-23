@@ -74,16 +74,15 @@
         </aside>
 
         <main class="main">
-            <header class="topbar">
-                <h1>@ViewData["Title"]</h1>
-                <div class="topbar-right">
-                    <div class="clinic-badge">
-                        <span class="dot"></span>
-                        @User.FindFirst("ClinicName")?.Value
-                    </div>
-                    
-                </div>
-            </header>
+            @* Topbar is kept on Dashboard only — every other page has its own
+               in-content header (title + subtitle + CTA), so the layout title
+               would be redundant. *@
+            @if (currentController == "Dashboard")
+            {
+                <header class="topbar">
+                    <h1>@ViewData["Title"]</h1>
+                </header>
+            }
 
             <div class="screens">
                 @if (TempData["SuccessMessage"] is string success)

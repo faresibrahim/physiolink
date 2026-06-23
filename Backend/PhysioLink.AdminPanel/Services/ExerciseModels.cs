@@ -12,7 +12,7 @@ public class ExerciseResponse
     [JsonPropertyName("description")]     public string Description { get; set; } = string.Empty;
     [JsonPropertyName("videoUrl")]        public string? VideoUrl { get; set; }
     [JsonPropertyName("difficulty")]      public string Difficulty { get; set; } = string.Empty;
-    [JsonPropertyName("isGlobal")]        public bool IsGlobal { get; set; }
+    [JsonPropertyName("category")]        public string Category { get; set; } = string.Empty;
 }
 
 public class CreateExerciseRequest
