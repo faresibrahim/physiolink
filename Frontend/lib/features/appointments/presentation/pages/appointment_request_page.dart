@@ -6,6 +6,7 @@ import 'package:practice/core/theme/app_spacing.dart';
 import 'package:practice/core/theme/app_text_styles.dart';
 import 'package:practice/features/appointments/presentation/providers/appointments_providers.dart';
 import 'package:practice/features/auth/presentation/providers/auth_provider.dart';
+import 'package:practice/l10n/app_localizations.dart';
 
 // Changed from StatefulWidget → ConsumerStatefulWidget so we can read
 // Riverpod providers (the repository and the logged-in patient ID) inside state.
@@ -109,9 +110,10 @@ class _AppointmentRequestPageState
     // Read the logged-in patient's ID from the auth notifier.
     // We use ref.read (not ref.watch) because this is inside an async function,
     // not inside build() — we only need the value once at call time.
+    final l10n = AppLocalizations.of(context)!;
     final patientId = ref.read(authNotifierProvider).patientId;
     if (patientId == null) {
-      setState(() => _errorMessage = 'Session expired. Please log in again.');
+      setState(() => _errorMessage = l10n.sessionExpired);
       return;
     }
 
@@ -136,9 +138,10 @@ class _AppointmentRequestPageState
           // Left branch — something went wrong. Map the failure type to a
           // human-readable message and display it inline (same pattern as login).
           final message = switch (failure) {
-            NetworkFailure() => 'No internet connection.',
-            AuthFailure() => 'Session expired. Please log in again.',
-            ServerFailure(:final statusCode) => 'Server error $statusCode. Check logs.',
+            NetworkFailure() => l10n.noInternetPeriod,
+            AuthFailure() => l10n.sessionExpired,
+            ServerFailure(:final statusCode) =>
+              l10n.serverErrorWithCode('${statusCode ?? ''}'),
           };
           setState(() => _errorMessage = message);
         },
@@ -150,7 +153,7 @@ class _AppointmentRequestPageState
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Appointment requested successfully'),
+              content: Text(l10n.appointmentRequested),
               backgroundColor: AppColors.secondary,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -167,6 +170,7 @@ class _AppointmentRequestPageState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -174,14 +178,21 @@ class _AppointmentRequestPageState
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () => Navigator.of(context).pop(),
-          child: const Icon(
-            Icons.arrow_back_ios_rounded,
-            color: AppColors.textPrimary,
-            size: 20,
+          child: const SizedBox(
+            width: 44,
+            height: 44,
+            child: Center(
+              child: Icon(
+                Icons.arrow_back_ios_rounded,
+                color: AppColors.textPrimary,
+                size: 20,
+              ),
+            ),
           ),
         ),
-        title: Text('Request Appointment', style: AppTextStyles.headline),
+        title: Text(l10n.requestAppointment, style: AppTextStyles.headline),
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1),
@@ -197,16 +208,17 @@ class _AppointmentRequestPageState
               const SizedBox(height: AppSpacing.sm),
 
               // ── Date field ─────────────────────────────────────────────
-              const _FieldLabel(label: 'Date'),
+              _FieldLabel(label: l10n.dateLabel),
               const SizedBox(height: AppSpacing.xs),
               TextFormField(
                 controller: _dateController,
                 onTap: _pickDate,
                 readOnly: true,
-                validator: (value) =>
-                    (value == null || value.isEmpty) ? 'Please select a date' : null,
+                validator: (value) => (value == null || value.isEmpty)
+                    ? l10n.pleaseSelectDate
+                    : null,
                 decoration: _fieldDecoration(
-                  hint: 'Select a date',
+                  hint: l10n.selectDate,
                   icon: Icons.calendar_today_outlined,
                 ),
               ),
@@ -214,16 +226,17 @@ class _AppointmentRequestPageState
               const SizedBox(height: AppSpacing.md),
 
               // ── Time field ─────────────────────────────────────────────
-              const _FieldLabel(label: 'Time'),
+              _FieldLabel(label: l10n.timeLabel),
               const SizedBox(height: AppSpacing.xs),
               TextFormField(
                 controller: _timeController,
                 onTap: _pickTime,
                 readOnly: true,
-                validator: (value) =>
-                    (value == null || value.isEmpty) ? 'Please select a time' : null,
+                validator: (value) => (value == null || value.isEmpty)
+                    ? l10n.pleaseSelectTime
+                    : null,
                 decoration: _fieldDecoration(
-                  hint: 'Select a time',
+                  hint: l10n.selectTime,
                   icon: Icons.access_time_rounded,
                 ),
               ),
@@ -231,7 +244,7 @@ class _AppointmentRequestPageState
               const SizedBox(height: AppSpacing.md),
 
               // ── Notes field (optional) ─────────────────────────────────
-              _FieldLabel(label: 'Notes (optional)'),
+              _FieldLabel(label: l10n.notesOptional),
               const SizedBox(height: AppSpacing.xs),
               TextFormField(
                 controller: _notesController,
@@ -239,7 +252,7 @@ class _AppointmentRequestPageState
                 maxLines: 4,
                 textInputAction: TextInputAction.done,
                 decoration: _fieldDecoration(
-                  hint: 'Describe what you\'d like to discuss or any concerns…',
+                  hint: l10n.notesHint,
                 ).copyWith(alignLabelWithHint: true),
               ),
 
@@ -286,7 +299,7 @@ class _AppointmentRequestPageState
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text('Request Appointment'),
+                      : Text(l10n.requestAppointment),
                 ),
               ),
 
@@ -304,7 +317,7 @@ class _AppointmentRequestPageState
                   const SizedBox(width: AppSpacing.xs),
                   Expanded(
                     child: Text(
-                      'Your therapist will confirm or suggest an alternative time.',
+                      l10n.therapistWillConfirm,
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                       ),

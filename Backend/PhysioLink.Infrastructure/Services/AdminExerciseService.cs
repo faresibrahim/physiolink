@@ -35,6 +35,7 @@ namespace PhysioLink.Infrastructure.Services
                     Reps = e.Reps,
                     DurationMinutes = e.DurationMinutes,
                     Description = e.Description,
+                    DescriptionAr = e.DescriptionAr,
                     VideoUrl = e.VideoUrl,
                     Difficulty = e.Difficulty,
                     Category = e.Category
@@ -55,6 +56,7 @@ namespace PhysioLink.Infrastructure.Services
                     Reps = e.Reps,
                     DurationMinutes = e.DurationMinutes,
                     Description = e.Description,
+                    DescriptionAr = e.DescriptionAr,
                     VideoUrl = e.VideoUrl,
                     Difficulty = e.Difficulty,
                     Category = e.Category
@@ -66,7 +68,7 @@ namespace PhysioLink.Infrastructure.Services
         {
             var exercise = new Exercise(
                 dto.Name, dto.Reps, dto.Sets, dto.DurationMinutes,
-                dto.Description, dto.Difficulty, dto.Category);
+                dto.Description, dto.Difficulty, dto.Category, dto.DescriptionAr);
             exercise.VideoUrl = dto.VideoUrl;
 
             _dbContext.Exercises.Add(exercise);
@@ -80,6 +82,7 @@ namespace PhysioLink.Infrastructure.Services
                 Reps = exercise.Reps,
                 DurationMinutes = exercise.DurationMinutes,
                 Description = exercise.Description,
+                DescriptionAr = exercise.DescriptionAr,
                 VideoUrl = exercise.VideoUrl,
                 Difficulty = exercise.Difficulty,
                 Category = exercise.Category

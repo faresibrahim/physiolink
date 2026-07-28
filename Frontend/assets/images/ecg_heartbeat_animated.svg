@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -10 130 42" width="130" height="42">
+  <!--
+    PhysioLink animated ECG heartbeat.
+    Reproduces the splash-screen draw-on effect (_EcgLinePainter):
+    the trace draws left-to-right with an ease-in-out curve, holds, then loops.
+    Self-contained (CSS embedded) — renders in any browser / screen-recorder.
+  -->
+  <style>
+    .ecg {
+      fill: none;
+      stroke: #004AAD;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      /* pathLength="100" normalises the trace so we can dash in %-like units */
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+      animation: ecg-draw 3s ease-in-out infinite;
+    }
+    @keyframes ecg-draw {
+      0%   { stroke-dashoffset: 100; opacity: 0; }
+      10%  { opacity: 1; }
+      55%  { stroke-dashoffset: 0;   opacity: 1; }  /* fully drawn ~1.65s */
+      85%  { stroke-dashoffset: 0;   opacity: 1; }  /* hold */
+      100% { stroke-dashoffset: 0;   opacity: 0; }  /* fade before looping */
+    }
+  </style>
+  <path
+    class="ecg"
+    pathLength="100"
+    d="M0 18 L36.4 18 L44.2 23 L52 -7.92 L59.8 29.52 L67.6 18 L130 18" />
+</svg>

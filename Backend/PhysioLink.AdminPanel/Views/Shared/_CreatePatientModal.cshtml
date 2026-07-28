@@ -1,0 +1,127 @@
+@model PhysioLink.AdminPanel.ViewModels.CreatePatientModalViewModel
+
+@* ── Shared "New Patient" dialog ───────────────────────────────────────────────
+   Included on any page that creates a patient (Patients list, Therapist detail)
+   so creation is always a dialog. Posts to Patients/Create; on success the
+   controller redirects to the Patients list where the credentials modal shows.
+   ───────────────────────────────────────────────────────────────────────────── *@
+<div class="modal-overlay" id="patientModal" aria-modal="true" role="dialog" aria-labelledby="patientModalTitle">
+    <div class="modal">
+
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title" id="patientModalTitle">New Patient</h2>
+                <p class="modal-subtitle">Register a new patient and generate their login credentials.</p>
+            </div>
+            <button type="button" class="modal-close" onclick="closePatientModal()" aria-label="Close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <form method="post" asp-action="Create" asp-controller="Patients" class="modal-form" id="patientForm">
+            @Html.AntiForgeryToken()
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="pat-FirstName">First Name</label>
+                    <input type="text" id="pat-FirstName" name="FirstName" class="form-input" placeholder="e.g. John" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="pat-LastName">Last Name</label>
+                    <input type="text" id="pat-LastName" name="LastName" class="form-input" placeholder="e.g. Smith" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="pat-Email">Email</label>
+                <input type="email" id="pat-Email" name="Email" class="form-input" placeholder="patient@example.com" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="pat-PhoneNumber">Phone</label>
+                <input type="text" id="pat-PhoneNumber" name="PhoneNumber" class="form-input" placeholder="+970 5XX XXX XXX" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="pat-Diagnosis">Diagnosis</label>
+                <textarea id="pat-Diagnosis" name="Diagnosis" class="form-input" rows="3"
+                          placeholder="e.g. Knee injury, post-op rehabilitation..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="pat-TherapistId">
+                    Assigned Therapist <span class="label-optional">(optional)</span>
+                </label>
+                <select id="pat-TherapistId" name="TherapistId" class="form-input">
+                    <option value="">— Unassigned —</option>
+                    @foreach (var t in Model.Therapists)
+                    {
+                        if (Model.PreselectedTherapistId == t.Id)
+                        {
+                            <option value="@t.Id" selected>@t.FirstName.Trim() @t.LastName.Trim()</option>
+                        }
+                        else
+                        {
+                            <option value="@t.Id">@t.FirstName.Trim() @t.LastName.Trim()</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" onclick="closePatientModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Patient</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    (function () {
+        var patientModal = document.getElementById('patientModal');
+        var patientForm  = document.getElementById('patientForm');
+        if (!patientModal || !patientForm) return;
+
+        function openPatientModal() {
+            patientModal.classList.add('modal-visible');
+        }
+
+        function closePatientModal() {
+            patientModal.classList.remove('modal-visible');
+            patientForm.reset();
+        }
+
+        // Close on overlay click
+        patientModal.addEventListener('click', function (e) {
+            if (e.target === patientModal) closePatientModal();
+        });
+
+        // Close on Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && patientModal.classList.contains('modal-visible')) {
+                closePatientModal();
+            }
+        });
+
+        // Client-side validation
+        patientForm.addEventListener('submit', function (e) {
+            var first = document.getElementById('pat-FirstName').value.trim();
+            var last  = document.getElementById('pat-LastName').value.trim();
+            var email = document.getElementById('pat-Email').value.trim();
+            var phone = document.getElementById('pat-PhoneNumber').value.trim();
+            var diag  = document.getElementById('pat-Diagnosis').value.trim();
+
+            if (!first || !last || !email || !phone || !diag) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+            }
+        });
+
+        window.openPatientModal  = openPatientModal;
+        window.closePatientModal = closePatientModal;
+    })();
+</script>

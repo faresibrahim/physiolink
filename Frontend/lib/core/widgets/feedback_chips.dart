@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:practice/core/theme/app_colors.dart';
 import 'package:practice/core/theme/app_spacing.dart';
 import 'package:practice/core/theme/app_text_styles.dart';
+import 'package:practice/l10n/app_localizations.dart';
 
 class FeedbackChips extends StatefulWidget {
   const FeedbackChips({
@@ -14,21 +15,23 @@ class FeedbackChips extends StatefulWidget {
   final int? selected;
   final ValueChanged<int> onChanged;
 
-  static const List<(int, String)> options = [
-    (1, 'Very Easy'),
-    (2, 'Easy'),
-    (3, 'Fairly Easy'),
-    (4, 'Somewhat Easy'),
-    (5, 'Moderate'),
-    (6, 'Somewhat Hard'),
-    (7, 'Fairly Hard'),
-    (8, 'Hard'),
-    (9, 'Very Hard'),
-    (10, 'Maximum Effort'),
-  ];
+  // Effort levels 1–10. Display labels are resolved via [labelFor] so they
+  // localize; this list only drives the count/iteration of the chip rail.
+  static const List<int> levels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  static String labelFor(int value) =>
-      options.firstWhere((o) => o.$1 == value, orElse: () => (value, 'Level $value')).$2;
+  static String labelFor(AppLocalizations l10n, int value) => switch (value) {
+        1 => l10n.effort1,
+        2 => l10n.effort2,
+        3 => l10n.effort3,
+        4 => l10n.effort4,
+        5 => l10n.effort5,
+        6 => l10n.effort6,
+        7 => l10n.effort7,
+        8 => l10n.effort8,
+        9 => l10n.effort9,
+        10 => l10n.effort10,
+        _ => l10n.effortLevel(value),
+      };
 
   static Color colorFor(int value) {
     if (value <= 3) return const Color(0xFF4CAF82);
@@ -58,6 +61,7 @@ class _FeedbackChipsState extends State<FeedbackChips> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final selected = widget.selected;
     final activeColor = selected != null
         ? FeedbackChips.colorFor(selected)
@@ -93,7 +97,10 @@ class _FeedbackChipsState extends State<FeedbackChips> {
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  '$selected — ${FeedbackChips.labelFor(selected)}',
+                  l10n.selectedEffort(
+                    selected,
+                    FeedbackChips.labelFor(l10n, selected),
+                  ),
                   style: AppTextStyles.subheadline.copyWith(
                     color: activeColor,
                     fontWeight: FontWeight.w600,
@@ -101,7 +108,7 @@ class _FeedbackChipsState extends State<FeedbackChips> {
                 ),
               ] else
                 Text(
-                  'How intense was it?',
+                  l10n.howIntenseWasIt,
                   style: AppTextStyles.subheadline.copyWith(
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.w400,
@@ -125,15 +132,15 @@ class _FeedbackChipsState extends State<FeedbackChips> {
               top: 4,
               bottom: 4,
             ),
-            itemCount: FeedbackChips.options.length,
+            itemCount: FeedbackChips.levels.length,
             separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
             itemBuilder: (context, index) {
-              final (value, _) = FeedbackChips.options[index];
+              final value = FeedbackChips.levels[index];
               final isSelected = selected == value;
               final chipColor = FeedbackChips.colorFor(value);
 
               return Semantics(
-                label: FeedbackChips.labelFor(value),
+                label: FeedbackChips.labelFor(l10n, value),
                 button: true,
                 selected: isSelected,
                 child: GestureDetector(
@@ -193,12 +200,15 @@ class _FeedbackChipsState extends State<FeedbackChips> {
         const SizedBox(height: AppSpacing.xs),
 
         // ── Legend ───────────────────────────────────────────
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _LegendLabel(label: 'Easy', color: Color(0xFF4CAF82)),
-            _LegendLabel(label: 'Moderate', color: Color(0xFFF59E0B)),
-            _LegendLabel(label: 'Maximum', color: AppColors.destructive),
+            _LegendLabel(label: l10n.legendEasy, color: const Color(0xFF4CAF82)),
+            _LegendLabel(
+              label: l10n.legendModerate,
+              color: const Color(0xFFF59E0B),
+            ),
+            _LegendLabel(label: l10n.legendMaximum, color: AppColors.destructive),
           ],
         ),
       ],

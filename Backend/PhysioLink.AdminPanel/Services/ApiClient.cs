@@ -161,6 +161,13 @@ public class ApiClient
         return await response.Content.ReadFromJsonAsync<LoginResponse>();
     }
 
+    // Re-authenticates the signed-in user before a destructive action. The API resolves
+    // the account from the bearer token, so only the password travels. Returns false for
+    // a wrong password (API answers 400, which keeps 401 meaning "token expired").
+    public Task<bool> VerifyPasswordAsync(string password)
+        => ExecuteWithRefreshAsync(
+               c => c.PostAsJsonAsync("api/v1/auth/verify-password", new { Password = password }));
+
     public async Task<bool> LogoutAsync(string refreshToken)
     {
         var client   = CreateAuthenticatedClient();

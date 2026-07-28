@@ -89,6 +89,17 @@ namespace PhysioLink.AdminPanel.Controllers
 
         }
 
-        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unassign(Guid id, Guid patientId)
+        {
+            var success = await _apiClient.DeleteAssignmentAsync(id);
+
+            TempData[success ? "SuccessMessage" : "ErrorMessage"] = success
+                ? "Exercise unassigned successfully."
+                : "Failed to unassign exercise. Please try again.";
+
+            return RedirectToAction("Detail", "Patients", new { id = patientId });
+        }
     }
 }

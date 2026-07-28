@@ -10,6 +10,7 @@ import 'package:practice/core/widgets/shimmer_card.dart';
 import 'package:practice/features/exercises/domain/entities/exercise_assignment.dart';
 import 'package:practice/features/exercises/presentation/providers/exercise_fetch_provider.dart';
 import 'package:practice/features/exercises/presentation/widgets/exercise_card.dart';
+import 'package:practice/l10n/app_localizations.dart';
 
 enum _FilterTab { all, active, completed }
 
@@ -27,6 +28,7 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
   @override
   Widget build(BuildContext context) {
     final exercisesAsync = ref.watch(exercisesProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: Column(
@@ -44,7 +46,7 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Exercises',
+                  l10n.exercises,
                   style: AppTextStyles.title1.copyWith(
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
@@ -53,8 +55,8 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
                 GestureDetector(
                   onTap: () {},
                   child: Container(
-                    width: 36,
-                    height: 36,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
                       color: AppColors.surface,
                       borderRadius: BorderRadius.circular(10),
@@ -81,7 +83,7 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
             ),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search exercises',
+                hintText: l10n.searchExercises,
                 hintStyle: AppTextStyles.body.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -116,14 +118,14 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
                     child: Row(
                       children: [
                         _FilterChip(
-                          label: 'All',
+                          label: l10n.filterAll,
                           count: exercises.length,
                           selected: _filter == _FilterTab.all,
                           onTap: () => setState(() => _filter = _FilterTab.all),
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         _FilterChip(
-                          label: 'Active',
+                          label: l10n.filterActive,
                           count: activeCount,
                           selected: _filter == _FilterTab.active,
                           onTap: () =>
@@ -131,7 +133,7 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         _FilterChip(
-                          label: 'Completed',
+                          label: l10n.filterCompleted,
                           count: completedCount,
                           selected: _filter == _FilterTab.completed,
                           onTap: () =>
@@ -155,9 +157,9 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
               loading: () => _buildLoading(),
               error: (_, _) => EmptyState(
                 icon: Icons.wifi_off_rounded,
-                title: 'Something went wrong',
-                subtitle: 'An unexpected error occurred.',
-                ctaLabel: 'Retry',
+                title: l10n.somethingWentWrong,
+                subtitle: l10n.unexpectedError,
+                ctaLabel: l10n.retry,
                 onCta: () => ref.invalidate(exercisesProvider),
               ),
             ),
@@ -168,6 +170,7 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
   }
 
   Widget _buildList(List<ExerciseAssignment> exercises) {
+    final l10n = AppLocalizations.of(context)!;
     var filtered = exercises.where((e) {
       return e.exerciseName.toLowerCase().contains(_searchQuery);
     }).toList();
@@ -184,14 +187,14 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
             ? Icons.search_off_rounded
             : Icons.fitness_center_outlined,
         title: _searchQuery.isNotEmpty
-            ? 'No matches for "$_searchQuery"'
+            ? l10n.noMatchesFor(_searchQuery)
             : _filter == _FilterTab.completed
-            ? 'No completed exercises'
-            : 'No exercises found',
+            ? l10n.noCompletedExercises
+            : l10n.noExercisesFound,
         subtitle: _searchQuery.isNotEmpty
-            ? 'Try a different keyword, or browse your full exercise plan.'
-            : "Your therapist hasn't assigned any exercises yet.",
-        ctaLabel: _searchQuery.isNotEmpty ? 'Clear search' : null,
+            ? l10n.searchNoMatchSubtitle
+            : l10n.noExercisesAssignedSubtitle,
+        ctaLabel: _searchQuery.isNotEmpty ? l10n.clearSearch : null,
         onCta: _searchQuery.isNotEmpty
             ? () => setState(() => _searchQuery = '')
             : null,
@@ -248,16 +251,17 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
   }
 
   Widget _buildError(AppFailure failure) {
+    final l10n = AppLocalizations.of(context)!;
     final message = switch (failure) {
-      NetworkFailure() => 'No internet connection',
-      ServerFailure() => 'Server error. Try again.',
-      AuthFailure() => 'Session expired. Please log in again.',
+      NetworkFailure() => l10n.noInternet,
+      ServerFailure() => l10n.serverError,
+      AuthFailure() => l10n.sessionExpired,
     };
     return EmptyState(
       icon: Icons.error_outline_rounded,
-      title: "Couldn't load exercises",
+      title: l10n.couldntLoadExercises,
       subtitle: message,
-      ctaLabel: 'Retry',
+      ctaLabel: l10n.retry,
       onCta: () => ref.invalidate(exercisesProvider),
     );
   }

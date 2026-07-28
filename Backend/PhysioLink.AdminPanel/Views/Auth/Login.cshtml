@@ -1,4 +1,4 @@
-﻿@model LoginViewModel
+@model LoginViewModel
 
 @{
     Layout = null;
@@ -17,10 +17,10 @@
 </head>
 
 <body>
-<div style="min-height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;">
-    <div class="card" style="width:100%;max-width:400px;padding:40px;">
+<div class="auth-page">
+    <div class="card auth-card">
 
-        <div class="brand" style="justify-content:center;margin-bottom:32px;">
+        <div class="brand">
             <img src="~/images/physiolink_logo.svg" alt="PhysioLink" width="40" height="40" />
             <div>
                 <div class="brand-name">PhysioLink</div>
@@ -30,19 +30,19 @@
 
         @if (TempData["ErrorMessage"] is string err)
         {
-            <div class="error-banner">@err</div>
+            <div class="alert alert-error" role="alert">@err</div>
         }
 
-        <form asp-action="Login" asp-controller="Auth" method="post">
-                <div class="field" style="margin-bottom: 8px;">
+        <form asp-action="Login" asp-controller="Auth" method="post" class="auth-form">
+            <div class="field">
                 <label asp-for="Email"></label>
-                <input asp-for="Email" class="input" type="email" placeholder="admin@clinic.com" />
+                <input asp-for="Email" class="input" type="email" placeholder="admin@clinic.com" autocomplete="email" />
             </div>
             <div class="field">
                 <label asp-for="Password"></label>
-                <input asp-for="Password" class="input" type="password" placeholder="••••••••" />
+                <input asp-for="Password" class="input" type="password" placeholder="••••••••" autocomplete="current-password" />
             </div>
-            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:24px;">Sign in</button>
+            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
         </form>
 
     </div>

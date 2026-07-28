@@ -12,6 +12,10 @@ namespace PhysioLink.Application.DTOs.Exercises
 
         public string? Description {get; set;}
 
+        public string? DescriptionAr {get; set;}
+
+        public string? VideoUrl {get; set;}
+
         public DifficultyLevel Difficulty {get; set;}
 
         public int? Feedback {get; set;}

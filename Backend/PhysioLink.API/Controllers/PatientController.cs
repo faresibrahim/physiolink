@@ -1,11 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PhysioLink.Application.DTOs.Patients;
 using PhysioLink.Application.Interfaces;
 
 namespace PhysioLink.API.Controllers
 {
+    
     [ApiController]
     [Route("api/v1")]
+    [Authorize(Roles = "Patient")]
+
     public class PatientController : ControllerBase
     {
         private readonly IPatientService _patientService;

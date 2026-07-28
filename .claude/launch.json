@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "physiolink-api",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "Backend/PhysioLink.API/PhysioLink.API.csproj", "--urls", "http://localhost:5218"],
+      "port": 5218
+    },
+    {
+      "name": "physiolink-adminpanel",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "Backend/PhysioLink.AdminPanel/PhysioLink.AdminPanel.csproj", "--urls", "http://localhost:5001"],
+      "port": 5001
+    }
+  ]
+}

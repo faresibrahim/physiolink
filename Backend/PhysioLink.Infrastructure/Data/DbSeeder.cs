@@ -45,14 +45,52 @@ namespace PhysioLink.Infrastructure.Data
                 context.Exercises.AddRange(
                     new Exercise(name: "Knee Extension", reps: 15, sets: 3, durationMinutes: 10,
                         description: "Sit on a chair and slowly extend your knee to full straightness, hold for 2 seconds, then lower.",
-                        difficulty: DifficultyLevel.Moderate, category: ExerciseCategory.Knee),
+                        difficulty: DifficultyLevel.Moderate, category: ExerciseCategory.Knee,
+                        descriptionAr: "اجلس على كرسي ومد ركبتك ببطء حتى تصبح مستقيمة تماماً، اثبت لمدة ثانيتين، ثم أنزلها."),
                     new Exercise(name: "Hip Abduction", reps: 12, sets: 3, durationMinutes: 15,
                         description: "Lie on your side and raise your top leg to 45 degrees, hold for 3 seconds, then lower slowly.",
-                        difficulty: DifficultyLevel.Easy, category: ExerciseCategory.Hip),
+                        difficulty: DifficultyLevel.Easy, category: ExerciseCategory.Hip,
+                        descriptionAr: "استلقِ على جانبك وارفع الساق العليا إلى زاوية 45 درجة، اثبت لمدة ثلاث ثوانٍ، ثم أنزلها ببطء."),
                     new Exercise(name: "Single Leg Balance", reps: 10, sets: 4, durationMinutes: 20,
                         description: "Stand on one leg with slight knee bend, maintain balance for 30 seconds, switch legs.",
-                        difficulty: DifficultyLevel.Hard, category: ExerciseCategory.Ankle)
+                        difficulty: DifficultyLevel.Hard, category: ExerciseCategory.Ankle,
+                        descriptionAr: "قف على ساق واحدة مع ثني الركبة قليلاً، حافظ على توازنك لمدة 30 ثانية، ثم بدّل الساق.")
+                    {
+                        // Local demo clip served from the admin panel's wwwroot/images.
+                        VideoUrl = "/images/DSC_6589.MOV"
+                    }
                 );
+                await context.SaveChangesAsync();
+            }
+
+            // Backfill the demo video on the balance exercise so databases seeded
+            // before the video was added can still exercise the admin video player.
+            var balanceExercise = await context.Exercises.IgnoreQueryFilters()
+                .FirstOrDefaultAsync(e => e.Name == "Single Leg Balance");
+            if (balanceExercise != null && string.IsNullOrWhiteSpace(balanceExercise.VideoUrl))
+            {
+                balanceExercise.VideoUrl = "/images/DSC_6589.MOV";
+                await context.SaveChangesAsync();
+            }
+
+            // Backfill the Arabic steps on the seeded exercises so databases seeded
+            // before the translation column existed still show Arabic instructions.
+            var arabicDescriptions = new Dictionary<string, string>
+            {
+                ["Knee Extension"]     = "اجلس على كرسي ومد ركبتك ببطء حتى تصبح مستقيمة تماماً، اثبت لمدة ثانيتين، ثم أنزلها.",
+                ["Hip Abduction"]      = "استلقِ على جانبك وارفع الساق العليا إلى زاوية 45 درجة، اثبت لمدة ثلاث ثوانٍ، ثم أنزلها ببطء.",
+                ["Single Leg Balance"] = "قف على ساق واحدة مع ثني الركبة قليلاً، حافظ على توازنك لمدة 30 ثانية، ثم بدّل الساق.",
+            };
+
+            var untranslated = await context.Exercises.IgnoreQueryFilters()
+                .Where(e => e.DescriptionAr == null && arabicDescriptions.Keys.Contains(e.Name))
+                .ToListAsync();
+            if (untranslated.Count > 0)
+            {
+                foreach (var exercise in untranslated)
+                {
+                    exercise.DescriptionAr = arabicDescriptions[exercise.Name];
+                }
                 await context.SaveChangesAsync();
             }
 

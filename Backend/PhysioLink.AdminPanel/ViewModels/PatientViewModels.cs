@@ -21,6 +21,10 @@ public class PatientDetailViewModel
     public PatientDetailResponse Patient { get; set; } = null!;
     public List<TherapistResponse> Therapists { get; set; } = [];
     public List<ExerciseResponse> Exercises { get; set; } = [];
+
+    // Resolved from Patient.TherapistName against Therapists, so the Edit
+    // Patient dialog can preselect the currently-assigned therapist.
+    public Guid? PatientTherapistId { get; set; }
 }
 
 public class PatientFormViewModel
@@ -57,4 +61,12 @@ public class CreatePatientResultViewModel
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string TemporaryPassword { get; set; } = string.Empty;
+}
+
+// Drives the shared "New Patient" dialog (_CreatePatientModal), so patient
+// creation is a dialog everywhere it appears (Patients list, Therapist detail).
+public class CreatePatientModalViewModel
+{
+    public List<TherapistResponse> Therapists { get; set; } = [];
+    public Guid? PreselectedTherapistId { get; set; }
 }

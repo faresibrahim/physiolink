@@ -129,6 +129,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandler();
+
+// Serve wwwroot/ (e.g. /images/*.mov demo videos) so the mobile app can stream
+// exercise videos over the network. Placed before auth so files stay public.
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -19,6 +19,7 @@ namespace PhysioLink.AdminPanel.ViewModels
         public Guid ExerciseId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string? DescriptionAr { get; set; }
         public int Sets { get; set; }
         public int Reps { get; set; }
         public int DurationMinutes { get; set; }

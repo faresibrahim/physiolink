@@ -7,5 +7,9 @@ namespace PhysioLink.Application.DTOs.Auth
         public string RefreshToken {get; set;}
         public Guid PatientId { get; set; }
         public string? ClinicName { get; set; }
+
+        // When true, the client must route the patient to the change-password screen
+        // before granting access — they are still on the admin-issued temporary password.
+        public bool MustChangePassword { get; set; }
     }
 }

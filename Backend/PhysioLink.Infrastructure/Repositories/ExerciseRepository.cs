@@ -34,6 +34,8 @@ namespace PhysioLink.Infrastructure.Repositories
                 Reps = ea.Reps,
                 DurationMinutes = ea.DurationMinutes,
                 Description = ea.Exercise.Description,
+                DescriptionAr = ea.Exercise.DescriptionAr,
+                VideoUrl = ea.Exercise.VideoUrl,
                 Difficulty = ea.Exercise.Difficulty,
                 Feedback = ea.Feedback,
                 CompletedAt = ea.CompletedAt,

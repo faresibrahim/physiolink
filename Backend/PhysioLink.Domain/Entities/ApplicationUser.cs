@@ -11,6 +11,10 @@ namespace PhysioLink.Domain.Entities
         public string Role { get; set; }
         public Guid ClinicId { get; set; }
 
+        // True while the account is still on the admin-issued temporary password.
+        // The patient must set their own password on first login; cleared once they do.
+        public bool MustChangePassword { get; set; }
+
         //??
         public DateTime? RefreshTokenExpiry {get; set;}
 

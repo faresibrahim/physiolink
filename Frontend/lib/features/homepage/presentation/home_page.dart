@@ -12,16 +12,17 @@ import 'package:practice/features/exercises/domain/entities/exercise_assignment.
 import 'package:practice/features/exercises/presentation/providers/exercise_fetch_provider.dart';
 import 'package:practice/features/exercises/presentation/widgets/exercise_card.dart';
 import 'package:practice/features/profile/presentation/providers/profile_providers.dart';
+import 'package:practice/l10n/app_localizations.dart';
 
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
-  String _greeting() {
+  String _greeting(AppLocalizations l10n) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return l10n.goodMorning;
+    if (hour < 17) return l10n.goodAfternoon;
+    return l10n.goodEvening;
   }
 
   static const _weekdayAbbr = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -115,6 +116,7 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final exercisesAsync = ref.watch(exercisesProvider);
     final profileAsync = ref.watch(profileProvider);
     final appointmentsAsync = ref.watch(appointmentsProvider);
@@ -171,8 +173,8 @@ class HomePage extends ConsumerWidget {
             SliverToBoxAdapter(
               child: _HeroHeader(
                 greeting: firstName != null
-                    ? '${_greeting()}, $firstName'
-                    : _greeting(),
+                    ? l10n.greetingWithName(_greeting(l10n), firstName)
+                    : _greeting(l10n),
                 date: _formattedDate(),
               ),
             ),
@@ -202,10 +204,10 @@ class HomePage extends ConsumerWidget {
                               return '$done / ${list.length}';
                             },
                           ),
-                          loading: () => 'â€¦',
-                          error: (_, _) => 'â€”',
+                          loading: () => '…',
+                          error: (_, _) => '—',
                         ),
-                        label: 'Exercises آ· today',
+                        label: l10n.exercisesTodayStat,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
@@ -215,7 +217,7 @@ class HomePage extends ConsumerWidget {
                         iconColor: const Color(0xFFF59E0B),
                         iconBg: const Color(0xFFFFF8E6),
                         value: '$streak',
-                        label: 'Streak آ· days',
+                        label: l10n.streakDaysStat,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
@@ -226,10 +228,12 @@ class HomePage extends ConsumerWidget {
                         iconBg: AppColors.secondaryLight,
                         value: nextAppointment != null
                             ? _dayAbbr(nextAppointment.appointmentTime!)
-                            : 'â€”',
+                            : '—',
                         label: nextAppointment != null
-                            ? 'Next آ· ${_timeLabel(nextAppointment.appointmentTime!)}'
-                            : 'Next آ· none',
+                            ? l10n.nextTimeStat(
+                                _timeLabel(nextAppointment.appointmentTime!),
+                              )
+                            : l10n.nextNoneStat,
                       ),
                     ),
                   ],
@@ -267,7 +271,7 @@ class HomePage extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Today's exercises",
+                      l10n.todaysExercises,
                       style: AppTextStyles.headline.copyWith(
                         color: AppColors.textHeading,
                         fontWeight: FontWeight.w700,
@@ -276,7 +280,7 @@ class HomePage extends ConsumerWidget {
                     GestureDetector(
                       onTap: () => context.go('/exercises'),
                       child: Text(
-                        'See all',
+                        l10n.seeAll,
                         style: AppTextStyles.footnote.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w600,
@@ -297,8 +301,8 @@ class HomePage extends ConsumerWidget {
                     ),
                     child: EmptyState(
                       icon: Icons.error_outline_rounded,
-                      title: "Couldn't load exercises",
-                      subtitle: 'Pull down to retry.',
+                      title: l10n.couldntLoadExercises,
+                      subtitle: l10n.pullDownToRetry,
                     ),
                   ),
                 ),
@@ -311,8 +315,8 @@ class HomePage extends ConsumerWidget {
                         ),
                         child: EmptyState(
                           icon: Icons.fitness_center_outlined,
-                          title: 'No exercises today',
-                          subtitle: "Your therapist hasn't assigned exercises yet.",
+                          title: l10n.noExercisesToday,
+                          subtitle: l10n.noExercisesTodaySubtitle,
                         ),
                       ),
                     );
@@ -329,8 +333,8 @@ class HomePage extends ConsumerWidget {
                         ),
                         child: EmptyState(
                           icon: Icons.check_circle_outline_rounded,
-                          title: 'All done for today!',
-                          subtitle: "You've completed all your exercises.",
+                          title: l10n.allDoneToday,
+                          subtitle: l10n.allDoneTodaySubtitle,
                         ),
                       ),
                     );
@@ -370,8 +374,8 @@ class HomePage extends ConsumerWidget {
                   ),
                   child: EmptyState(
                     icon: Icons.wifi_off_rounded,
-                    title: 'Something went wrong',
-                    subtitle: 'Pull down to retry.',
+                    title: l10n.somethingWentWrong,
+                    subtitle: l10n.pullDownToRetry,
                   ),
                 ),
               ),
@@ -390,7 +394,7 @@ class HomePage extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Next appointment',
+                      l10n.nextAppointmentTitle,
                       style: AppTextStyles.headline.copyWith(
                         color: AppColors.textHeading,
                         fontWeight: FontWeight.w700,
@@ -399,7 +403,7 @@ class HomePage extends ConsumerWidget {
                     GestureDetector(
                       onTap: () => context.go('/appointments'),
                       child: Text(
-                        'See all',
+                        l10n.seeAll,
                         style: AppTextStyles.footnote.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w600,
@@ -463,46 +467,23 @@ class _HeroHeader extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  date,
-                  style: AppTextStyles.footnote.copyWith(
-                    color: Colors.white.withValues(alpha: 0.65),
-                    letterSpacing: 0.2,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  greeting,
-                  style: AppTextStyles.title1.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              ],
+          Text(
+            date,
+            style: AppTextStyles.footnote.copyWith(
+              color: Colors.white.withValues(alpha: 0.65),
+              letterSpacing: 0.2,
             ),
           ),
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.notifications_outlined,
-                color: Colors.white,
-                size: 22,
-              ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            greeting,
+            style: AppTextStyles.title1.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
             ),
           ),
         ],
@@ -563,7 +544,7 @@ class _StatCard extends StatelessWidget {
             label,
             style: AppTextStyles.caption.copyWith(
               color: AppColors.textSecondary,
-              fontSize: 11,
+              fontSize: 12,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -587,9 +568,10 @@ class _WeeklyProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final ratio = total > 0 ? (completed / total).clamp(0.0, 1.0) : 0.0;
     final now = DateTime.now();
-    final weekday = now.weekday; // 1=Mon â€¦ 7=Sun
+    final weekday = now.weekday; // 1=Mon … 7=Sun
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -604,14 +586,14 @@ class _WeeklyProgressCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Weekly progress',
+                l10n.weeklyProgress,
                 style: AppTextStyles.headline.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
-                '$completed / $total sessions',
+                l10n.sessionsProgress(completed, total),
                 style: AppTextStyles.footnote.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -778,11 +760,11 @@ class _NextAppointmentCard extends StatelessWidget {
     return '$h:$m $p';
   }
 
-  String _statusLabel(AppointmentStatus s) => switch (s) {
-        AppointmentStatus.confirmed => 'Confirmed',
-        AppointmentStatus.pending => 'Pending',
-        AppointmentStatus.cancelled => 'Cancelled',
-        AppointmentStatus.completed => 'Done',
+  String _statusLabel(AppLocalizations l10n, AppointmentStatus s) => switch (s) {
+        AppointmentStatus.confirmed => l10n.statusConfirmed,
+        AppointmentStatus.pending => l10n.statusPending,
+        AppointmentStatus.cancelled => l10n.statusCancelled,
+        AppointmentStatus.completed => l10n.statusDone,
       };
 
   Color _statusColor(AppointmentStatus s) => switch (s) {
@@ -801,6 +783,7 @@ class _NextAppointmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Empty state
     if (appointment == null) {
       return Container(
@@ -830,7 +813,7 @@ class _NextAppointmentCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'No upcoming appointments',
+                    l10n.noUpcomingAppointments,
                     style: AppTextStyles.subheadline.copyWith(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
@@ -838,7 +821,7 @@ class _NextAppointmentCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Tap to request a session with your therapist.',
+                    l10n.tapToRequestSession,
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -930,7 +913,7 @@ class _NextAppointmentCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              _statusLabel(appointment!.status),
+              _statusLabel(l10n, appointment!.status),
               style: AppTextStyles.caption.copyWith(
                 color: _statusColor(appointment!.status),
                 fontWeight: FontWeight.w600,

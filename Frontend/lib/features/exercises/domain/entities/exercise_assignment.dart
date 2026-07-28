@@ -16,6 +16,10 @@ abstract class ExerciseAssignment with _$ExerciseAssignment {
     required String exerciseId,
     required String exerciseName,
     required String description,
+    /// Arabic translation of [description]. Null when the exercise has no
+    /// translation yet — the UI falls back to [description].
+    String? descriptionAr,
+    String? videoUrl,
     required DifficultyLevel difficulty,
     required int sets,
     required int reps,

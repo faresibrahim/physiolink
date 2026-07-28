@@ -1,0 +1,119 @@
+@model PhysioLink.AdminPanel.ViewModels.PatientFormViewModel
+
+@* ── "Edit Patient" dialog — used on the Patient Detail page ────────────────
+   Pre-filled with the current patient's info. Posts to Patients/Edit/{id};
+   on success the controller redirects back to Detail.
+   ───────────────────────────────────────────────────────────────────────── *@
+<div class="modal-overlay" id="editPatientModal" aria-modal="true" role="dialog" aria-labelledby="editPatientModalTitle">
+    <div class="modal">
+
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title" id="editPatientModalTitle">Edit Patient</h2>
+                <p class="modal-subtitle">Update @Model.FirstName's details.</p>
+            </div>
+            <button type="button" class="modal-close" onclick="closeEditPatientModal()" aria-label="Close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <form method="post" asp-action="Edit" asp-controller="Patients" asp-route-id="@Model.PatientId" class="modal-form" id="editPatientForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="PatientId" />
+            <input type="hidden" asp-for="IsActive" />
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" asp-for="FirstName">First Name</label>
+                    <input asp-for="FirstName" class="form-input" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" asp-for="LastName">Last Name</label>
+                    <input asp-for="LastName" class="form-input" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" asp-for="Email">Email</label>
+                <input asp-for="Email" class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" asp-for="PhoneNumber">Phone</label>
+                <input asp-for="PhoneNumber" class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" asp-for="Diagnosis">Diagnosis</label>
+                <textarea asp-for="Diagnosis" rows="3" class="form-input"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" asp-for="TherapistId">
+                    Assigned Therapist <span class="label-optional">(optional)</span>
+                </label>
+                <select asp-for="TherapistId" class="form-input">
+                    <option value="">— Unassigned —</option>
+                    @foreach (var t in Model.Therapists)
+                    {
+                        <option value="@t.Id">@t.FirstName.Trim() @t.LastName.Trim()</option>
+                    }
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" onclick="closeEditPatientModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    (function () {
+        var editPatientModal = document.getElementById('editPatientModal');
+        var editPatientForm  = document.getElementById('editPatientForm');
+        if (!editPatientModal || !editPatientForm) return;
+
+        function openEditPatientModal() {
+            editPatientModal.classList.add('modal-visible');
+        }
+
+        function closeEditPatientModal() {
+            editPatientModal.classList.remove('modal-visible');
+        }
+
+        // Close on overlay click
+        editPatientModal.addEventListener('click', function (e) {
+            if (e.target === editPatientModal) closeEditPatientModal();
+        });
+
+        // Close on Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && editPatientModal.classList.contains('modal-visible')) {
+                closeEditPatientModal();
+            }
+        });
+
+        // Client-side validation
+        editPatientForm.addEventListener('submit', function (e) {
+            var first = document.getElementById('FirstName').value.trim();
+            var last  = document.getElementById('LastName').value.trim();
+            var email = document.getElementById('Email').value.trim();
+            var phone = document.getElementById('PhoneNumber').value.trim();
+            var diag  = document.getElementById('Diagnosis').value.trim();
+
+            if (!first || !last || !email || !phone || !diag) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+            }
+        });
+
+        window.openEditPatientModal  = openEditPatientModal;
+        window.closeEditPatientModal = closeEditPatientModal;
+    })();
+</script>

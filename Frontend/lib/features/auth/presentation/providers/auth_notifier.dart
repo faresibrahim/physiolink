@@ -10,6 +10,7 @@ class AuthNotifier extends ChangeNotifier {
   String? _accessToken;
   String? _refreshToken;
   String? _patientId;
+  bool _mustChangePassword = false;
   final FlutterSecureStorage _secureStorage;
   final Dio _dio;
 
@@ -18,6 +19,10 @@ class AuthNotifier extends ChangeNotifier {
 
   String? get accessToken => _accessToken;
   String? get patientId => _patientId;
+
+  // True while the patient is still on the admin-issued temporary password.
+  // The router uses this to force the change-password screen before anything else.
+  bool get mustChangePassword => _mustChangePassword;
 
   bool _isInvalidPatientId(String? id) =>
       id == null || id.isEmpty || id == _emptyGuid;
@@ -31,6 +36,8 @@ class AuthNotifier extends ChangeNotifier {
     final storedAccess = await _secureStorage.read(key: 'access_token');
     final storedRefresh = await _secureStorage.read(key: 'refresh_token');
     final storedPatientId = await _secureStorage.read(key: 'patient_id');
+    final storedMustChange =
+        await _secureStorage.read(key: 'must_change_password');
 
     if (storedAccess == null) return; // Nothing stored → go to login
 
@@ -48,6 +55,7 @@ class AuthNotifier extends ChangeNotifier {
       _accessToken = storedAccess;
       _refreshToken = storedRefresh;
       _patientId = storedPatientId;
+      _mustChangePassword = storedMustChange == 'true';
       notifyListeners();
       return;
     }
@@ -63,14 +71,20 @@ class AuthNotifier extends ChangeNotifier {
       final newAccess = response.data['accessToken'] as String;
       final newRefresh = response.data['refreshToken'] as String;
       final newPatientId = response.data['patientId'] as String;
+      final mustChange = response.data['mustChangePassword'] as bool? ?? false;
 
       await _secureStorage.write(key: 'access_token', value: newAccess);
       await _secureStorage.write(key: 'refresh_token', value: newRefresh);
       await _secureStorage.write(key: 'patient_id', value: newPatientId);
+      await _secureStorage.write(
+        key: 'must_change_password',
+        value: mustChange.toString(),
+      );
 
       _accessToken = newAccess;
       _refreshToken = newRefresh;
       _patientId = newPatientId;
+      _mustChangePassword = mustChange;
       notifyListeners();
     } catch (_) {
       // Refresh failed (token revoked or server error) → clear storage,
@@ -112,10 +126,16 @@ class AuthNotifier extends ChangeNotifier {
       _accessToken = response.data['accessToken'] as String;
       _refreshToken = response.data['refreshToken'] as String;
       _patientId = receivedPatientId;
+      _mustChangePassword =
+          response.data['mustChangePassword'] as bool? ?? false;
 
       await _secureStorage.write(key: 'access_token', value: _accessToken);
       await _secureStorage.write(key: 'refresh_token', value: _refreshToken);
       await _secureStorage.write(key: 'patient_id', value: _patientId);
+      await _secureStorage.write(
+        key: 'must_change_password',
+        value: _mustChangePassword.toString(),
+      );
 
       notifyListeners();
     } catch (ex) {
@@ -123,13 +143,45 @@ class AuthNotifier extends ChangeNotifier {
     }
   }
 
+  // Replaces the temporary password with one the patient chooses. The backend
+  // verifies the current (temporary) password, rotates tokens, and clears the flag;
+  // we persist the fresh session so the router lets the patient through.
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final response = await _dio.post(
+      '/api/v1/auth/change-password',
+      data: {
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      },
+    );
+
+    _accessToken = response.data['accessToken'] as String;
+    _refreshToken = response.data['refreshToken'] as String;
+    _mustChangePassword =
+        response.data['mustChangePassword'] as bool? ?? false;
+
+    await _secureStorage.write(key: 'access_token', value: _accessToken);
+    await _secureStorage.write(key: 'refresh_token', value: _refreshToken);
+    await _secureStorage.write(
+      key: 'must_change_password',
+      value: _mustChangePassword.toString(),
+    );
+
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     await _secureStorage.delete(key: 'access_token');
     await _secureStorage.delete(key: 'refresh_token');
     await _secureStorage.delete(key: 'patient_id');
+    await _secureStorage.delete(key: 'must_change_password');
     _accessToken = null;
     _refreshToken = null;
     _patientId = null;
+    _mustChangePassword = false;
     notifyListeners();
   }
 

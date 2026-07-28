@@ -9,6 +9,7 @@ import 'package:practice/core/widgets/empty_state.dart';
 import 'package:practice/core/widgets/shimmer_card.dart';
 import 'package:practice/features/appointments/domain/entities/appointment.dart';
 import 'package:practice/features/appointments/presentation/providers/appointments_providers.dart';
+import 'package:practice/l10n/app_localizations.dart';
 
 class AppointmentsPage extends ConsumerWidget {
   const AppointmentsPage({super.key});
@@ -16,6 +17,7 @@ class AppointmentsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appointmentsAsync = ref.watch(appointmentsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: CustomScrollView(
@@ -33,7 +35,7 @@ class AppointmentsPage extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'Appointments',
+                      l10n.appointments,
                       style: AppTextStyles.title1.copyWith(
                         color: AppColors.textHeading,
                         fontWeight: FontWeight.w800,
@@ -78,15 +80,15 @@ class AppointmentsPage extends ConsumerWidget {
             error: (_, _) => SliverFillRemaining(
               child: EmptyState(
                 icon: Icons.wifi_off_rounded,
-                title: 'Something went wrong',
-                subtitle: 'An unexpected error occurred.',
-                ctaLabel: 'Retry',
+                title: l10n.somethingWentWrong,
+                subtitle: l10n.unexpectedError,
+                ctaLabel: l10n.retry,
                 onCta: () => ref.invalidate(appointmentsProvider),
               ),
             ),
             data: (result) => result.fold(
               (failure) =>
-                  SliverFillRemaining(child: _buildError(failure, ref)),
+                  SliverFillRemaining(child: _buildError(context, failure, ref)),
               (appointments) => _buildData(context, ref, appointments),
             ),
           ),
@@ -97,17 +99,18 @@ class AppointmentsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildError(AppFailure failure, WidgetRef ref) {
+  Widget _buildError(BuildContext context, AppFailure failure, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final message = switch (failure) {
-      NetworkFailure() => 'No internet connection',
-      ServerFailure() => 'Server error. Try again.',
-      AuthFailure() => 'Session expired. Please log in again.',
+      NetworkFailure() => l10n.noInternet,
+      ServerFailure() => l10n.serverError,
+      AuthFailure() => l10n.sessionExpired,
     };
     return EmptyState(
       icon: Icons.error_outline_rounded,
-      title: "Couldn't load appointments",
+      title: l10n.couldntLoadAppointments,
       subtitle: message,
-      ctaLabel: 'Retry',
+      ctaLabel: l10n.retry,
       onCta: () => ref.invalidate(appointmentsProvider),
     );
   }
@@ -117,6 +120,7 @@ class AppointmentsPage extends ConsumerWidget {
     WidgetRef ref,
     List<Appointment> appointments,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final now = DateTime.now();
 
     final upcoming = appointments
@@ -152,14 +156,14 @@ class AppointmentsPage extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Nothing on the books',
+              l10n.nothingOnBooks,
               style: AppTextStyles.headline.copyWith(
                 color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Ready for your next session?\nRequest a time and your clinic will confirm.',
+              l10n.nothingOnBooksSubtitle,
               style: AppTextStyles.subheadline.copyWith(
                 color: AppColors.textSecondary,
                 height: 1.5,
@@ -179,7 +183,7 @@ class AppointmentsPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: Text(
-                  '+ Request appointment',
+                  l10n.requestAppointmentCta,
                   style: AppTextStyles.callout.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -205,7 +209,7 @@ class AppointmentsPage extends ConsumerWidget {
                 AppSpacing.sm,
               ),
               child: Text(
-                'Upcoming آ· ${upcoming.length}',
+                l10n.upcomingCount(upcoming.length),
                 style: AppTextStyles.footnote.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
@@ -236,7 +240,7 @@ class AppointmentsPage extends ConsumerWidget {
                 AppSpacing.sm,
               ),
               child: Text(
-                'Past آ· ${past.length}',
+                l10n.pastCount(past.length),
                 style: AppTextStyles.footnote.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
@@ -283,7 +287,7 @@ class _RequestButton extends StatelessWidget {
             const Icon(Icons.add_rounded, color: Colors.white, size: 15),
             const SizedBox(width: 4),
             Text(
-              'Request',
+              AppLocalizations.of(context)!.request,
               style: AppTextStyles.footnote.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -323,11 +327,11 @@ class _AppointmentRow extends StatelessWidget {
         AppointmentStatus.completed => AppColors.background,
       };
 
-  String _statusLabel(AppointmentStatus s) => switch (s) {
-        AppointmentStatus.confirmed => 'Confirmed',
-        AppointmentStatus.pending => 'Pending',
-        AppointmentStatus.cancelled => 'Cancelled',
-        AppointmentStatus.completed => 'Done',
+  String _statusLabel(AppLocalizations l10n, AppointmentStatus s) => switch (s) {
+        AppointmentStatus.confirmed => l10n.statusConfirmed,
+        AppointmentStatus.pending => l10n.statusPending,
+        AppointmentStatus.cancelled => l10n.statusCancelled,
+        AppointmentStatus.completed => l10n.statusDone,
       };
 
   String _formatTime(DateTime dt) {
@@ -343,6 +347,7 @@ class _AppointmentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final time = appointment.appointmentTime;
     final statusColor = _statusColor(appointment.status);
     final dateNumColor = muted ? AppColors.textSecondary : AppColors.primary;
@@ -375,7 +380,7 @@ class _AppointmentRow extends StatelessWidget {
                     color: dateNumColor,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
-                    fontSize: 11,
+                    fontSize: 12,
                   ),
                 ),
               ],
@@ -434,7 +439,7 @@ class _AppointmentRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
             child: Text(
-              _statusLabel(appointment.status),
+              _statusLabel(l10n, appointment.status),
               style: AppTextStyles.caption.copyWith(
                 color: statusColor,
                 fontWeight: FontWeight.w600,

@@ -30,7 +30,7 @@ abstract final class AppTextStyles {
 
   static const TextStyle headline = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
     height: 1.4,
@@ -38,7 +38,7 @@ abstract final class AppTextStyles {
 
   static const TextStyle body = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
     height: 1.5,
@@ -54,7 +54,7 @@ abstract final class AppTextStyles {
 
   static const TextStyle subheadline = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
     height: 1.45,
@@ -70,7 +70,7 @@ abstract final class AppTextStyles {
 
   static const TextStyle caption = TextStyle(
     fontFamily: _fontFamily,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
     height: 1.5,

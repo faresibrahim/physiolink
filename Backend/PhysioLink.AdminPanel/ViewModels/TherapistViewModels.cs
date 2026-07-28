@@ -17,6 +17,9 @@ public class TherapistDetailViewModel
 {
     public TherapistResponse Therapist { get; set; } = null!;
     public List<PatientResponse> AssignedPatients { get; set; } = [];
+
+    // All therapists — feeds the shared "New Patient" dialog's assignment dropdown.
+    public List<TherapistResponse> Therapists { get; set; } = [];
 }
 
 public class TherapistFormViewModel

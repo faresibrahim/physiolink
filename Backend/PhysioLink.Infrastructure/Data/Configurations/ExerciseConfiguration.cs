@@ -19,6 +19,9 @@ namespace PhysioLink.Infrastructure.Data.Configurations
             .IsRequired()
             .HasMaxLength(1000);
 
+            builder.Property(p=>p.DescriptionAr)
+            .HasMaxLength(1000);
+
             builder.Property(p=>p.Difficulty)
             .IsRequired();
 

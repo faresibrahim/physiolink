@@ -7,11 +7,10 @@
 @* =========================================================================
    PAGE HEADER — title row above the two-column layout
    ========================================================================= *@
-<div style="margin-bottom:1.5rem;">
-    <a asp-action="Index" style="color:#8E8E93; text-decoration:none; font-size:14px;">
-        ← Back to Patients
-    </a>
-</div>
+<a asp-action="Index" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    Back to Patients
+</a>
 
 <div class="detail-grid">
 
@@ -35,9 +34,9 @@
                 </div>
 
                 <div class="profile-actions">
-                    <a asp-action="Edit" asp-route-id="@Model.Patient.PatientId" class="btn btn-ghost btn-sm">
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="openEditPatientModal()">
                         Edit Patient
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -65,7 +64,7 @@
                         }
                         else
                         {
-                            <span style="color:#8E8E93;">Unassigned</span>
+                            <span class="unassigned-text">Unassigned</span>
                         }
                     </p>
                 </div>
@@ -112,15 +111,15 @@
                                 @if (exercise.Feedback.HasValue)
                                 {
                                     var fbVal = exercise.Feedback.Value;
-                                    var fbColor = fbVal <= 3 ? "#4CAF82" : fbVal <= 5 ? "#f59e0b" : fbVal <= 7 ? "#FF6B35" : "#FF3B30";
+                                    var fbClass = fbVal <= 3 ? "fb-score-easy" : fbVal <= 6 ? "fb-score-moderate" : "fb-score-hard";
                                     var fbLabel = fbVal switch {
                                         1 => "Very Easy", 2 => "Easy", 3 => "Fairly Easy",
                                         4 => "Somewhat Easy", 5 => "Moderate", 6 => "Somewhat Hard",
                                         7 => "Fairly Hard", 8 => "Hard", 9 => "Very Hard",
                                         10 => "Maximum Effort", _ => $"Level {fbVal}"
                                     };
-                                    <span style="font-weight:600; color:@fbColor; font-size:13px;">@fbVal</span>
-                                    <span class="muted-cell" style="font-size:12px;"> · @fbLabel</span>
+                                    <span class="fb-score @fbClass">@fbVal</span>
+                                    <span class="muted-cell"> · @fbLabel</span>
                                 }
                                 else
                                 {
@@ -134,6 +133,10 @@
                                 <button type="button" class="btn btn-ghost btn-xs"
                                         onclick="openEditModal('@exercise.ExerciseAssignmentId')">
                                     Edit
+                                </button>
+                                <button type="button" class="btn btn-danger-outline btn-xs"
+                                        onclick="confirmUnassign('@exercise.ExerciseAssignmentId', '@exercise.ExerciseName.Replace("\\", "\\\\").Replace("'", "\\'")')">
+                                    Unassign
                                 </button>
                             </td>
                         </tr>
@@ -149,123 +152,137 @@
        ===================================================================== *@
     <aside class="detail-sidebar">
 
-        @* --- Completion ring (placeholder) ----------------------------- *@
-        @* CompletionRate isn't on PatientDetailResponse yet — placeholder value *@
-        <div class="card stat-card">
-            <p class="stat-label">Completion Rate</p>
-            <div class="ring-wrapper">
-                <svg class="ring-svg" viewBox="0 0 120 120">
-                    <circle cx="60" cy="60" r="52" stroke="#F2F2F7" stroke-width="10" fill="none" />
-                    @{
-                        var completion = 68; // placeholder
-                        var circumference = 2 * Math.PI * 52;
-                        var dash = circumference * completion / 100;
-                    }
-                    <circle cx="60" cy="60" r="52" stroke="#004AAD" stroke-width="10" fill="none"
-                            stroke-dasharray="@dash @circumference"
-                            stroke-linecap="round"
-                            transform="rotate(-90 60 60)" />
-                </svg>
-                <div class="ring-value">@completion%</div>
-            </div>
-
-            <div class="stat-row">
-                <div class="stat-item">
-                    <p class="stat-num">@Model.Patient.Exercises.Count</p>
-                    <p class="stat-label-sm">Total Assignments</p>
-                </div>
-                <div class="stat-item">
-                    <p class="stat-num">@Model.Patient.Exercises.Count(e => e.Status == "Active")</p>
-                    <p class="stat-label-sm">Active</p>
-                </div>
-            </div>
-        </div>
-
-        @* --- Feedback breakdown (placeholder bars) --------------------- *@
-        <div class="card">
-            <h4 class="sidebar-title">Feedback Breakdown</h4>
-            @* All three counts are placeholders — wire when feedback API is ready *@
-            <div class="feedback-row">
-                <div class="feedback-label">
-                    <span class="feedback-dot" style="background:#4CAF82;"></span>
-                    <span>Easy</span>
-                </div>
-                <div class="feedback-bar"><div class="feedback-fill" style="width:50%; background:#4CAF82;"></div></div>
-                <span class="feedback-count">—</span>
-            </div>
-            <div class="feedback-row">
-                <div class="feedback-label">
-                    <span class="feedback-dot" style="background:#F59E0B;"></span>
-                    <span>Moderate</span>
-                </div>
-                <div class="feedback-bar"><div class="feedback-fill" style="width:30%; background:#F59E0B;"></div></div>
-                <span class="feedback-count">—</span>
-            </div>
-            <div class="feedback-row">
-                <div class="feedback-label">
-                    <span class="feedback-dot" style="background:#FF3B30;"></span>
-                    <span>Hard</span>
-                </div>
-                <div class="feedback-bar"><div class="feedback-fill" style="width:20%; background:#FF3B30;"></div></div>
-                <span class="feedback-count">—</span>
-            </div>
-        </div>
-
-        @* --- Appointments ---------------------------------------------- *@
-        <div class="card">
-            <div class="card-header-row">
-                <h4 class="sidebar-title">Appointments</h4>
-                @* Placeholder Book button — wires to Appointments controller when built (Day 7-8) *@
-                <button type="button" class="btn btn-ghost btn-xs" disabled>+ Book</button>
-            </div>
-
-            @if (Model.Patient.Appointments.Count == 0)
-            {
-                <p class="placeholder-block">No appointments yet.</p>
-            }
-            else
-            {
-                var now = DateTime.Now;
-                var upcoming = Model.Patient.Appointments.Where(a => a.AppointmentTime >= now).OrderBy(a => a.AppointmentTime);
-                var past = Model.Patient.Appointments.Where(a => a.AppointmentTime < now).OrderByDescending(a => a.AppointmentTime);
-                var sortedAppts = upcoming.Concat(past).Take(4).ToList();
-                @foreach (var appt in sortedAppts)
-                {
-                    <div class="appt-entry">
-                        <div class="appt-date-block">
-                            <span class="appt-month">@appt.AppointmentTime.ToString("MMM")</span>
-                            <span class="appt-day">@appt.AppointmentTime.Day</span>
-                        </div>
-                        <div class="appt-entry-body">
-                            <p class="appt-entry-title">@appt.Title</p>
-                            <p class="appt-entry-meta">@appt.AppointmentTime.ToString("HH:mm") · @(string.IsNullOrEmpty(appt.TherapistName) ? "Unassigned" : appt.TherapistName)</p>
-                        </div>
-                        @await Html.PartialAsync("_StatusBadge", appt.Status)
-                    </div>
-                }
-
-                @if (Model.Patient.Appointments.Count > 4)
-                {
-                    <a href="#" class="view-all-link">View all @Model.Patient.Appointments.Count →</a>
-                }
-            }
-        </div>
-
         @* --- Danger zone ----------------------------------------------- *@
         <div class="card danger-card">
-            <h4 class="danger-title">⚠ Deactivate Patient</h4>
+            <h4 class="danger-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Deactivate Patient
+            </h4>
             <p class="danger-text">Patient will lose access to the app and exercise programs. Data is retained.</p>
-            <form asp-action="Deactivate" asp-route-id="@Model.Patient.PatientId" method="post">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-danger btn-block">Deactivate Account</button>
-            </form>
+            <button type="button" class="btn btn-danger btn-block" onclick="openDeactivateModal()">
+                Deactivate Account
+            </button>
         </div>
 
     </aside>
 </div>
 
+@* ── Edit Patient Modal ───────────────────────────────────────────────── *@
+@await Html.PartialAsync("_EditPatientModal", new PatientFormViewModel
+{
+    PatientId   = Model.Patient.PatientId,
+    FirstName   = Model.Patient.FirstName,
+    LastName    = Model.Patient.LastName,
+    Email       = Model.Patient.Email,
+    PhoneNumber = Model.Patient.PhoneNumber,
+    Diagnosis   = Model.Patient.Diagnosis,
+    IsActive    = Model.Patient.IsActive,
+    TherapistId = Model.PatientTherapistId,
+    IsEdit      = true,
+    Therapists  = Model.Therapists
+})
+
 @* =========================================================================
-   ASSIGN EXERCISE MODAL 
+   DEACTIVATE PATIENT MODAL — re-authentication gate on a destructive action.
+   The therapist must retype their own account password; the controller verifies
+   it against the API before the patient is deactivated.
+   ========================================================================= *@
+<div class="modal-overlay" id="deactivatePatientModal" aria-modal="true" role="dialog" aria-labelledby="deactivatePatientModalTitle">
+    <div class="modal">
+
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title" id="deactivatePatientModalTitle">Deactivate Patient</h2>
+                <p class="modal-subtitle">@Model.Patient.FirstName @Model.Patient.LastName</p>
+            </div>
+            <button type="button" class="modal-close" onclick="closeDeactivateModal()" aria-label="Close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <form method="post" asp-action="Deactivate" asp-controller="Patients" asp-route-id="@Model.Patient.PatientId" class="modal-form" id="deactivatePatientForm">
+            @Html.AntiForgeryToken()
+
+            <div class="alert alert-error" role="alert">
+                <div class="alert-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <span>
+                    @Model.Patient.FirstName will immediately lose access to the app and to all
+                    assigned exercise programs. Records and history are retained.
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="deactivatePassword">Your account password</label>
+                <input type="password" id="deactivatePassword" name="password" class="form-input" autocomplete="current-password" />
+                <span class="form-hint">Confirm it's you — enter the password you sign in with.</span>
+                <span class="field-error" id="deactivatePasswordError" style="display:none;">Enter your password to continue.</span>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" onclick="closeDeactivateModal()">Cancel</button>
+                <button type="submit" class="btn btn-danger">Deactivate Account</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    (function () {
+        var deactivateModal = document.getElementById('deactivatePatientModal');
+        var deactivateForm  = document.getElementById('deactivatePatientForm');
+        var passwordInput   = document.getElementById('deactivatePassword');
+        var passwordError   = document.getElementById('deactivatePasswordError');
+        if (!deactivateModal || !deactivateForm) return;
+
+        function openDeactivateModal() {
+            deactivateModal.classList.add('modal-visible');
+            passwordInput.focus();
+        }
+
+        function closeDeactivateModal() {
+            deactivateModal.classList.remove('modal-visible');
+            // Never leave the password sitting in the DOM after the dialog closes
+            passwordInput.value = '';
+            passwordError.style.display = 'none';
+        }
+
+        // Close on overlay click
+        deactivateModal.addEventListener('click', function (e) {
+            if (e.target === deactivateModal) closeDeactivateModal();
+        });
+
+        // Close on Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && deactivateModal.classList.contains('modal-visible')) {
+                closeDeactivateModal();
+            }
+        });
+
+        deactivateForm.addEventListener('submit', function (e) {
+            if (!passwordInput.value) {
+                e.preventDefault();
+                passwordError.style.display = 'block';
+                passwordInput.focus();
+            }
+        });
+
+        passwordInput.addEventListener('input', function () {
+            passwordError.style.display = 'none';
+        });
+
+        window.openDeactivateModal  = openDeactivateModal;
+        window.closeDeactivateModal = closeDeactivateModal;
+    })();
+</script>
+
+@* =========================================================================
+   ASSIGN EXERCISE MODAL
    ========================================================================= *@
 <div class="modal-overlay" id="assignModal" aria-modal="true" role="dialog" aria-labelledby="assignModalTitle">
     <div class="modal">
@@ -307,7 +324,7 @@
             @* Edit mode — exercise name display (read-only) *@
             <div class="form-group" id="exerciseNameGroup" style="display:none;">
                 <label class="form-label">Exercise</label>
-                <p id="EditExerciseName" style="font-size:14px; font-weight:500; color:#323232; margin:0; padding:10px 0;"></p>
+                <p id="EditExerciseName" class="static-value"></p>
             </div>
 
             <div class="form-row">
@@ -475,4 +492,19 @@
             init();
         }
     })();
+</script>
+
+@* ── Unassign Exercise (hidden form, confirm-then-submit) ────────────────── *@
+<form method="post" asp-action="Unassign" asp-controller="Assignment" id="unassignForm" style="display:none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="patientId" value="@Model.Patient.PatientId" />
+    <input type="hidden" name="id" id="UnassignAssignmentId" />
+</form>
+
+<script>
+    function confirmUnassign(assignmentId, exerciseName) {
+        if (!confirm('Unassign "' + exerciseName + '" from this patient\'s program?')) return;
+        document.getElementById('UnassignAssignmentId').value = assignmentId;
+        document.getElementById('unassignForm').submit();
+    }
 </script>

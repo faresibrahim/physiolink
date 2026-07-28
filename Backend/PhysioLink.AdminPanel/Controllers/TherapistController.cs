@@ -57,12 +57,18 @@ public class TherapistsController : BaseController
             TempData["ErrorMessage"] = "The details for this therapist don't exist";
             return RedirectToAction("Index", "Therapists");
         }
-        var patients = await _apiClient.GetPatientsAsync(1, 100, id);
+        var patientsTask   = _apiClient.GetPatientsAsync(1, 100, id);
+        var therapistsTask = _apiClient.GetTherapistsAsync(1, 100);
+        await Task.WhenAll(patientsTask, therapistsTask);
+
+        var patients   = await patientsTask;
+        var therapists = await therapistsTask;
 
         var viewModel = new TherapistDetailViewModel
         {
             Therapist = therapistDetails,
-            AssignedPatients = patients?.Items ?? []
+            AssignedPatients = patients?.Items ?? [],
+            Therapists = therapists?.Items ?? []
         };
 
         return View(viewModel);

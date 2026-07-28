@@ -11,10 +11,10 @@
     var showCredentials = !string.IsNullOrEmpty(createdPassword);
 }
 
-<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2rem;">
+<div class="page-header">
     <div>
-        <h1 style="font-size:1.5rem; font-weight:600; color:#323232; margin:0;">Patients</h1>
-        <p style="color:#8E8E93; margin:4px 0 0;">
+        <h1 class="page-title">Patients</h1>
+        <p class="page-sub">
             @Model.TotalCount patients
         </p>
     </div>
@@ -25,16 +25,24 @@
 </div>
 
 @* Search + Filter bar *@
-<form method="get" asp-action="Index" style="display:flex; gap:12px; margin-bottom:1.5rem;">
-    <input type="text"
-           name="searchQuery"
-           value="@Model.SearchQuery"
-           placeholder="Search by name..."
-           style="flex:1; padding:10px 12px; border:0.5px solid #e5e5ea; border-radius:8px; font-size:14px; outline:none;" />
+<form method="get" asp-action="Index" class="toolbar">
+    <div class="search-field">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text"
+               name="searchQuery"
+               value="@Model.SearchQuery"
+               placeholder="Search by name..."
+               class="search-input"
+               autocomplete="off" />
+    </div>
 
     <select name="therapistId"
             onchange="this.form.submit()"
-            style="padding:10px 12px; border:0.5px solid #e5e5ea; border-radius:8px; font-size:14px; outline:none; min-width:180px;">
+            class="filter-select"
+            aria-label="Filter by therapist">
         <option value="">All Therapists</option>
         @foreach (var therapist in Model.Therapists)
         {
@@ -49,22 +57,21 @@
         }
     </select>
 
-    <button type="submit"
-            style="padding:10px 20px; background:#004AAD; color:white; border:none; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer;">
+    <button type="submit" class="btn btn-ghost">
         Search
     </button>
 </form>
 
 @* Patients table *@
-<div style="background:white; border-radius:14px; border:0.5px solid #e5e5ea; overflow:hidden;">
-    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+<div class="card card-flush">
+    <table class="data-table">
         <thead>
-            <tr style="border-bottom:0.5px solid #f2f2f7; background:#fafafa;">
-                <th style="text-align:left; padding:12px 16px; color:#8E8E93; font-weight:500; font-size:12px;">Patient</th>
-                <th style="text-align:left; padding:12px 16px; color:#8E8E93; font-weight:500; font-size:12px;">Therapist</th>
-                <th style="text-align:left; padding:12px 16px; color:#8E8E93; font-weight:500; font-size:12px;">Phone</th>
-                <th style="text-align:left; padding:12px 16px; color:#8E8E93; font-weight:500; font-size:12px;">Status</th>
-                <th style="text-align:left; padding:12px 16px; color:#8E8E93; font-weight:500; font-size:12px;">Actions</th>
+            <tr>
+                <th>Patient</th>
+                <th>Therapist</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -72,7 +79,7 @@
             @if (Model.Patients.Count == 0)
             {
                 <tr>
-                    <td colspan="5" style="text-align:center; padding:48px; color:#8E8E93; font-size:14px;">
+                    <td colspan="5" class="empty-row">
                         No patients found.
                     </td>
                 </tr>
@@ -80,34 +87,34 @@
 
             @foreach (var patient in Model.Patients)
             {
-                <tr style="border-bottom:0.5px solid #f2f2f7;">
-                    <td style="padding:12px 16px;">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <div style="width:34px; height:34px; border-radius:50%; background:#e8f0fb; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:12px; color:#004AAD;">
+                <tr>
+                    <td>
+                        <div class="cell-person">
+                            <div class="avatar avatar-sm">
                                 @patient.FirstName[0]@patient.LastName[0]
                             </div>
-                            <span style="font-weight:500; color:#323232;">
+                            <span class="name">
                                 @patient.FirstName @patient.LastName
                             </span>
                         </div>
                     </td>
-                    <td style="padding:12px 16px; color:#8E8E93;">
+                    <td class="muted-cell">
                         @(patient.TherapistName ?? "Unassigned")
                     </td>
-                    <td style="padding:12px 16px; color:#8E8E93;">
+                    <td class="muted-cell">
                         @patient.PhoneNumber
                     </td>
-                    <td style="padding:12px 16px;">
+                    <td>
                         @await Html.PartialAsync("_StatusBadge", patient.IsActive ? "Active" : "Inactive")
                     </td>
-                    <td style="padding:12px 16px;">
-                        <div style="display:flex; gap:8px;">
+                    <td>
+                        <div class="cell-actions">
                             <a asp-action="Detail" asp-route-id="@patient.PatientId"
-                               style="color:#004AAD; text-decoration:none; font-size:13px; font-weight:500;">
+                               class="btn btn-ghost btn-sm">
                                 View
                             </a>
                             <a asp-action="Edit" asp-route-id="@patient.PatientId"
-                               style="color:#8E8E93; text-decoration:none; font-size:13px;">
+                               class="btn btn-ghost btn-sm">
                                 Edit
                             </a>
                         </div>
@@ -122,75 +129,11 @@
 @await Html.PartialAsync("_Pagination", Model.Pagination)
 
 
-@* ── Create Patient Modal ─────────────────────────────────────────────────── *@
-<div class="modal-overlay" id="patientModal" aria-modal="true" role="dialog" aria-labelledby="patientModalTitle">
-    <div class="modal">
-
-        <div class="modal-header">
-            <div>
-                <h2 class="modal-title" id="patientModalTitle">New Patient</h2>
-                <p class="modal-subtitle">Register a new patient and generate their login credentials.</p>
-            </div>
-            <button type="button" class="modal-close" onclick="closePatientModal()" aria-label="Close">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        </div>
-
-        <form method="post" asp-action="Create" asp-controller="Patients" class="modal-form" id="patientForm">
-            @Html.AntiForgeryToken()
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                <div class="form-group">
-                    <label class="form-label" for="pat-FirstName">First Name</label>
-                    <input type="text" id="pat-FirstName" name="FirstName" class="form-input" placeholder="e.g. John" />
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="pat-LastName">Last Name</label>
-                    <input type="text" id="pat-LastName" name="LastName" class="form-input" placeholder="e.g. Smith" />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="pat-Email">Email</label>
-                <input type="email" id="pat-Email" name="Email" class="form-input" placeholder="patient@example.com" />
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="pat-PhoneNumber">Phone</label>
-                <input type="text" id="pat-PhoneNumber" name="PhoneNumber" class="form-input" placeholder="+970 5XX XXX XXX" />
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="pat-Diagnosis">Diagnosis</label>
-                <textarea id="pat-Diagnosis" name="Diagnosis" class="form-input" rows="3"
-                          placeholder="e.g. Knee injury, post-op rehabilitation..."
-                          style="height:auto; padding-top:10px; resize:vertical;"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="pat-TherapistId">
-                    Assigned Therapist <span style="color:#8E8E93; font-weight:400;">(optional)</span>
-                </label>
-                <select id="pat-TherapistId" name="TherapistId" class="form-input">
-                    <option value="">— Unassigned —</option>
-                    @foreach (var t in Model.Therapists)
-                    {
-                        <option value="@t.Id">@t.FirstName.Trim() @t.LastName.Trim()</option>
-                    }
-                </select>
-            </div>
-
-            <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="closePatientModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Add Patient</button>
-            </div>
-        </form>
-
-    </div>
-</div>
+@* ── Create Patient Modal (shared partial — also used on Therapist detail) ─── *@
+@await Html.PartialAsync("_CreatePatientModal", new PhysioLink.AdminPanel.ViewModels.CreatePatientModalViewModel
+{
+    Therapists = Model.Therapists
+})
 
 @* ── Patient Credentials Modal (shown after successful create) ────────────── *@
 <div class="modal-overlay @(showCredentials ? "modal-visible" : "")" id="credentialsModal"
@@ -198,9 +141,9 @@
     <div class="modal">
 
         <div class="modal-header">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <div style="width:36px; height:36px; border-radius:50%; background:#e8f5ee; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2e7d52" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <div class="row-lead">
+                <div class="success-icon-disc">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                 </div>
                 <div>
                     <h2 class="modal-title" id="credentialsModalTitle">Patient Created</h2>
@@ -217,19 +160,19 @@
 
         <div class="modal-form">
 
-            <div style="background:#fff8e1; border:1px solid #f59e0b; border-radius:10px; padding:12px 14px; display:flex; gap:10px; align-items:flex-start;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:1px;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                <p style="font-size:13px; color:#92650a; margin:0; line-height:1.5;">Save this password now — it will not be shown again.</p>
+            <div class="notice notice-warning">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <p>Save this password now — it will not be shown again.</p>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Email</label>
-                <p style="font-size:14px; font-weight:500; color:#323232; margin:0;">@createdEmail</p>
+                <p class="static-value">@createdEmail</p>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Temporary Password</label>
-                <div style="background:#f5f5f7; border-radius:10px; padding:14px 18px; font-family:'Courier New',Courier,monospace; font-size:1.3rem; font-weight:700; color:#004AAD; letter-spacing:0.06em; word-break:break-all;">
+                <div class="credential-box">
                     @createdPassword
                 </div>
             </div>
@@ -243,49 +186,22 @@
     </div>
 </div>
 
+@* The New Patient dialog and its JS live in _CreatePatientModal.
+   This script only drives the post-create credentials modal. *@
 <script>
     (function () {
-        var patientModal     = document.getElementById('patientModal');
         var credentialsModal = document.getElementById('credentialsModal');
-        var patientForm      = document.getElementById('patientForm');
-
-        function openPatientModal() {
-            patientModal.classList.add('modal-visible');
-        }
-
-        function closePatientModal() {
-            patientModal.classList.remove('modal-visible');
-            patientForm.reset();
-        }
+        if (!credentialsModal) return;
 
         function closeCredentialsModal() {
             credentialsModal.classList.remove('modal-visible');
         }
 
         // Close on overlay click
-        patientModal.addEventListener('click', function (e) {
-            if (e.target === patientModal) closePatientModal();
-        });
         credentialsModal.addEventListener('click', function (e) {
             if (e.target === credentialsModal) closeCredentialsModal();
         });
 
-        // Client-side validation
-        patientForm.addEventListener('submit', function (e) {
-            var first = document.getElementById('pat-FirstName').value.trim();
-            var last  = document.getElementById('pat-LastName').value.trim();
-            var email = document.getElementById('pat-Email').value.trim();
-            var phone = document.getElementById('pat-PhoneNumber').value.trim();
-            var diag  = document.getElementById('pat-Diagnosis').value.trim();
-
-            if (!first || !last || !email || !phone || !diag) {
-                e.preventDefault();
-                alert('Please fill in all required fields.');
-            }
-        });
-
-        window.openPatientModal     = openPatientModal;
-        window.closePatientModal    = closePatientModal;
         window.closeCredentialsModal = closeCredentialsModal;
     })();
 </script>

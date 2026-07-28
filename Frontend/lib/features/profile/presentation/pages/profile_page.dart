@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:practice/core/error/app_failure.dart';
+import 'package:practice/core/localization/locale_controller.dart';
 import 'package:practice/core/theme/app_colors.dart';
 import 'package:practice/core/theme/app_spacing.dart';
 import 'package:practice/core/theme/app_text_styles.dart';
@@ -9,6 +10,7 @@ import 'package:practice/core/widgets/shimmer_card.dart';
 import 'package:practice/features/auth/presentation/providers/auth_provider.dart';
 import 'package:practice/features/profile/domain/entities/patient.dart';
 import 'package:practice/features/profile/presentation/providers/profile_providers.dart';
+import 'package:practice/l10n/app_localizations.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -18,21 +20,22 @@ class ProfilePage extends ConsumerWidget {
   }
 
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Log Out?', style: AppTextStyles.headline),
+        title: Text(l10n.logOutQuestion, style: AppTextStyles.headline),
         content: Text(
-          "You'll need to sign in again to access your account.",
+          l10n.logOutBody,
           style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
-              'Cancel',
+              l10n.cancel,
               style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -41,7 +44,7 @@ class ProfilePage extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(
-              'Log Out',
+              l10n.logOut,
               style: AppTextStyles.body.copyWith(
                 color: AppColors.destructive,
                 fontWeight: FontWeight.w600,
@@ -56,9 +59,53 @@ class ProfilePage extends ConsumerWidget {
     }
   }
 
+  Future<void> _selectLanguage(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = ref.read(localeControllerProvider.notifier);
+    final current = ref.read(localeControllerProvider).languageCode;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Text(l10n.language, style: AppTextStyles.headline),
+            ),
+            _LangTile(
+              label: l10n.english,
+              selected: current == 'en',
+              onTap: () {
+                controller.setLocale(const Locale('en'));
+                Navigator.of(ctx).pop();
+              },
+            ),
+            const Divider(height: 1, color: AppColors.divider),
+            _LangTile(
+              label: l10n.arabic,
+              selected: current == 'ar',
+              onTap: () {
+                controller.setLocale(const Locale('ar'));
+                Navigator.of(ctx).pop();
+              },
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(profileProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: CustomScrollView(
@@ -73,7 +120,7 @@ class ProfilePage extends ConsumerWidget {
                 0,
               ),
               child: Text(
-                'Profile',
+                l10n.profile,
                 style: AppTextStyles.title1.copyWith(
                   color: AppColors.textHeading,
                   fontWeight: FontWeight.w800,
@@ -97,15 +144,15 @@ class ProfilePage extends ConsumerWidget {
             error: (_, _) => SliverFillRemaining(
               child: EmptyState(
                 icon: Icons.wifi_off_rounded,
-                title: 'Something went wrong',
-                subtitle: 'Pull to retry.',
-                ctaLabel: 'Retry',
+                title: l10n.somethingWentWrong,
+                subtitle: l10n.pullToRetry,
+                ctaLabel: l10n.retry,
                 onCta: () => ref.invalidate(profileProvider),
               ),
             ),
             data: (result) => result.fold(
               (failure) =>
-                  SliverFillRemaining(child: _buildError(failure, ref)),
+                  SliverFillRemaining(child: _buildError(context, failure, ref)),
               (patient) => _buildProfile(context, ref, patient),
             ),
           ),
@@ -116,22 +163,25 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildError(AppFailure failure, WidgetRef ref) {
+  Widget _buildError(BuildContext context, AppFailure failure, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final msg = switch (failure) {
-      NetworkFailure() => 'No internet connection',
-      ServerFailure() => 'Server error. Try again.',
-      AuthFailure() => 'Session expired. Please log in again.',
+      NetworkFailure() => l10n.noInternet,
+      ServerFailure() => l10n.serverError,
+      AuthFailure() => l10n.sessionExpired,
     };
     return EmptyState(
       icon: Icons.error_outline_rounded,
-      title: "Couldn't load profile",
+      title: l10n.couldntLoadProfile,
       subtitle: msg,
-      ctaLabel: 'Retry',
+      ctaLabel: l10n.retry,
       onCta: () => ref.invalidate(profileProvider),
     );
   }
 
   Widget _buildProfile(BuildContext context, WidgetRef ref, Patient patient) {
+    final l10n = AppLocalizations.of(context)!;
+    final currentLang = ref.watch(localeControllerProvider).languageCode;
     return SliverPadding(
       padding: const EdgeInsets.all(AppSpacing.md),
       sliver: SliverList(
@@ -180,7 +230,7 @@ class ProfilePage extends ConsumerWidget {
                       Row(
                         children: [
                           const Icon(
-                            Icons.location_on_outlined,
+                            Icons.healing_outlined,
                             size: 12,
                             color: AppColors.textSecondary,
                           ),
@@ -207,7 +257,7 @@ class ProfilePage extends ConsumerWidget {
           const SizedBox(height: AppSpacing.sm),
 
           // ── Personal info ─────────────────────────────────────────────
-          _SectionLabel(label: 'Personal info'),
+          _SectionLabel(label: l10n.personalInfo),
           const SizedBox(height: AppSpacing.sm),
 
           Container(
@@ -219,26 +269,26 @@ class ProfilePage extends ConsumerWidget {
               children: [
                 _InfoRow(
                   icon: Icons.mail_outline_rounded,
-                  label: 'EMAIL',
+                  label: l10n.email,
                   value: patient.email,
                   showDivider: true,
                 ),
                 _InfoRow(
                   icon: Icons.phone_outlined,
-                  label: 'PHONE',
+                  label: l10n.phone,
                   value: patient.phoneNumber,
                   showDivider: true,
                 ),
                 _InfoRow(
                   icon: Icons.local_hospital_outlined,
-                  label: 'CLINIC',
-                  value: patient.clinicName ?? 'Unassigned',
+                  label: l10n.clinic,
+                  value: patient.clinicName ?? l10n.unassigned,
                   showDivider: true,
                 ),
                 _InfoRow(
                   icon: Icons.medical_services_outlined,
-                  label: 'THERAPIST',
-                  value: patient.therapistName ?? 'Unassigned',
+                  label: l10n.therapist,
+                  value: patient.therapistName ?? l10n.unassigned,
                   showDivider: false,
                 ),
               ],
@@ -248,7 +298,7 @@ class ProfilePage extends ConsumerWidget {
           const SizedBox(height: AppSpacing.lg),
 
           // Preferences
-          _SectionLabel(label: 'Preferences'),
+          _SectionLabel(label: l10n.preferences),
           const SizedBox(height: AppSpacing.sm),
 
           Container(
@@ -259,13 +309,14 @@ class ProfilePage extends ConsumerWidget {
             child: Column(
               children: [
                 _PreferenceRow(
-                  icon: Icons.notifications_outlined,
-                  label: 'Reminders',
+                  icon: Icons.language_outlined,
+                  label: l10n.language,
+                  onTap: () => _selectLanguage(context, ref),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        '30 min before',
+                        currentLang == 'ar' ? l10n.arabic : l10n.english,
                         style: AppTextStyles.footnote.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -277,17 +328,6 @@ class ProfilePage extends ConsumerWidget {
                         color: AppColors.textSecondary,
                       ),
                     ],
-                  ),
-                  showDivider: true,
-                ),
-                _PreferenceRow(
-                  icon: Icons.auto_awesome_outlined,
-                  label: 'Adaptive plan',
-                  trailing: Switch(
-                    value: true,
-                    onChanged: (_) {},
-                    activeThumbColor: AppColors.secondary,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   showDivider: false,
                 ),
@@ -316,7 +356,7 @@ class ProfilePage extends ConsumerWidget {
                   const Icon(Icons.logout_rounded, size: 18),
                   const SizedBox(width: 8),
                   Text(
-                    'Log out',
+                    l10n.logOut,
                     style: AppTextStyles.callout.copyWith(
                       color: AppColors.destructive,
                       fontWeight: FontWeight.w600,
@@ -440,53 +480,85 @@ class _PreferenceRow extends StatelessWidget {
     required this.label,
     required this.trailing,
     required this.showDivider,
+    this.onTap,
   });
 
   final IconData icon;
   final String label;
   final Widget trailing;
   final bool showDivider;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final row = Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: 12,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 16, color: AppColors.primary),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTextStyles.subheadline.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          trailing,
+        ],
+      ),
+    );
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: 12,
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, size: 16, color: AppColors.primary),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Text(
-                  label,
-                  style: AppTextStyles.subheadline.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              trailing,
-            ],
-          ),
-        ),
+        if (onTap != null)
+          InkWell(onTap: onTap, child: row)
+        else
+          row,
         if (showDivider)
           const Padding(
             padding: EdgeInsetsDirectional.only(start: 66),
             child: Divider(height: 1, color: AppColors.divider),
           ),
       ],
+    );
+  }
+}
+
+class _LangTile extends StatelessWidget {
+  const _LangTile({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(
+        label,
+        style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+      ),
+      trailing: selected
+          ? const Icon(Icons.check_rounded, color: AppColors.primary)
+          : null,
+      onTap: onTap,
     );
   }
 }

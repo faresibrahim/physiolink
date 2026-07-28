@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:practice/core/theme/app_colors.dart';
 import 'package:practice/core/theme/app_text_styles.dart';
 import 'package:practice/features/auth/presentation/providers/auth_provider.dart';
+import 'package:practice/l10n/app_localizations.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -60,6 +61,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -110,7 +112,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 const SizedBox(height: 6),
 
                 Text(
-                  'Your partner in recovery wherever you are',
+                  l10n.tagline,
                   style: AppTextStyles.callout.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -148,7 +150,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'HIPAA SECURED آ· V2.4.0',
+                      l10n.hipaaSecured,
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary.withValues(alpha: 0.45),
                         fontSize: 10,

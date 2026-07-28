@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:practice/core/localization/locale_controller.dart';
 import 'package:practice/core/theme/app_colors.dart';
 import 'package:practice/core/theme/app_text_styles.dart';
+import 'package:practice/l10n/app_localizations.dart';
 import 'package:practice/router.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
   runApp(
-    ProviderScope(child: const MainApp()),
+    ProviderScope(
+      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      child: const MainApp(),
+    ),
   ); //runApp takes a widget and inflates it as the root widget of the app
 }
 
@@ -17,12 +25,18 @@ class MainApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final locale = ref.watch(localeControllerProvider);
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: router,
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       theme: ThemeData(
         useMaterial3: true,
         fontFamily: GoogleFonts.dmSans().fontFamily,
+        // Latin stays DM Sans; Arabic glyphs fall back to Cairo automatically.
+        fontFamilyFallback: [GoogleFonts.cairo().fontFamily!],
         scaffoldBackgroundColor: AppColors.background,
 
         colorScheme: const ColorScheme(

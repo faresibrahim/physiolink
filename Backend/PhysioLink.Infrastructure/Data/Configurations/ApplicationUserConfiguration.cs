@@ -33,6 +33,9 @@ namespace PhysioLink.Infrastructure.Data.Configurations
             builder.Property(u => u.ClinicId)
                 .IsRequired();
 
+            builder.Property(u => u.MustChangePassword)
+                .HasDefaultValue(false);
+
             builder.HasOne<Clinic>()
     .WithMany()
     .HasForeignKey(u => u.ClinicId)

@@ -5,6 +5,7 @@ import 'package:practice/core/theme/app_colors.dart';
 import 'package:practice/core/theme/app_spacing.dart';
 import 'package:practice/core/theme/app_text_styles.dart';
 import 'package:practice/features/auth/presentation/providers/auth_provider.dart';
+import 'package:practice/l10n/app_localizations.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -42,7 +43,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           .login(_emailController.text.trim(), _passwordController.text);
     } catch (ex) {
       if (!mounted) return;
-      setState(() => _errorMessage = 'Incorrect email or password.');
+      setState(
+        () => _errorMessage = AppLocalizations.of(context)!.incorrectCredentials,
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -50,6 +53,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -88,7 +92,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 const SizedBox(height: 6),
 
                 Text(
-                  'Your partner in recovery wherever you are.',
+                  l10n.tagline,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.callout.copyWith(
                     color: AppColors.textSecondary,
@@ -118,7 +122,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       children: [
                         // â”€â”€ Email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                         Text(
-                          'Email',
+                          l10n.emailLabel,
                           style: AppTextStyles.footnote.copyWith(
                             color: AppColors.textSecondary,
                             fontWeight: FontWeight.w500,
@@ -134,7 +138,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             context,
                           ).requestFocus(_passwordFocusNode),
                           validator: (v) => (v == null || v.isEmpty)
-                              ? 'Email is required'
+                              ? l10n.emailRequired
                               : null,
                           decoration: InputDecoration(
                             hintText: 'you@example.com',
@@ -153,7 +157,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                         // â”€â”€ Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                         Text(
-                          'Password',
+                          l10n.password,
                           style: AppTextStyles.footnote.copyWith(
                             color: AppColors.textSecondary,
                             fontWeight: FontWeight.w500,
@@ -168,15 +172,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           onFieldSubmitted: (_) => _submit(),
                           validator: (v) {
                             if (v == null || v.isEmpty) {
-                              return 'Password is required';
+                              return l10n.passwordRequired;
                             }
                             if (v.length < 6) {
-                              return 'Password must be at least 6 characters';
+                              return l10n.passwordMinLength;
                             }
                             return null;
                           },
                           decoration: InputDecoration(
-                            hintText: 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
+                            hintText: l10n.passwordHint,
                             hintStyle: AppTextStyles.body.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -196,7 +200,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 child: Align(
                                   widthFactor: 1,
                                   child: Text(
-                                    _obscurePassword ? 'Show' : 'Hide',
+                                    _obscurePassword ? l10n.show : l10n.hide,
                                     style: AppTextStyles.footnote.copyWith(
                                       color: AppColors.primary,
                                       fontWeight: FontWeight.w600,
@@ -285,7 +289,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                       ),
                                     )
                                   : Text(
-                                      'Log In',
+                                      l10n.logIn,
                                       style: AppTextStyles.callout.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w700,
@@ -313,7 +317,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Secured by PhysioLink â€¢ v2.4.0',
+                      l10n.securedByFooter,
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary.withValues(alpha: 0.45),
                       ),

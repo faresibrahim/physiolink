@@ -158,6 +158,8 @@ namespace PhysioLink.Infrastructure.Services
                 clinicId
             );
             user.PasswordHash = _passwordHasher.HashPassword(user, temporaryPassword);
+            // Force the patient to replace the temporary password on first login.
+            user.MustChangePassword = true;
 
             var patient = new Patient(
                 createPatientDto.FirstName,

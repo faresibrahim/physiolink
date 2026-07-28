@@ -93,11 +93,17 @@ public class PatientsController : BaseController
             return RedirectToAction(nameof(Index));
         }
 
+        // Resolve the currently-assigned therapist's ID by matching name, so the
+        // Edit Patient dialog can preselect it (PatientDetailResponse only carries the name).
+        var assignedTherapist = therapists?.Items.FirstOrDefault(t =>
+            $"{t.FirstName} {t.LastName}" == patient.TherapistName);
+
         var viewModel = new PatientDetailViewModel
         {
-            Patient    = patient,
-            Therapists = therapists?.Items ?? [],
-            Exercises  = exercises
+            Patient            = patient,
+            Therapists         = therapists?.Items ?? [],
+            Exercises          = exercises,
+            PatientTherapistId = assignedTherapist?.Id
         };
 
         return View(viewModel);
@@ -141,15 +147,17 @@ public class PatientsController : BaseController
     }
 
     // POST /Patients/Edit/{id}
+    // Submitted by the Edit Patient dialog (Patient Detail page), so failures
+    // redirect back to Detail with a TempData message rather than re-rendering
+    // a form view — there's no full Edit page to redisplay with inline errors.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(Guid id, PatientFormViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            model.IsEdit     = true;
-            model.Therapists = (await _apiClient.GetTherapistsAsync(1, 100))?.Items ?? [];
-            return View(model);
+            TempData["ErrorMessage"] = "Please fill in all required fields.";
+            return RedirectToAction(nameof(Detail), new { id });
         }
 
         var request = new UpdatePatientRequest
@@ -167,25 +175,40 @@ public class PatientsController : BaseController
         if (!success)
         {
             TempData["ErrorMessage"] = "Failed to update patient. Please try again.";
-            model.IsEdit     = true;
-            model.Therapists = (await _apiClient.GetTherapistsAsync(1, 100))?.Items ?? [];
-            return View(model);
+            return RedirectToAction(nameof(Detail), new { id });
         }
 
         TempData["SuccessMessage"] = "Patient updated successfully.";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Detail), new { id });
     }
 
     // POST /Patients/Deactivate/{id}
+    // Destructive, so the therapist re-enters their own account password to confirm.
+    // Failures return to Detail — the patient is still there and the user stays in context.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Deactivate(Guid id)
+    public async Task<IActionResult> Deactivate(Guid id, string? password)
     {
-        var success = await _apiClient.DeactivatePatientAsync(id);
-        TempData[success ? "SuccessMessage" : "ErrorMessage"] = success
-            ? "Patient deactivated successfully."
-            : "Failed to deactivate patient. Please try again.";
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            TempData["ErrorMessage"] = "Enter your account password to confirm deactivation.";
+            return RedirectToAction(nameof(Detail), new { id });
+        }
 
+        if (!await _apiClient.VerifyPasswordAsync(password))
+        {
+            TempData["ErrorMessage"] = "Incorrect password. The patient was not deactivated.";
+            return RedirectToAction(nameof(Detail), new { id });
+        }
+
+        var success = await _apiClient.DeactivatePatientAsync(id);
+        if (!success)
+        {
+            TempData["ErrorMessage"] = "Failed to deactivate patient. Please try again.";
+            return RedirectToAction(nameof(Detail), new { id });
+        }
+
+        TempData["SuccessMessage"] = "Patient deactivated successfully.";
         return RedirectToAction(nameof(Index));
     }
 

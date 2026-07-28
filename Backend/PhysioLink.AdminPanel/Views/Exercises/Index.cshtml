@@ -3,14 +3,34 @@
     ViewData["Title"] = "Exercises";
 }
 
+@functions {
+    // Mirrors the isDirectVideo/extractYouTubeId logic in the modal script below,
+    // so cards and the detail modal agree on what counts as a YouTube video.
+    private static string? GetYouTubeThumbnail(string? videoUrl)
+    {
+        if (string.IsNullOrWhiteSpace(videoUrl)) return null;
+
+        bool isDirectFile = videoUrl.StartsWith("/") ||
+            System.Text.RegularExpressions.Regex.IsMatch(videoUrl, @"\.(mp4|mov|webm|ogg|m4v)(\?|#|$)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (isDirectFile) return null;
+
+        var match = System.Text.RegularExpressions.Regex.Match(videoUrl,
+            @"(?:youtu\.be/|youtube\.com/(?:embed/|watch\?v=|shorts/))([^?&#/]+)",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        var id = match.Success ? match.Groups[1].Value : videoUrl;
+
+        return $"https://img.youtube.com/vi/{id}/hqdefault.jpg";
+    }
+}
+
 @* =========================================================================
    PAGE HEADER — title + subtitle (stat line)
    Create CTA is intentionally hidden — exercises are curated centrally.
    ========================================================================= *@
 <div class="library-header">
     <div>
-        <h1 style="font-size:1.5rem; font-weight:600; color:#323232; margin:0;">Exercise Library</h1>
-        <p style="color:#8E8E93; margin:4px 0 0;">
+        <h1 class="library-title">Exercise Library</h1>
+        <p class="library-subtitle">
             @Model.TotalCount exercises available.
         </p>
     </div>
@@ -108,16 +128,28 @@ else
                 "Hard" => "diff-advanced",
                 _ => "diff-neutral"
             };
+            string? thumbnailUrl = GetYouTubeThumbnail(exercise.VideoUrl);
 
-            <article class="exercise-card" onclick="openExerciseModal('@exercise.ExerciseId')" style="cursor:pointer;">
-                @* Top visual — hatched background + region tag + icon disc *@
-                <div class="exercise-visual">
+            <article class="exercise-card" onclick="openExerciseModal('@exercise.ExerciseId')" tabindex="0" role="button"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openExerciseModal('@exercise.ExerciseId');}">
+                @* Top visual — YouTube thumbnail when a video exists, otherwise hatched background *@
+                <div class="exercise-visual@(thumbnailUrl != null ? " has-thumbnail" : "")"
+                     style="@(thumbnailUrl != null ? $"background-image:url('{thumbnailUrl}')" : "")">
                     <span class="region-tag">@exercise.Category.ToUpper()</span>
 
                     <div class="exercise-icon-disc">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#004AAD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                        </svg>
+                        @if (thumbnailUrl != null)
+                        {
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="6 3 20 12 6 21 6 3"></polygon>
+                            </svg>
+                        }
+                        else
+                        {
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                        }
                     </div>
                 </div>
 
@@ -197,7 +229,7 @@ else
         @* Content (hidden until loaded) *@
         <div id="exerciseModalContent" class="modal-body" style="display:none;">
 
-            @* Video player *@
+            @* Video player — iframe for YouTube IDs, <video> for direct/local files *@
             <div id="exerciseVideoSection">
                 <div class="video-frame">
                     <iframe id="exerciseVideoFrame"
@@ -205,12 +237,19 @@ else
                             title="Exercise demonstration"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen></iframe>
+                    <video id="exerciseVideoFile"
+                           src=""
+                           title="Exercise demonstration"
+                           controls
+                           preload="metadata"
+                           playsinline
+                           style="display:none;"></video>
                 </div>
             </div>
 
             @* No video placeholder *@
             <div id="exerciseNoVideo" class="video-empty" style="display:none;">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C7C7CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
                 </svg>
                 <p>No demonstration video for this exercise yet.</p>
@@ -218,6 +257,12 @@ else
 
             @* Description *@
             <p id="exerciseModalDescription" class="modal-description"></p>
+
+            @* Arabic translation of the steps — hidden when the exercise has none *@
+            <p id="exerciseModalDescriptionAr"
+               class="modal-description modal-description-ar"
+               lang="ar" dir="rtl"
+               style="display:none;"></p>
 
             @* Divider *@
             <div class="modal-divider"></div>
@@ -252,8 +297,20 @@ else
     var loading   = document.getElementById('exerciseModalLoading');
     var content   = document.getElementById('exerciseModalContent');
     var iframe    = document.getElementById('exerciseVideoFrame');
+    var videoFile = document.getElementById('exerciseVideoFile');
     var videoSec  = document.getElementById('exerciseVideoSection');
     var noVideo   = document.getElementById('exerciseNoVideo');
+
+    // A direct file source (local upload or full media URL) vs a YouTube video id.
+    function isDirectVideo(url) {
+        return url.charAt(0) === '/' || /\.(mp4|mov|webm|ogg|m4v)(\?|#|$)/i.test(url);
+    }
+
+    // Accepts a bare YouTube id or a full youtu.be / youtube.com URL and returns just the id.
+    function extractYouTubeId(url) {
+        var match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=|shorts\/))([^?&#/]+)/i);
+        return match ? match[1] : url;
+    }
 
     async function openExerciseModal(id) {
         // Reset state
@@ -261,6 +318,11 @@ else
         loading.style.display  = 'block';
         content.style.display  = 'none';
         iframe.src             = '';
+        videoFile.pause();
+        videoFile.removeAttribute('src');
+        videoFile.load();
+        videoFile.style.display = 'none';
+        iframe.style.display    = 'none';
         modal.classList.add('modal-visible');
 
         try {
@@ -281,11 +343,19 @@ else
             // Title
             document.getElementById('exerciseModalTitle').textContent = data.name;
 
-            // Video
+            // Video — direct file plays in a <video>, otherwise treat as a YouTube id
             if (data.videoUrl) {
                 videoSec.style.display = 'block';
                 noVideo.style.display  = 'none';
-                iframe.src             = 'https://www.youtube.com/embed/' + data.videoUrl;
+                if (isDirectVideo(data.videoUrl)) {
+                    videoFile.src        = data.videoUrl;
+                    videoFile.style.display = 'block';
+                    iframe.style.display    = 'none';
+                } else {
+                    iframe.src           = 'https://www.youtube.com/embed/' + extractYouTubeId(data.videoUrl);
+                    iframe.style.display    = 'block';
+                    videoFile.style.display = 'none';
+                }
             } else {
                 videoSec.style.display = 'none';
                 noVideo.style.display  = 'flex';
@@ -293,6 +363,16 @@ else
 
             // Description + stats
             document.getElementById('exerciseModalDescription').textContent = data.description;
+
+            var descAr = document.getElementById('exerciseModalDescriptionAr');
+            if (data.descriptionAr) {
+                descAr.textContent   = data.descriptionAr;
+                descAr.style.display = 'block';
+            } else {
+                descAr.textContent   = '';
+                descAr.style.display = 'none';
+            }
+
             document.getElementById('exerciseModalDifficulty').textContent  = data.difficulty;
             document.getElementById('exerciseModalSets').textContent        = data.sets;
             document.getElementById('exerciseModalReps').textContent        = data.reps;
@@ -310,6 +390,7 @@ else
     function closeExerciseModal() {
         modal.classList.remove('modal-visible');
         iframe.src = ''; // stops YouTube audio
+        videoFile.pause(); // stops local file playback
     }
 
     // Close on overlay click

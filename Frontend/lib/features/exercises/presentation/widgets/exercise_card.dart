@@ -3,12 +3,19 @@ import 'package:practice/core/theme/app_colors.dart';
 import 'package:practice/core/theme/app_spacing.dart';
 import 'package:practice/core/theme/app_text_styles.dart';
 import 'package:practice/features/exercises/domain/entities/exercise_assignment.dart';
+import 'package:practice/l10n/app_localizations.dart';
 
 class ExerciseCard extends StatelessWidget {
   const ExerciseCard({super.key, required this.exercise, required this.onTap});
 
   final ExerciseAssignment exercise;
   final VoidCallback onTap;
+
+  String _difficultyLabel(AppLocalizations l10n) => switch (exercise.difficulty) {
+        DifficultyLevel.easy => l10n.difficultyEasy,
+        DifficultyLevel.moderate => l10n.difficultyModerate,
+        DifficultyLevel.hard => l10n.difficultyHard,
+      };
 
   Color get _difficultyColor => switch (exercise.difficulty) {
         DifficultyLevel.easy => AppColors.secondary,
@@ -26,6 +33,7 @@ class ExerciseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -86,8 +94,7 @@ class ExerciseCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          exercise.difficulty.name[0].toUpperCase() +
-                              exercise.difficulty.name.substring(1),
+                          _difficultyLabel(l10n),
                           style: AppTextStyles.caption.copyWith(
                             color: _difficultyColor,
                             fontWeight: FontWeight.w600,
@@ -101,17 +108,17 @@ class ExerciseCard extends StatelessWidget {
                     children: [
                       _MiniStat(
                         icon: Icons.refresh_rounded,
-                        label: '${exercise.sets} sets',
+                        label: l10n.setsCount(exercise.sets),
                       ),
                       const SizedBox(width: 10),
                       _MiniStat(
                         icon: Icons.repeat_rounded,
-                        label: '${exercise.reps} reps',
+                        label: l10n.repsCount(exercise.reps),
                       ),
                       const SizedBox(width: 10),
                       _MiniStat(
                         icon: Icons.timer_outlined,
-                        label: '${exercise.durationMinutes} min',
+                        label: l10n.minCount(exercise.durationMinutes),
                       ),
                     ],
                   ),

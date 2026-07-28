@@ -10,10 +10,12 @@ namespace PhysioLink.AdminPanel.Controllers
     public class ExercisesController : BaseController
     {
         private readonly ApiClient _apiClient;
+        private readonly IConfiguration _configuration;
 
-        public ExercisesController (ApiClient apiClient)
+        public ExercisesController (ApiClient apiClient, IConfiguration configuration)
         {
             _apiClient = apiClient;
+            _configuration = configuration;
         }
 
         private const int PageSize = 12;
@@ -78,13 +80,27 @@ namespace PhysioLink.AdminPanel.Controllers
                 exerciseId      = exercise.ExerciseId,
                 name            = exercise.Name,
                 description     = exercise.Description,
+                descriptionAr   = exercise.DescriptionAr,
                 sets            = exercise.Sets,
                 reps            = exercise.Reps,
                 durationMinutes = exercise.DurationMinutes,
                 difficulty      = exercise.Difficulty,
                 category        = exercise.Category,
-                videoUrl        = exercise.VideoUrl
+                videoUrl        = ResolveVideoUrl(exercise.VideoUrl)
             });
+        }
+
+        // Server-relative video paths (e.g. /videos/xxx.mp4) are stored relative to
+        // the API host, not this admin panel — resolve them to an absolute URL so
+        // the browser fetches the file from the right origin. Full URLs (YouTube,
+        // or any other already-absolute link) pass through unchanged.
+        private string? ResolveVideoUrl(string? videoUrl)
+        {
+            if (string.IsNullOrWhiteSpace(videoUrl)) return videoUrl;
+            if (videoUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return videoUrl;
+
+            var apiBaseUrl = _configuration["ApiBaseUrl"]!.TrimEnd('/');
+            return $"{apiBaseUrl}{videoUrl}";
         }
     }
 }

@@ -9,6 +9,7 @@ namespace PhysioLink.Application.DTOs.Exercises
         public int Reps { get; set; }
         public int DurationMinutes { get; set; }
         public required string Description { get; set; }
+        public string? DescriptionAr { get; set; }
         public string? VideoUrl { get; set; }
         public DifficultyLevel Difficulty { get; set; }
         public ExerciseCategory Category { get; set; }

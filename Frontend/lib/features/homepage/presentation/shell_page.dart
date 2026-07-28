@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:practice/l10n/app_localizations.dart';
 
 class ShellPage extends StatelessWidget {
   const ShellPage({super.key, required this.child});
@@ -17,6 +18,7 @@ class ShellPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
     final selectedIndex = _selectedIndex(location);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: child,
@@ -37,46 +39,46 @@ class ShellPage extends StatelessWidget {
             },
             items: [
               BottomNavigationBarItem(
-                label: 'Home',
+                label: l10n.home,
                 icon: Semantics(
-                  label: 'Home',
+                  label: l10n.home,
                   child: const Icon(Icons.home_outlined),
                 ),
                 activeIcon: Semantics(
-                  label: 'Home',
+                  label: l10n.home,
                   child: Icon(Icons.home_rounded),
                 ),
               ),
               BottomNavigationBarItem(
-                label: 'Exercises',
+                label: l10n.exercises,
                 icon: Semantics(
-                  label: 'Exercises',
+                  label: l10n.exercises,
                   child: const Icon(Icons.fitness_center_outlined),
                 ),
                 activeIcon: Semantics(
-                  label: 'Exercises',
+                  label: l10n.exercises,
                   child: Icon(Icons.fitness_center_rounded),
                 ),
               ),
               BottomNavigationBarItem(
-                label: 'Appointments',
+                label: l10n.appointments,
                 icon: Semantics(
-                  label: 'Appointments',
+                  label: l10n.appointments,
                   child: const Icon(Icons.calendar_today_outlined),
                 ),
                 activeIcon: Semantics(
-                  label: 'Appointments',
+                  label: l10n.appointments,
                   child: Icon(Icons.calendar_today_rounded),
                 ),
               ),
               BottomNavigationBarItem(
-                label: 'Profile',
+                label: l10n.profile,
                 icon: Semantics(
-                  label: 'Profile',
+                  label: l10n.profile,
                   child: const Icon(Icons.person_outline_rounded),
                 ),
                 activeIcon: Semantics(
-                  label: 'Profile',
+                  label: l10n.profile,
                   child: Icon(Icons.person_rounded),
                 ),
               ),
