@@ -50,12 +50,25 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Railway terminates TLS at its edge; the container only ever sees plain HTTP on
+// :8080. Redirecting to HTTPS in-container does nothing useful in production and can
+// turn Railway's HTTP healthcheck into a 307. Guard to Development, matching the API.
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+
+// Liveness probe for Railway's healthcheck. Public + no I/O: it must return 200
+// instantly even if the API is unreachable, so it reflects "is this process alive",
+// not "is the backend API reachable". Kept off the default route (which is [Authorize]
+// on DashboardController and 302-redirects to /Auth/Login when unauthenticated).
+app.MapGet("/health", () => Results.Ok("healthy")).AllowAnonymous();
 
 app.MapControllerRoute(
     name: "default",

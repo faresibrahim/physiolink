@@ -3,4 +3,4 @@ builder = "dockerfile"
 dockerfilePath = "Backend/PhysioLink.AdminPanel/Dockerfile"
 
 [deploy]
-healthcheckPath = "/"
+healthcheckPath = "/health"
