@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using PhysioLink.API.RateLimiting;
 using PhysioLink.Application.DTOs;
 using PhysioLink.Application.DTOs.Auth;
 using PhysioLink.Application.Interfaces;
@@ -17,6 +19,7 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {

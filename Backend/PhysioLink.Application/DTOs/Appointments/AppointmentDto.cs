@@ -10,7 +10,7 @@ namespace PhysioLink.Application.DTOs
         public string Title { get; set; } = null!;
         public string? Notes { get; set; }
         public DateTime AppointmentTime { get; set; }
-        public AppointmentStatus AppointmentStatus { get; set; } = AppointmentStatus.Pending;
+        public AppointmentStatus AppointmentStatus { get; set; } = AppointmentStatus.Requested;
         public string PatientName { get; set; } = null!;
     }
 }

@@ -9,8 +9,8 @@ public class AssignExerciseRequest
     public int Sets { get; set; }
     public int Reps { get; set; }
     public int DurationMinutes { get; set; }
-    public DateTime ScheduledDate { get; set; }
     public int FrequencyPerWeek { get; set; }
+    public int? FrequencyPerDay { get; set; }
 }
 
 public class UpdateAssignmentRequest
@@ -19,8 +19,8 @@ public class UpdateAssignmentRequest
     public int Sets { get; set; }
     public int Reps { get; set; }
     public int DurationMinutes { get; set; }
-    public DateTime ScheduledDate { get; set; }
     public int FrequencyPerWeek { get; set; }
+    public int? FrequencyPerDay { get; set; }
     public string Status { get; set; } = string.Empty;
 }
 
@@ -34,8 +34,8 @@ public class AssignmentResponse
     [JsonPropertyName("sets")]                 public int Sets { get; set; }
     [JsonPropertyName("reps")]                 public int Reps { get; set; }
     [JsonPropertyName("durationMinutes")]      public int DurationMinutes { get; set; }
-    [JsonPropertyName("scheduledDate")]        public DateTime ScheduledDate { get; set; }
     [JsonPropertyName("frequencyPerWeek")]     public int FrequencyPerWeek { get; set; }
+    [JsonPropertyName("frequencyPerDay")]      public int? FrequencyPerDay { get; set; }
     [JsonPropertyName("status")]               public string Status { get; set; } = string.Empty;
     [JsonPropertyName("feedback")]             public int? Feedback { get; set; }
 }

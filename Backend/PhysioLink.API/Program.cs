@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PhysioLink.API.Middleware;
+using PhysioLink.API.RateLimiting;
 using PhysioLink.Application.Interfaces;
 using PhysioLink.Application.Services;
 using PhysioLink.Domain.Entities;
@@ -58,6 +59,13 @@ builder.Services.AddControllers()
     });
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddAuthorization();
+// Shared secret that lets the trusted first-party admin panel bypass IP rate limiting.
+// Dev falls back to a well-known value so both apps match out of the box; production
+// MUST set INTERNAL_API_KEY (same value on the API and the admin panel).
+var internalApiKey = Environment.GetEnvironmentVariable("INTERNAL_API_KEY")
+    ?? (builder.Environment.IsDevelopment() ? "dev-internal-key" : null);
+builder.Services.AddApiRateLimiting(internalApiKey);
+builder.Services.AddMemoryCache();
 
 
 
@@ -88,6 +96,9 @@ builder.Services.AddScoped<IAdminTherapistService, AdminTherapistService>();
 builder.Services.AddScoped<IAdminPatientService, AdminPatientService>();
 builder.Services.AddScoped<IAdminAssignmentService, AdminAssignmentService>();
 builder.Services.AddScoped<IAdminAppointmentService, AdminAppointmentService>();
+builder.Services.AddScoped<IAdminSlotService, AdminSlotService>();
+builder.Services.AddScoped<ISlotExpiryService, SlotExpiryService>();
+builder.Services.AddScoped<IPatientSlotService, PatientSlotService>();
 builder.Services.AddScoped<IAdminExerciseService, AdminExerciseService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
@@ -119,13 +130,14 @@ using (var scope = app.Services.CreateScope())
 
 await DbSeeder.SeedAsync(app.Services);
 
-// Configure the HTTP request pipeline.
-app.UseSwagger();
-app.UseSwaggerUI();
+
 
 if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
+    // Configure the HTTP request pipeline.
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseExceptionHandler();
@@ -136,6 +148,11 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Rate limiting sits after auth so limiter partitions could later key off the
+// authenticated user, and before endpoints so throttled requests never reach them.
+app.UseRateLimiter();
+
 app.MapControllers();
 app.Run();
 

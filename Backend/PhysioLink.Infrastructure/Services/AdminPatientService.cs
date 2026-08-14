@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PhysioLink.Application.DTOs;
 using PhysioLink.Application.DTOs.Patients;
+using PhysioLink.Application.Exceptions;
 using PhysioLink.Application.Interfaces;
 using PhysioLink.Domain.Entities;
 using PhysioLink.Infrastructure.Data;
@@ -134,8 +135,7 @@ namespace PhysioLink.Infrastructure.Services
                             Reps = ea.Reps,
                             DurationMinutes = ea.DurationMinutes,
                             Feedback = ea.Feedback,
-                            Status = ea.Status,
-                            ScheduledDate = ea.ScheduledDate
+                            Status = ea.Status
                         })
                         .ToList()
                 })
@@ -147,12 +147,25 @@ namespace PhysioLink.Infrastructure.Services
             var clinicId = _currentClinicService.GetCurrentClinicId()
                 ?? throw new InvalidOperationException("No clinic in context.");
 
+            // Store emails canonically lower-cased so the (case-sensitive) unique
+            // index IX_Users_Email and the login lookup agree with this guard. Without
+            // canonical storage, "Fares@x" and "fares@x" would be distinct to the index
+            // but duplicates to this guard.
+            // Guard against duplicate active accounts. The global IsDeleted query filter
+            // means this only matches *active* users, so an email freed by a previous
+            // deactivation can be reused.
+            var email = createPatientDto.Email.Trim().ToLowerInvariant();
+            var emailInUse = await _dbContext.Users
+                .AnyAsync(u => u.Email == email);
+            if (emailInUse)
+                throw new EmailInUseException(email);
+
             var temporaryPassword = GeneratePassword();
 
             var user = new ApplicationUser(
                 createPatientDto.FirstName,
                 createPatientDto.LastName,
-                createPatientDto.Email,
+                email,
                 passwordHash: string.Empty,
                 role: "Patient",
                 clinicId
@@ -166,7 +179,7 @@ namespace PhysioLink.Infrastructure.Services
                 createPatientDto.LastName,
                 createPatientDto.PhoneNumber,
                 user.ApplicationUserId,
-                createPatientDto.Email,
+                email,
                 createPatientDto.Diagnosis
             );
             patient.ClinicId = clinicId;
@@ -198,7 +211,7 @@ namespace PhysioLink.Infrastructure.Services
 
             patient.FirstName = updatePatientDto.FirstName;
             patient.LastName = updatePatientDto.LastName;
-            patient.Email = updatePatientDto.Email;
+            patient.Email = updatePatientDto.Email.Trim().ToLowerInvariant();
             patient.PhoneNumber = updatePatientDto.PhoneNumber;
             patient.Diagnosis = updatePatientDto.Diagnosis;
             patient.IsActive = updatePatientDto.IsActive;

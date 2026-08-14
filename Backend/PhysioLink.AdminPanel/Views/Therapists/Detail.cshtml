@@ -38,6 +38,12 @@
 
             <div class="profile-actions">
 
+                <a asp-action="Schedule"
+                   asp-route-id="@Model.Therapist.Id"
+                   class="btn btn-ghost btn-sm">
+                    Manage schedule
+                </a>
+
                 <a asp-action="Edit"
                    asp-route-id="@Model.Therapist.Id"
                    class="btn btn-ghost btn-sm">

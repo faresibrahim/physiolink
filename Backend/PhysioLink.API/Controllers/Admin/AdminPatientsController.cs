@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PhysioLink.Application.DTOs.Patients;
+using PhysioLink.Application.Exceptions;
 using PhysioLink.Application.Interfaces;
 
 namespace PhysioLink.API.Controllers.Admin
@@ -35,8 +36,15 @@ namespace PhysioLink.API.Controllers.Admin
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreatePatientDto createPatientDto)
         {
-            var result = await _adminPatientService.CreateAsync(createPatientDto);
-            return CreatedAtAction(nameof(GetById), new { id = result.PatientId }, result);
+            try
+            {
+                var result = await _adminPatientService.CreateAsync(createPatientDto);
+                return CreatedAtAction(nameof(GetById), new { id = result.PatientId }, result);
+            }
+            catch (EmailInUseException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id:guid}")]

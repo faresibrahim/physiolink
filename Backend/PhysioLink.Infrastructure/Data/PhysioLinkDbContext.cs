@@ -21,6 +21,7 @@ namespace PhysioLink.Infrastructure.Data
         public DbSet<ExerciseAssignment> ExerciseAssignments => Set<ExerciseAssignment>();
         public DbSet<Clinic> Clinics => Set<Clinic>();
         public DbSet<Therapist> Therapists => Set<Therapist>();
+        public DbSet<AppointmentSlot> AppointmentSlots => Set<AppointmentSlot>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

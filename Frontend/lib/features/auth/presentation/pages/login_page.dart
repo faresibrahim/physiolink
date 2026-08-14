@@ -44,7 +44,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } catch (ex) {
       if (!mounted) return;
       setState(
-        () => _errorMessage = AppLocalizations.of(context)!.incorrectCredentials,
+        () =>
+            _errorMessage = AppLocalizations.of(context)!.incorrectCredentials,
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -270,8 +271,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   ? null
                                   : [
                                       BoxShadow(
-                                        color: AppColors.secondary.withValues(alpha: 
-                                          0.35,
+                                        color: AppColors.secondary.withValues(
+                                          alpha: 0.35,
                                         ),
                                         blurRadius: 16,
                                         offset: const Offset(0, 6),

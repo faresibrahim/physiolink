@@ -121,7 +121,6 @@ namespace PhysioLink.Infrastructure.Data
 
                 var therapist = await context.Users.IgnoreQueryFilters().FirstAsync(u => u.Email == "fares.a.ibrahim@gmail.com");
                 var exercises = await context.Exercises.IgnoreQueryFilters().ToListAsync();
-                var today = DateTime.UtcNow.Date;
 
                 foreach (var exercise in exercises)
                 {
@@ -132,8 +131,8 @@ namespace PhysioLink.Infrastructure.Data
                         sets: exercise.Sets,
                         reps: exercise.Reps,
                         durationMinutes: exercise.DurationMinutes,
-                        scheduledDate: today,
                         frequencyPerWeek: 3,
+                        frequencyPerDay: null,
                         assignedAt: DateTime.UtcNow
                     ));
                 }
@@ -149,15 +148,14 @@ namespace PhysioLink.Infrastructure.Data
                     await context.SaveChangesAsync();
                 }
 
-                // Ensure john.smith has exercise assignments scheduled for today
+                
                 if (johnSmith != null)
                 {
-                    var today = DateTime.UtcNow.Date;
-                    var hasAssignmentsToday = await context.ExerciseAssignments
+                    var hasAssignments = await context.ExerciseAssignments
                         .IgnoreQueryFilters()
-                        .AnyAsync(ea => ea.PatientId == johnSmith.PatientId && ea.ScheduledDate.Date == today);
+                        .AnyAsync(ea => ea.PatientId == johnSmith.PatientId);
 
-                    if (!hasAssignmentsToday)
+                    if (!hasAssignments)
                     {
                         var therapist = await context.Users.IgnoreQueryFilters().FirstAsync(u => u.Email == "fares.a.ibrahim@gmail.com");
                         var exercises = await context.Exercises.IgnoreQueryFilters().ToListAsync();
@@ -171,8 +169,8 @@ namespace PhysioLink.Infrastructure.Data
                                 sets: exercise.Sets,
                                 reps: exercise.Reps,
                                 durationMinutes: exercise.DurationMinutes,
-                                scheduledDate: today,
                                 frequencyPerWeek: 3,
+                                frequencyPerDay: null,
                                 assignedAt: DateTime.UtcNow
                             ));
                         }
@@ -186,6 +184,22 @@ namespace PhysioLink.Infrastructure.Data
                 var clinic2 = new Clinic("PhysioPlus Center", "456 Health Ave", "+97000000002", "clinic2@physiolink.com", true);
                 clinic2.ClinicId = Clinic2Id;
                 context.Clinics.Add(clinic2);
+                await context.SaveChangesAsync();
+            }
+
+            // Guarantee every clinic has a usable operating-hours window so the slot
+            // grid always renders (spec D11 / 1.5). Clinics seeded before these
+            // columns existed default to 0/0 — normalize those to 8:00–18:00.
+            var clinicsMissingHours = await context.Clinics.IgnoreQueryFilters()
+                .Where(c => c.CloseHour <= c.OpenHour)
+                .ToListAsync();
+            if (clinicsMissingHours.Count > 0)
+            {
+                foreach (var clinic in clinicsMissingHours)
+                {
+                    clinic.OpenHour = 8;
+                    clinic.CloseHour = 18;
+                }
                 await context.SaveChangesAsync();
             }
 

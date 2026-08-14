@@ -12,15 +12,19 @@ class AppointmentTile extends StatelessWidget {
 
   static Color _statusColor(AppointmentStatus status) => switch (status) {
     AppointmentStatus.confirmed => AppColors.secondary,
-    AppointmentStatus.pending => AppColors.warning,
-    AppointmentStatus.cancelled => AppColors.destructive,
+    AppointmentStatus.requested => AppColors.warning,
+    AppointmentStatus.rejected => AppColors.destructive,
+    AppointmentStatus.expired => AppColors.textSecondary,
+    AppointmentStatus.cancelledByClinic => AppColors.destructive,
     AppointmentStatus.completed => AppColors.textSecondary,
   };
 
   static String _statusLabel(AppointmentStatus status) => switch (status) {
     AppointmentStatus.confirmed => 'Confirmed',
-    AppointmentStatus.pending => 'Pending',
-    AppointmentStatus.cancelled => 'Cancelled',
+    AppointmentStatus.requested => 'Pending',
+    AppointmentStatus.rejected => 'Rejected',
+    AppointmentStatus.expired => 'Expired',
+    AppointmentStatus.cancelledByClinic => 'Cancelled by clinic',
     AppointmentStatus.completed => 'Done',
   };
 

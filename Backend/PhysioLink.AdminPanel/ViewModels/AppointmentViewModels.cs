@@ -18,6 +18,16 @@ namespace PhysioLink.AdminPanel.ViewModels
         public PaginationViewModel Pagination { get; set; } = new();
     }
 
+    public class AppointmentHistoryViewModel
+    {
+        public List<AppointmentSummaryResponse> Appointments { get; set; } = [];
+        public int TotalCount { get; set; }
+        public string? StatusFilter { get; set; }
+        public string? TherapistFilter { get; set; }
+        public List<TherapistResponse> Therapists { get; set; } = [];
+        public PaginationViewModel Pagination { get; set; } = new();
+    }
+
     public class CreateAppointmentViewModel
     {
         public Guid PatientId { get; set; }

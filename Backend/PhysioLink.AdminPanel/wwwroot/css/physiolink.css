@@ -1,15 +1,17 @@
 /* =============================================================================
-   PhysioLink Admin — Design System
+   PhysioLink Admin — Design System (2026 refresh)
    -----------------------------------------------------------------------------
    Rules this file encodes (do not deviate accidentally):
    · Spacing on the 8pt grid (4px half-step used sparingly)
    · Type sizes in multiples of 2: 12 / 14 / 16 / 18 / 20 / 24
-   · Text is near-black (#323232), never pure #000
-   · Flat surfaces: 1px borders, shadows only for real elevation (modal,
-     dropdown, hover-lift)
+   · Text is near-black (#22262C), never pure #000
+   · Flat-plus surfaces: 1px borders + a 1px ambient shadow; real elevation
+     (modal, dropdown, hover-lift) only where it means something
    · One button system: pad-x = 2 × pad-y, ≥44px tap targets on mobile
    · Brand colors are identity — #004AAD blue, #4CAF82 green. Text-on-tint
      variants are darkened for WCAG AA contrast; fills stay on-brand.
+   · Primary CTA is the only solid-blue action per screen (Von Restorff);
+     secondary actions are tonal fills, neutral actions are quiet outlines.
    · 12-column content grid across breakpoints
    ============================================================================= */
 
@@ -17,15 +19,16 @@
     /* ---- Brand ---- */
     --primary: #004AAD;
     --primary-hover: #003C8C;
-    --primary-soft: #E8F0FB;          /* tinted fills behind brand-blue content */
+    --primary-soft: #EAF1FB;          /* tinted fills behind brand-blue content */
+    --primary-soft-hover: #DCE8F8;
     --primary-ring: rgba(0, 74, 173, 0.16);
     --secondary: #4CAF82;
-    --secondary-soft: #E8F5EE;
+    --secondary-soft: #E7F5EE;
 
     /* ---- Status (fill = brand tone, text = AA-contrast tone) ---- */
     --success: #4CAF82;
     --success-text: #2E7D52;
-    --success-soft: #E8F5EE;
+    --success-soft: #E7F5EE;
     --warning: #F59E0B;
     --warning-text: #92650A;
     --warning-soft: #FFF4DE;
@@ -33,16 +36,26 @@
     --danger-strong: #D92D20;         /* solid danger fills w/ white text (AA) */
     --danger-text: #C0271D;
     --danger-soft: #FEECEB;
+    --danger-soft-hover: #FBDBD8;
 
     /* ---- Neutrals ---- */
-    --bg: #F2F2F7;
+    --bg: #F4F5F7;
     --surface: #FFFFFF;
-    --surface-sunken: #FAFAFB;
-    --divider: #E5E5EA;
-    --divider-soft: #F2F2F7;
-    --text-primary: #323232;          /* near-black, never #000 */
-    --text-secondary: #6B6B70;        /* 5.3:1 on white */
-    --text-tertiary: #8E8E93;         /* placeholders / disabled only */
+    --surface-sunken: #F8F9FB;
+    --divider: #E6E8EC;
+    --divider-soft: #F0F1F4;
+    --text-primary: #22262C;          /* near-black, never #000 */
+    --text-secondary: #636A74;        /* AA on white */
+    --text-tertiary: #8B919B;         /* placeholders / disabled only */
+
+    /* ---- Sidebar (dark navy rail derived from brand blue) ---- */
+    --rail-bg: #0A1C38;
+    --rail-raised: rgba(255, 255, 255, 0.06);
+    --rail-active: rgba(255, 255, 255, 0.12);
+    --rail-divider: rgba(255, 255, 255, 0.10);
+    --rail-text: rgba(255, 255, 255, 0.64);
+    --rail-text-strong: #FFFFFF;
+    --rail-accent: #6EA8FF;
 
     /* ---- Spacing — 8pt grid ---- */
     --space-1: 4px;
@@ -61,6 +74,7 @@
     --font-size-lg: 18px;
     --font-size-xl: 20px;
     --font-size-2xl: 24px;
+    --font-size-3xl: 32px;
     --line-height-tight: 1.2;
     --line-height-normal: 1.5;
 
@@ -75,9 +89,10 @@
     --radius-lg: 16px;
     --radius-full: 999px;
 
-    /* ---- Elevation (used sparingly — flat is the default) ---- */
+    /* ---- Elevation (ambient 1px + real elevation used sparingly) ---- */
+    --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
     --shadow-pop: 0 8px 24px rgba(15, 23, 42, 0.08);
-    --shadow-modal: 0 24px 64px rgba(15, 23, 42, 0.16);
+    --shadow-modal: 0 24px 64px rgba(15, 23, 42, 0.18);
 
     /* ---- Controls: pad-x = 2 × pad-y ---- */
     --control-h: 40px;
@@ -90,7 +105,6 @@
     /* ---- Layout ---- */
     --grid-columns: 12;
     --sidebar-w: 240px;
-    --topbar-h: 64px;
 }
 
 /* =============================================================================
@@ -151,13 +165,12 @@ textarea:focus-visible,
     min-height: 100vh;
 }
 
-/* ---- Sidebar ---- */
+/* ---- Sidebar — dark navy rail ---- */
 .sidebar {
     position: sticky;
     top: 0;
     height: 100vh;
-    background: var(--surface);
-    border-right: 1px solid var(--divider);
+    background: var(--rail-bg);
     display: flex;
     flex-direction: column;
     padding: var(--space-4) var(--space-3);
@@ -168,7 +181,15 @@ textarea:focus-visible,
     align-items: center;
     gap: var(--space-2);
     padding: 0 var(--space-2) var(--space-3);
-    border-bottom: 1px solid var(--divider);
+    border-bottom: 1px solid var(--rail-divider);
+}
+
+/* White variant of the mark sits directly on the navy rail — no tile */
+.brand-mark {
+    width: var(--space-8);
+    height: var(--space-8);
+    flex-shrink: 0;
+    display: block;
 }
 
 .brand-name {
@@ -176,12 +197,21 @@ textarea:focus-visible,
     font-size: var(--font-size-base);
     letter-spacing: -0.01em;
     line-height: var(--line-height-tight);
+    color: var(--text-primary);
 }
 
 .brand-sub {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
     margin-top: 2px;
+}
+
+.sidebar .brand-name {
+    color: var(--rail-text-strong);
+}
+
+.sidebar .brand-sub {
+    color: var(--rail-text);
 }
 
 .nav {
@@ -194,20 +224,22 @@ textarea:focus-visible,
 .nav-label {
     font-size: var(--font-size-xs);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-secondary);
+    letter-spacing: 0.08em;
+    color: var(--rail-text);
+    opacity: 0.7;
     padding: var(--space-1) var(--space-2) var(--space-2);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .nav-item {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--space-2);
     height: var(--control-h);
     padding: 0 var(--space-2);
     border-radius: var(--radius-sm);
-    color: var(--text-secondary);
+    color: var(--rail-text);
     font-weight: 500;
     font-size: var(--font-size-sm);
     transition: background 150ms, color 150ms;
@@ -217,32 +249,62 @@ textarea:focus-visible,
     .nav-item .icon {
         width: var(--icon-md);
         height: var(--icon-md);
-        color: var(--text-secondary);
+        color: currentColor;
         flex-shrink: 0;
     }
 
     .nav-item:hover {
-        background: var(--bg);
-        color: var(--text-primary);
+        background: var(--rail-raised);
+        color: var(--rail-text-strong);
     }
 
-        .nav-item:hover .icon {
-            color: var(--text-primary);
-        }
-
+    /* Active = soft-white pill + accent bar; the location is always visible */
     .nav-item.active {
-        background: var(--primary);
-        color: #fff;
+        background: var(--rail-active);
+        color: var(--rail-text-strong);
+        font-weight: 600;
     }
 
-        .nav-item.active .icon {
-            color: #fff;
+        .nav-item.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: var(--space-3);
+            border-radius: var(--radius-full);
+            background: var(--rail-accent);
         }
+
+    /* Pending appointment requests: green label + a modern count pill. The
+       :not(.active) keeps the active-page styling winning when you're on the
+       Requests page itself. */
+    .nav-item.has-requests:not(.active) {
+        color: var(--success);
+    }
+
+    .nav-item .nav-badge {
+        margin-left: auto;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 var(--space-2);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-full);
+        background: var(--success);
+        color: #fff;
+        font-size: var(--font-size-xs);
+        font-weight: 700;
+        line-height: 1;
+        box-shadow: 0 1px 4px rgba(76, 175, 130, 0.45);
+    }
 
 .sidebar-footer {
     margin-top: auto;
     padding-top: var(--space-3);
-    border-top: 1px solid var(--divider);
+    border-top: 1px solid var(--rail-divider);
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
@@ -258,7 +320,7 @@ textarea:focus-visible,
     gap: var(--space-2);
     padding: var(--space-2);
     border-radius: var(--radius-sm);
-    background: var(--bg);
+    background: var(--rail-raised);
 }
 
 .clinic-dot {
@@ -273,11 +335,12 @@ textarea:focus-visible,
     font-weight: 600;
     font-size: var(--font-size-sm);
     line-height: var(--line-height-tight);
+    color: var(--rail-text-strong);
 }
 
 .clinic-meta {
     font-size: var(--font-size-xs);
-    color: var(--text-secondary);
+    color: var(--rail-text);
 }
 
 .logout {
@@ -288,7 +351,7 @@ textarea:focus-visible,
     padding: 0 var(--space-2);
     width: 100%;
     border-radius: var(--radius-sm);
-    color: var(--text-secondary);
+    color: var(--rail-text);
     font-weight: 500;
     font-size: var(--font-size-sm);
     transition: background 150ms, color 150ms;
@@ -297,17 +360,13 @@ textarea:focus-visible,
     .logout .icon {
         width: var(--icon-md);
         height: var(--icon-md);
-        color: var(--text-secondary);
+        color: currentColor;
     }
 
     .logout:hover {
-        background: var(--danger-soft);
-        color: var(--danger-text);
+        background: rgba(255, 90, 80, 0.14);
+        color: #FF9A93;
     }
-
-        .logout:hover .icon {
-            color: var(--danger-text);
-        }
 
 /* ---- Main column ---- */
 .main {
@@ -316,28 +375,14 @@ textarea:focus-visible,
     min-width: 0;
 }
 
-.topbar {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    height: var(--topbar-h);
-    background: var(--surface);
-    border-bottom: 1px solid var(--divider);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--space-5);
+.screens {
+    padding: var(--space-4) var(--space-5);
+    animation: screenIn 240ms ease-out both;
 }
 
-    .topbar h1 {
-        font-size: var(--font-size-xl);
-        font-weight: 600;
-        letter-spacing: -0.01em;
-        margin: 0;
-    }
-
-.screens {
-    padding: var(--space-5);
+@keyframes screenIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 /* =============================================================================
@@ -349,11 +394,11 @@ textarea:focus-visible,
     justify-content: space-between;
     align-items: flex-start;
     gap: var(--space-3);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
 }
 
 .page-title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: var(--line-height-tight);
@@ -381,12 +426,21 @@ textarea:focus-visible,
         color: var(--primary);
     }
 
-/* Filter/search bars above tables and grids */
-.toolbar {
+/* Filter/search bars above tables and grids — boxed so lists read as one unit */
+.toolbar,
+.filter-form {
     display: flex;
     align-items: center;
     gap: var(--space-2);
     flex-wrap: wrap;
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+    padding: var(--space-2);
+}
+
+.toolbar {
     margin-bottom: var(--space-3);
 }
 
@@ -410,7 +464,7 @@ textarea:focus-visible,
 }
 
 .stats-row {
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
 }
 
     .stats-row > * {
@@ -457,6 +511,8 @@ textarea:focus-visible,
 
 /* =============================================================================
    BUTTONS — one system. pad-x = 2 × pad-y.
+   Primary = the one solid CTA. Secondary/danger-outline = tonal fills.
+   Ghost = quiet neutral. No heavy outlines anywhere.
    ============================================================================= */
 
 .btn {
@@ -468,14 +524,18 @@ textarea:focus-visible,
     padding: 0 var(--btn-pad-x);
     border-radius: var(--radius-sm);
     border: 1px solid transparent;
-    font-weight: 500;
+    font-weight: 600;
     font-size: var(--font-size-sm);
     line-height: 1;
     white-space: nowrap;
     text-decoration: none;
     cursor: pointer;
-    transition: background 150ms, border-color 150ms, color 150ms;
+    transition: background 150ms, border-color 150ms, color 150ms, box-shadow 150ms, transform 100ms;
 }
+
+    .btn:active {
+        transform: translateY(1px);
+    }
 
 .btn-sm {
     height: var(--control-h-sm);
@@ -491,38 +551,41 @@ textarea:focus-visible,
 .btn-primary {
     background: var(--primary);
     color: #fff;
+    box-shadow: var(--shadow-xs);
 }
 
     .btn-primary:hover {
         background: var(--primary-hover);
     }
 
-/* Secondary — outlined brand action */
+/* Secondary — tonal brand action */
 .btn-secondary {
-    background: var(--surface);
+    background: var(--primary-soft);
     color: var(--primary);
-    border-color: var(--primary);
 }
 
     .btn-secondary:hover {
-        background: var(--primary-soft);
+        background: var(--primary-soft-hover);
     }
 
-/* Ghost — neutral action */
+/* Ghost — quiet neutral action */
 .btn-ghost {
     background: var(--surface);
     color: var(--text-primary);
     border-color: var(--divider);
+    box-shadow: var(--shadow-xs);
 }
 
     .btn-ghost:hover {
-        background: var(--bg);
+        background: var(--surface-sunken);
+        border-color: #D5D9E0;
     }
 
 /* Danger — destructive, visually separated */
 .btn-danger {
     background: var(--danger-strong);
     color: #fff;
+    box-shadow: var(--shadow-xs);
 }
 
     .btn-danger:hover {
@@ -530,14 +593,37 @@ textarea:focus-visible,
     }
 
 .btn-danger-outline {
-    background: var(--surface);
+    background: var(--danger-soft);
     color: var(--danger-text);
-    border-color: var(--danger-text);
 }
 
     .btn-danger-outline:hover {
-        background: var(--danger-soft);
+        background: var(--danger-soft-hover);
     }
+
+/* Success — tonal positive action (e.g. confirm a request) */
+.btn-success {
+    background: var(--success-soft);
+    color: var(--success-text);
+}
+
+    .btn-success:hover {
+        background: #D9EFE2;
+    }
+
+/* Inline action row for table cells — keeps buttons and their wrapping
+   <form> elements on one baseline with even spacing. */
+.row-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.inline-form {
+    display: inline-flex;
+    margin: 0;
+}
 
 .btn:disabled,
 .btn[aria-disabled="true"] {
@@ -553,30 +639,30 @@ textarea:focus-visible,
     font-size: var(--font-size-xs);
 }
 
-/* Square icon-only button (has aria-label in markup) */
+/* Square icon-only button (has aria-label in markup) — borderless, tint on hover */
 .icon-btn {
     width: var(--control-h-sm);
     height: var(--control-h-sm);
-    border: 1px solid var(--divider);
+    border: 1px solid transparent;
     border-radius: var(--radius-sm);
-    background: var(--surface);
+    background: transparent;
     color: var(--text-secondary);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     cursor: pointer;
-    transition: color 150ms, border-color 150ms, background 150ms;
+    transition: color 150ms, background 150ms;
 }
 
     .icon-btn:hover:not(:disabled) {
         color: var(--primary);
-        border-color: var(--primary);
+        background: var(--primary-soft);
     }
 
     .icon-btn.danger:hover:not(:disabled) {
         color: var(--danger-text);
-        border-color: var(--danger-text);
+        background: var(--danger-soft);
     }
 
     .icon-btn:disabled {
@@ -647,7 +733,7 @@ select.input,
     appearance: none;
     -webkit-appearance: none;
     padding-right: var(--space-6);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B6B70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23636A74' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
     background-repeat: no-repeat;
     background-position: right 12px center;
     cursor: pointer;
@@ -752,7 +838,7 @@ textarea.input {
 }
 
 /* =============================================================================
-   CARDS — flat: border, no shadow
+   CARDS — flat-plus: border + 1px ambient shadow
    ============================================================================= */
 
 .card {
@@ -760,6 +846,7 @@ textarea.input {
     border: 1px solid var(--divider);
     border-radius: var(--radius-md);
     padding: var(--space-4);
+    box-shadow: var(--shadow-xs);
 }
 
 .card-flush {
@@ -820,7 +907,7 @@ textarea.input {
 }
 
 /* =============================================================================
-   ROW LISTS (dashboard cards)
+   ROW LISTS (dashboard cards) — dense 40px rows
    ============================================================================= */
 
 .row-list {
@@ -836,11 +923,12 @@ textarea.input {
     gap: var(--space-2);
     padding: var(--space-2) 0;
     border-bottom: 1px solid var(--divider-soft);
-    min-height: var(--space-7);
+    min-height: var(--space-6);
 }
 
     .row-item:last-child {
         border-bottom: none;
+        padding-bottom: 0;
     }
 
 .row-lead {
@@ -872,8 +960,11 @@ textarea.input {
 .list-empty {
     color: var(--text-secondary);
     font-size: var(--font-size-sm);
-    padding: var(--space-3) 0;
+    padding: var(--space-4);
     margin: 0;
+    text-align: center;
+    border: 1px dashed var(--divider);
+    border-radius: var(--radius-sm);
 }
 
 /* =============================================================================
@@ -920,7 +1011,7 @@ textarea.input {
     }
 
 /* =============================================================================
-   TABLES
+   TABLES — dense 40px rows, quiet uppercase header
    ============================================================================= */
 
 .data-table {
@@ -932,8 +1023,8 @@ textarea.input {
     .data-table thead th {
         text-align: left;
         padding: var(--space-2) var(--space-3);
-        color: var(--text-secondary);
-        font-weight: 500;
+        color: var(--text-tertiary);
+        font-weight: 600;
         font-size: var(--font-size-xs);
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -944,7 +1035,7 @@ textarea.input {
 
     .data-table tbody td {
         padding: var(--space-2) var(--space-3);
-        height: var(--space-7);
+        height: var(--space-6);
         vertical-align: middle;
         border-bottom: 1px solid var(--divider-soft);
     }
@@ -993,7 +1084,7 @@ textarea.input {
     padding: var(--space-1) var(--space-2);
     border-radius: var(--radius-full);
     font-size: var(--font-size-xs);
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.2;
     white-space: nowrap;
 }
@@ -1028,7 +1119,9 @@ textarea.input {
     color: var(--warning-text);
 }
 
-.status-cancelled {
+.status-cancelled,
+.status-cancelledbyclinic,
+.status-rejected {
     background: var(--danger-soft);
     color: var(--danger-text);
 }
@@ -1037,6 +1130,11 @@ textarea.input {
 .status-paused {
     background: var(--divider-soft);
     color: var(--text-secondary);
+}
+
+.status-expired {
+    background: var(--divider-soft);
+    color: var(--text-tertiary);
 }
 
 .therapist-chip {
@@ -1059,7 +1157,7 @@ textarea.input {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
 }
 
 .chip {
@@ -1071,10 +1169,11 @@ textarea.input {
     border-radius: var(--radius-full);
     background: var(--surface);
     border: 1px solid var(--divider);
-    color: var(--text-primary);
+    color: var(--text-secondary);
     font-size: var(--font-size-sm);
     font-weight: 500;
     text-decoration: none;
+    box-shadow: var(--shadow-xs);
     transition: background 150ms, border-color 150ms, color 150ms;
 }
 
@@ -1087,6 +1186,7 @@ textarea.input {
     background: var(--primary);
     border-color: var(--primary);
     color: #FFFFFF;
+    font-weight: 600;
 }
 
     .chip-active:hover {
@@ -1141,7 +1241,7 @@ textarea.input {
 }
 
 /* =============================================================================
-   PAGINATION — active page uses the primary interactive color
+   PAGINATION — quiet buttons, solid primary for the active page
    ============================================================================= */
 
 .pagination-row {
@@ -1160,20 +1260,19 @@ textarea.input {
     align-items: center;
     justify-content: center;
     gap: var(--space-1);
-    border: 1px solid var(--divider);
+    border: 1px solid transparent;
     border-radius: var(--radius-sm);
-    background: var(--surface);
-    color: var(--text-primary);
+    background: transparent;
+    color: var(--text-secondary);
     font-size: var(--font-size-sm);
     font-weight: 500;
     text-decoration: none;
-    transition: background 150ms, border-color 150ms, color 150ms;
+    transition: background 150ms, color 150ms;
     padding: 0 var(--space-2);
     cursor: pointer;
 }
 
     .page-btn:hover {
-        border-color: var(--primary);
         color: var(--primary);
         background: var(--primary-soft);
     }
@@ -1187,12 +1286,12 @@ textarea.input {
     background: var(--primary);
     border-color: var(--primary);
     color: #FFFFFF;
+    font-weight: 600;
 }
 
 .page-btn-disabled {
     color: var(--text-tertiary);
-    background: var(--surface-sunken);
-    border-color: var(--divider);
+    background: transparent;
     cursor: not-allowed;
     pointer-events: none;
 }
@@ -1258,7 +1357,7 @@ textarea.input {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.45);
+    background: rgba(10, 28, 56, 0.5);
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
     z-index: 200;
@@ -1333,21 +1432,21 @@ textarea.input {
 .modal-close {
     width: var(--control-h-sm);
     height: var(--control-h-sm);
-    border: 1px solid var(--divider);
+    border: 1px solid transparent;
     border-radius: var(--radius-sm);
-    background: var(--surface);
+    background: var(--surface-sunken);
     color: var(--text-secondary);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     flex-shrink: 0;
-    transition: color 150ms, border-color 150ms;
+    transition: color 150ms, background 150ms;
 }
 
     .modal-close:hover {
         color: var(--text-primary);
-        border-color: var(--text-tertiary);
+        background: var(--divider-soft);
     }
 
 .modal-form {
@@ -1362,6 +1461,47 @@ textarea.input {
     justify-content: flex-end;
     gap: var(--space-2);
     padding-top: var(--space-1);
+}
+
+/* Status action bar — sits between the modal header and the details form,
+   showing the current status and the transitions valid for it. */
+.modal-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-top: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-sunken);
+    border-top: 1px solid var(--divider);
+    border-bottom: 1px solid var(--divider);
+}
+
+.modal-status-current {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.modal-status-label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+}
+
+.modal-status-buttons {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.modal-status-note {
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
 }
 
 .modal-body {
@@ -1496,17 +1636,88 @@ textarea.input {
 }
 
 /* =============================================================================
-   DASHBOARD — stat cards
+   DASHBOARD — greeting hero + stat cards (icon tile left, KPI right)
    ============================================================================= */
 
-.stat-card {
+/* Navy hero band — the one intentionally rich surface on the page; it echoes
+   the rail so the dashboard reads as the app's "home" */
+.hero {
     position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+    border-radius: var(--radius-lg);
+    color: #fff;
+    background:
+        radial-gradient(560px 280px at 88% -40%, rgba(110, 168, 255, 0.35), transparent 70%),
+        radial-gradient(420px 240px at 8% 130%, rgba(76, 175, 130, 0.18), transparent 70%),
+        linear-gradient(135deg, #0A1C38 0%, #10305F 100%);
+    box-shadow: var(--shadow-xs);
+}
+
+.hero-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: var(--line-height-tight);
+    margin: 0;
+}
+
+.hero-sub {
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.72);
+    margin: var(--space-1) 0 0;
+}
+
+.hero-date {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+    .hero-date svg {
+        width: var(--icon-sm);
+        height: var(--icon-sm);
+        flex-shrink: 0;
+    }
+
+/* Small count badge next to card titles */
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--space-4);
+    height: var(--space-4);
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
 }
 
 .stat-icon {
-    position: absolute;
-    top: var(--space-3);
-    right: var(--space-3);
     width: var(--space-6);
     height: var(--space-6);
     border-radius: var(--radius-sm);
@@ -1515,6 +1726,7 @@ textarea.input {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
     .stat-icon svg {
@@ -1522,15 +1734,40 @@ textarea.input {
         height: var(--icon-md);
     }
 
+/* Tint rotation keeps the KPI row lively without leaving the palette */
+.stats-row > *:nth-child(2) .stat-icon {
+    background: var(--secondary-soft);
+    color: var(--success-text);
+}
+
+.stats-row > *:nth-child(3) .stat-icon {
+    background: var(--warning-soft);
+    color: var(--warning-text);
+}
+
+.stats-row > *:nth-child(4) .stat-icon {
+    background: var(--rail-bg);
+    color: #FFFFFF;
+}
+
+.stat-body {
+    min-width: 0;
+}
+
 .stat-label {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    font-weight: 500;
-    margin: 0 0 var(--space-2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 var(--space-1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .stat-value {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-3xl);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1;
@@ -1558,7 +1795,7 @@ textarea.input {
 
 .profile-name {
     font-size: var(--font-size-xl);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: -0.01em;
     color: var(--text-primary);
     margin: 0;
@@ -1881,6 +2118,7 @@ textarea.input {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
+    padding: var(--space-3);
 }
 
 .therapist-card-top {
@@ -1960,11 +2198,11 @@ textarea.input {
     justify-content: space-between;
     align-items: flex-start;
     gap: var(--space-3);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
 }
 
 .library-title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
@@ -1982,17 +2220,11 @@ textarea.input {
     margin-bottom: var(--space-3);
 }
 
-.filter-form {
-    display: flex;
-    gap: var(--space-2);
-    align-items: center;
-    flex-wrap: wrap;
-}
-
 .exercise-card {
     background: var(--surface);
     border: 1px solid var(--divider);
     border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -2003,7 +2235,7 @@ textarea.input {
     .exercise-card:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-pop);
-        border-color: #D1D1D6;
+        border-color: #D5D9E0;
     }
 
     .exercise-card:focus-visible {
@@ -2143,8 +2375,8 @@ textarea.input {
     display: flex;
     align-items: center;
     gap: var(--space-1);
-    background: var(--surface);
-    border: 1px solid var(--divider);
+    background: var(--surface-sunken);
+    border: 1px solid transparent;
     border-radius: var(--radius-sm);
     padding: var(--space-1) var(--space-2);
     height: var(--control-h);
@@ -2156,6 +2388,7 @@ textarea.input {
     color: var(--text-primary);
     white-space: nowrap;
     padding: 0 var(--space-1);
+    font-variant-numeric: tabular-nums;
 }
 
 .appt-week-arrow {
@@ -2173,7 +2406,7 @@ textarea.input {
 }
 
     .appt-week-arrow:hover {
-        background: var(--bg);
+        background: var(--surface);
         color: var(--primary);
     }
 
@@ -2183,18 +2416,18 @@ textarea.input {
     height: var(--control-h);
     padding: 0 var(--space-3);
     font-size: var(--font-size-sm);
-    font-weight: 500;
+    font-weight: 600;
     color: var(--primary);
     background: var(--primary-soft);
-    border: 1px solid rgba(0, 74, 173, 0.25);
+    border: 1px solid transparent;
     border-radius: var(--radius-sm);
     text-decoration: none;
     white-space: nowrap;
-    transition: background 150ms, border-color 150ms;
+    transition: background 150ms;
 }
 
     .appt-today-btn:hover {
-        border-color: var(--primary);
+        background: var(--primary-soft-hover);
     }
 
 .filter-select {
@@ -2214,7 +2447,7 @@ textarea.input {
     display: inline-block;
     margin-top: 2px;
     font-size: var(--font-size-xs);
-    font-weight: 500;
+    font-weight: 600;
     color: var(--primary);
     background: var(--primary-soft);
     border-radius: var(--space-1);
@@ -2245,12 +2478,14 @@ textarea.input {
 }
 
 /* =============================================================================
-   AUTH (login page)
+   AUTH (login page) — navy backdrop, floating card
    ============================================================================= */
 
 .auth-page {
     min-height: 100vh;
-    background: var(--bg);
+    background:
+        radial-gradient(900px 480px at 50% -10%, rgba(0, 74, 173, 0.45), transparent 70%),
+        var(--rail-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2261,12 +2496,33 @@ textarea.input {
     width: 100%;
     max-width: 400px;
     padding: var(--space-6);
+    border: none;
+    box-shadow: var(--shadow-modal);
+    border-radius: var(--radius-lg);
 }
 
     .auth-card .brand {
         justify-content: center;
-        margin-bottom: var(--space-5);
+        margin-bottom: var(--space-4);
+        border-bottom: none;
+        padding-bottom: 0;
     }
+
+.auth-title {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    text-align: center;
+    margin: 0 0 var(--space-1);
+}
+
+.auth-sub {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    text-align: center;
+    margin: 0 0 var(--space-4);
+}
 
 .auth-form {
     display: flex;
@@ -2396,7 +2652,7 @@ textarea.input {
 }
 
 @media (max-width: 768px) {
-    /* Shell collapses: sidebar becomes a top bar */
+    /* Shell collapses: the navy rail becomes a top bar */
     .app {
         grid-template-columns: 1fr;
     }
@@ -2405,8 +2661,7 @@ textarea.input {
         position: static;
         height: auto;
         flex-direction: column;
-        border-right: none;
-        border-bottom: 1px solid var(--divider);
+        border-bottom: 1px solid var(--rail-divider);
         padding: var(--space-3);
     }
 
@@ -2424,6 +2679,10 @@ textarea.input {
     .nav-item {
         flex-shrink: 0;
     }
+
+        .nav-item.active::before {
+            display: none;
+        }
 
     .sidebar-footer {
         flex-direction: row;
@@ -2450,6 +2709,11 @@ textarea.input {
     .library-header {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .hero {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     /* Fingertip targets on touch screens */

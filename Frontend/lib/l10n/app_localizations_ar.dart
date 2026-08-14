@@ -509,4 +509,50 @@ class AppLocalizationsAr extends AppLocalizations {
   String serverErrorWithCode(String code) {
     return 'خطأ في الخادم $code. تحقق من السجلات.';
   }
+
+  @override
+  String get statusRequested => 'قيد الانتظار — بانتظار التأكيد';
+
+  @override
+  String get statusRejected => 'مرفوض';
+
+  @override
+  String get statusExpired => 'منتهي الصلاحية';
+
+  @override
+  String get statusCancelledByClinic => 'ألغته العيادة';
+
+  @override
+  String get bookAppointment => 'حجز موعد';
+
+  @override
+  String get chooseSlotSubtitle => 'اختر وقتاً متاحاً مع معالجك';
+
+  @override
+  String get noSlotsTitle => 'لا توجد أوقات متاحة';
+
+  @override
+  String get noSlotsSubtitle =>
+      'لا توجد أوقات متاحة حالياً. إذا لم يتم تعيين معالج لك بعد، يرجى التواصل مع العيادة.';
+
+  @override
+  String get slotTaken => 'تم حجز هذا الوقت للتو. يرجى اختيار وقت آخر.';
+
+  @override
+  String get requestSlotCta => 'اطلب هذا الوقت';
+
+  @override
+  String get requestSentPending => 'تم إرسال الطلب — بانتظار التأكيد';
+
+  @override
+  String get slotDurationHint => '٤٥ دقيقة';
+
+  @override
+  String get slotBooked => 'محجوز';
+
+  @override
+  String get chooseTimeTitle => 'اختر وقتاً';
+
+  @override
+  String get confirmRequestTitle => 'أكّد طلبك';
 }

@@ -132,9 +132,9 @@ namespace PhysioLink.Application.Services
             };
         }
 
-        public async Task<AuthResponseDto?> ChangePasswordAsync(string email, string currentPassword, string newPassword)
+        public async Task<AuthResponseDto?> ChangePasswordAsync(string email, string? currentPassword, string newPassword)
         {
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(currentPassword) || string.IsNullOrWhiteSpace(newPassword))
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(newPassword))
             {
                 return null;
             }
@@ -145,10 +145,22 @@ namespace PhysioLink.Application.Services
                 return null;
             }
 
-            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, currentPassword);
-            if (result == PasswordVerificationResult.Failed)
+            // First-time forced change: the patient already proved they hold the
+            // temporary password by logging in with it, so we don't ask for it again.
+            // A voluntary change (must-change flag already cleared) still requires the
+            // current password to be supplied and verified.
+            if (!user.MustChangePassword)
             {
-                return null;
+                if (string.IsNullOrWhiteSpace(currentPassword))
+                {
+                    return null;
+                }
+
+                var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, currentPassword);
+                if (result == PasswordVerificationResult.Failed)
+                {
+                    return null;
+                }
             }
 
             user.PasswordHash = _passwordHasher.HashPassword(user, newPassword);

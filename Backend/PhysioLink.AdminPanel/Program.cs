@@ -1,10 +1,16 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using PhysioLink.AdminPanel.Filters;
 using PhysioLink.AdminPanel.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+builder.Services.AddControllersWithViews(options =>
+{
+    // Turns a dead session (ApiClient throws SessionExpiredException) into a clean
+    // redirect to the login page instead of a silently-empty view full of zeros.
+    options.Filters.Add<SessionExpiredExceptionFilter>();
+}).AddRazorRuntimeCompilation();
 
 // Cookie authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -20,6 +26,17 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddHttpClient("PhysioLinkApi", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]!);
+
+    // Identify this trusted first-party server to the API so its requests bypass the
+    // API's per-IP rate limiting. Without this, every admin's login/traffic shares
+    // this one server's IP and gets throttled collectively. Must match the API's
+    // INTERNAL_API_KEY; dev falls back to the same well-known value on both sides.
+    var internalApiKey = Environment.GetEnvironmentVariable("INTERNAL_API_KEY")
+        ?? (builder.Environment.IsDevelopment() ? "dev-internal-key" : null);
+    if (!string.IsNullOrEmpty(internalApiKey))
+    {
+        client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalApiKey);
+    }
 });
 
 builder.Services.AddHttpContextAccessor();

@@ -94,7 +94,5 @@ public class AssignmentSummaryResponse
     public int? Feedback { get; set; }
     [JsonPropertyName("status")]
     public string Status { get; set; } = string.Empty;
-    [JsonPropertyName("scheduledDate")]
-    public DateTime ScheduledDate { get; set; }
 }
 

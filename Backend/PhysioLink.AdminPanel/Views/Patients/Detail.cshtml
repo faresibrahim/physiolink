@@ -315,7 +315,7 @@
                     @foreach (var exercise in Model.Exercises)
                     {
                         <option value="@exercise.ExerciseId">
-                            @exercise.Name (@exercise.Sets × @exercise.Reps · @exercise.DurationMinutes min)
+                            @exercise.Name
                         </option>
                     }
                 </select>
@@ -346,14 +346,15 @@
                     <input type="number" id="DurationMinutes" name="DurationMinutes" class="form-input" value="30" min="1" max="120" />
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="FrequencyPerWeek">Frequency (per week)</label>
+                    <label class="form-label" for="FrequencyPerWeek">Frequency Per Week</label>
                     <input type="number" id="FrequencyPerWeek" name="FrequencyPerWeek" class="form-input" value="3" min="1" max="7" />
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="ScheduledDate">Scheduled date</label>
-                <input type="date" id="ScheduledDate" name="ScheduledDate" class="form-input" />
+                <label class="form-label" for="FrequencyPerDay">Frequency Per Day <span class="form-hint">(optional)</span></label>
+                <input type="number" id="FrequencyPerDay" name="FrequencyPerDay" class="form-input" min="1" max="10" placeholder="Optional" />
+                <span class="form-hint">How many times per day — leave blank if not applicable</span>
             </div>
 
             <div class="form-group">
@@ -432,9 +433,7 @@
                     document.getElementById('Reps').value = data.reps;
                     document.getElementById('DurationMinutes').value = data.durationMinutes;
                     document.getElementById('FrequencyPerWeek').value = data.frequencyPerWeek;
-                    if (data.scheduledDate) {
-                        document.getElementById('ScheduledDate').value = String(data.scheduledDate).split('T')[0];
-                    }
+                    document.getElementById('FrequencyPerDay').value = data.frequencyPerDay != null ? data.frequencyPerDay : '';
                     document.getElementById('Status').value = data.status;
 
                     setModalMode('edit');

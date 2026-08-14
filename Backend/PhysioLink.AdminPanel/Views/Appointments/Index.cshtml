@@ -54,15 +54,29 @@
     @* Status filter *@
     <select name="status" class="filter-select" aria-label="Filter by status" onchange="this.form.submit()">
         <option value="">Status</option>
-        @foreach (var s in new[] { "Pending", "Confirmed", "Completed", "Cancelled" })
-        {
-            if (Model.StatusFilter == s)
+        @{
+            // Values must match PhysioLink.Domain.Enums.AppointmentStatus member
+            // names exactly — the API parses this filter with Enum.TryParse.
+            // Completed is intentionally omitted — a completed appointment is always
+            // past its due date, so it lives in History, never on the board.
+            var statusOptions = new[]
             {
-                <option value="@s" selected>@s</option>
+                ("Requested", "Pending"),
+                ("Confirmed", "Confirmed"),
+                ("Rejected", "Rejected"),
+                ("Expired", "Expired"),
+                ("CancelledByClinic", "Cancelled")
+            };
+        }
+        @foreach (var (value, label) in statusOptions)
+        {
+            if (Model.StatusFilter == value)
+            {
+                <option value="@value" selected>@label</option>
             }
             else
             {
-                <option value="@s">@s</option>
+                <option value="@value">@label</option>
             }
         }
     </select>
@@ -88,7 +102,11 @@
     <input type="hidden" name="viewMode"   value="@Model.ViewMode" />
     <input type="hidden" name="page"       value="1" />
 
-    <button type="button" onclick="openAppointmentModal()" class="btn btn-primary ml-auto">
+    <a asp-action="History" asp-controller="Appointments" class="btn btn-ghost ml-auto">
+        History
+    </a>
+
+    <button type="button" onclick="openAppointmentModal()" class="btn btn-primary">
         + New Appointment
     </button>
 </form>
@@ -128,16 +146,22 @@
                         @await Html.PartialAsync("_StatusBadge", appt.Status)
                     </td>
                     <td>
-                        <a asp-controller="Patients" asp-action="Detail"
-                           asp-route-id="@appt.PatientId"
-                           class="btn btn-ghost btn-xs">View Patient</a>
-                        <button type="button" class="icon-btn" aria-label="Edit appointment"
-                                onclick="openEditAppointmentModal('@appt.AppointmentId')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </button>
+                        <div class="row-actions">
+                            @* Edit is the priority action on this page — full-size text button, first. *@
+                            <button type="button" class="btn btn-ghost btn-xs" aria-label="Edit appointment"
+                                    onclick="openEditAppointmentModal('@appt.AppointmentId')">
+                                Edit
+                            </button>
+                            @* View patient is secondary here — icon-only. *@
+                            <a asp-controller="Patients" asp-action="Detail"
+                               asp-route-id="@appt.PatientId"
+                               class="icon-btn" aria-label="View patient">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </a>
+                        </div>
                     </td>
                 </tr>
             }
@@ -164,6 +188,48 @@
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
+        </div>
+
+        @* --- Status actions (edit mode only) -----------------------------------
+           Status changes go through the guarded Confirm / Reject / Cancel endpoints,
+           never a free-form dropdown. Each is its own form (kept OUTSIDE the details
+           form below, since HTML forms can't nest). JS reveals only the buttons that
+           are valid for the loaded appointment's current status. *@
+        <div class="modal-status-bar" id="statusActions" style="display:none;">
+            <div class="modal-status-current">
+                <span class="modal-status-label">Status</span>
+                <span id="statusActionBadge"></span>
+            </div>
+            <div class="modal-status-buttons">
+                <form asp-action="Confirm" method="post" class="inline-form" id="confirmForm" style="display:none;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="confirmId" />
+                    <input type="hidden" name="weekStart" value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
+                    <input type="hidden" name="status" value="@Model.StatusFilter" />
+                    <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
+                    <button type="submit" class="btn btn-success btn-sm">Confirm</button>
+                </form>
+                <form asp-action="Reject" method="post" class="inline-form" id="rejectForm" style="display:none;"
+                      onsubmit="return confirm('Reject this request and free the slot?');">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="rejectId" />
+                    <input type="hidden" name="weekStart" value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
+                    <input type="hidden" name="status" value="@Model.StatusFilter" />
+                    <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
+                    <button type="submit" class="btn btn-danger-outline btn-sm">Reject</button>
+                </form>
+                @* Backing form for the footer "Cancel appointment" button (submitted
+                   via its form="cancelForm" attribute). Inputs only — no visible content. *@
+                <form asp-action="CancelConfirmed" method="post" class="inline-form" id="cancelForm" style="display:none;"
+                      onsubmit="return confirm('Cancel this confirmed appointment and free the slot?');">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="cancelId" />
+                    <input type="hidden" name="weekStart" value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
+                    <input type="hidden" name="status" value="@Model.StatusFilter" />
+                    <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
+                </form>
+                <span id="statusActionNone" class="modal-status-note" style="display:none;">No further actions available.</span>
+            </div>
         </div>
 
         <form method="post" asp-action="Create" asp-controller="Appointments" class="modal-form" id="appointmentForm">
@@ -219,6 +285,11 @@
                 <input type="datetime-local" id="AppointmentTime" name="AppointmentTime" class="form-input" />
             </div>
 
+            @* Shown in edit mode once the appointment is no longer pending. *@
+            <p id="lockedFieldsNote" class="form-hint" style="display:none;">
+                Therapist and date are locked once an appointment is confirmed, completed, or cancelled — you can still edit the title and notes.
+            </p>
+
             @* --- Notes --- *@
             <div class="form-group">
                 <label class="form-label" for="ApptNotes">Notes <span class="label-optional">(optional)</span></label>
@@ -226,19 +297,16 @@
                           placeholder="Any additional notes..."></textarea>
             </div>
 
-            @* --- Status (edit mode only) --- *@
-            <div class="form-group" id="statusGroup" style="display:none;">
-                <label class="form-label" for="ApptStatus">Status</label>
-                <select id="ApptStatus" name="Status" class="form-input">
-                    <option value="Pending">Pending</option>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Cancelled">Cancelled</option>
-                </select>
-            </div>
+            @* Status is never edited from this form — it changes only through the
+               Confirm / Reject / Cancel actions in the table. The current value is
+               carried through unchanged so saving details doesn't reset it. *@
+            <input type="hidden" id="ApptStatus" name="Status" value="Requested" />
 
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="closeAppointmentModal()">Cancel</button>
+                @* Modal-dismiss — create mode only; hidden in edit mode (the header X still closes). *@
+                <button type="button" id="ghostCancelBtn" class="btn btn-ghost" onclick="closeAppointmentModal()">Cancel</button>
+                @* Cancel the appointment — edit mode, Confirmed only. Submits #cancelForm. *@
+                <button type="submit" form="cancelForm" id="footerCancelApptBtn" class="btn btn-danger-outline" style="display:none;">Cancel appointment</button>
                 <button type="submit" id="appointmentSubmitBtn" class="btn btn-primary">Book Appointment</button>
             </div>
         </form>
@@ -297,6 +365,38 @@
                 }
             }
 
+            // --- Status action wiring (edit mode) -------------------------
+            // Reveals only the transitions valid for the current status:
+            //   Requested -> Confirm / Reject,  Confirmed -> Cancel,  else none.
+            function applyStatusActions(appointmentId, status) {
+                document.getElementById('confirmId').value = appointmentId;
+                document.getElementById('rejectId').value  = appointmentId;
+                document.getElementById('cancelId').value  = appointmentId;
+
+                var labels = { 'Requested': 'Pending', 'CancelledByClinic': 'Cancelled' };
+                var badge = document.getElementById('statusActionBadge');
+                badge.className = 'status-pill status-' + String(status).toLowerCase();
+                badge.textContent = labels[status] || status;
+
+                var isRequested = status === 'Requested';
+                var isConfirmed = status === 'Confirmed';
+
+                document.getElementById('confirmForm').style.display    = isRequested ? 'inline-flex' : 'none';
+                document.getElementById('rejectForm').style.display     = isRequested ? 'inline-flex' : 'none';
+                // The "Cancel appointment" button now lives in the footer next to Save Changes.
+                document.getElementById('footerCancelApptBtn').style.display = isConfirmed ? 'inline-flex' : 'none';
+                document.getElementById('statusActionNone').style.display =
+                    (isRequested || isConfirmed) ? 'none' : 'inline';
+
+                // Field locking: only a pending (Requested) appointment is fully editable.
+                // Once confirmed / completed / cancelled / etc., freeze the therapist and
+                // date; title and notes stay editable.
+                var fieldsLocked = !isRequested;
+                document.getElementById('ApptTherapistName').disabled = fieldsLocked;
+                document.getElementById('AppointmentTime').disabled   = fieldsLocked;
+                document.getElementById('lockedFieldsNote').style.display = fieldsLocked ? 'block' : 'none';
+            }
+
             // --- Mode switcher --------------------------------------------
             function setModalMode(mode) {
                 var isEdit = mode === 'edit';
@@ -305,7 +405,7 @@
 
                 document.getElementById('patientPickerGroup').style.display = isEdit ? 'none'  : 'block';
                 document.getElementById('patientNameGroup').style.display   = isEdit ? 'block' : 'none';
-                document.getElementById('statusGroup').style.display        = isEdit ? 'block' : 'none';
+                document.getElementById('statusActions').style.display      = isEdit ? 'flex'  : 'none';
                 document.getElementById('AppointmentId').disabled           = !isEdit;
 
                 document.getElementById('appointmentModalTitle').textContent =
@@ -314,6 +414,18 @@
                     isEdit ? 'Update appointment details.' : 'Book a new appointment for a patient.';
                 document.getElementById('appointmentSubmitBtn').textContent =
                     isEdit ? 'Save Changes' : 'Book Appointment';
+
+                // Footer buttons: the ghost dismiss shows only in create mode; the
+                // "Cancel appointment" action is edit-only and driven by applyStatusActions
+                // (called before this in the edit flow), so only force-hide it in create mode.
+                document.getElementById('ghostCancelBtn').style.display = isEdit ? 'none' : 'inline-flex';
+                if (!isEdit) {
+                    document.getElementById('footerCancelApptBtn').style.display = 'none';
+                    // Create mode is always fully editable — clear any locks left from a prior edit.
+                    document.getElementById('ApptTherapistName').disabled = false;
+                    document.getElementById('AppointmentTime').disabled   = false;
+                    document.getElementById('lockedFieldsNote').style.display = 'none';
+                }
             }
 
             // --- Open create mode ----------------------------------------
@@ -335,12 +447,14 @@
                     document.getElementById('ApptTitle').value             = data.title          || '';
                     document.getElementById('ApptTherapistName').value     = data.therapistName  || '';
                     document.getElementById('ApptNotes').value             = data.notes          || '';
-                    document.getElementById('ApptStatus').value            = data.status         || 'Pending';
+                    document.getElementById('ApptStatus').value            = data.status         || 'Requested';
 
                     if (data.appointmentTime) {
                         document.getElementById('AppointmentTime').value =
                             String(data.appointmentTime).substring(0, 16);
                     }
+
+                    applyStatusActions(data.appointmentId, data.status || 'Requested');
 
                     setModalMode('edit');
                     modalEl.classList.add('modal-visible');
@@ -375,11 +489,18 @@
                 if (!isEdit && !document.getElementById('PatientId').value) {
                     e.preventDefault();
                     alert('Please select a patient.');
+                    return;
                 }
                 if (!document.getElementById('AppointmentTime').value) {
                     e.preventDefault();
                     alert('Please select a date and time.');
+                    return;
                 }
+                // Locked fields are disabled so they can't be changed, but disabled
+                // controls aren't posted — re-enable them right before submit so their
+                // (unchanged) values are sent and not wiped server-side.
+                document.getElementById('ApptTherapistName').disabled = false;
+                document.getElementById('AppointmentTime').disabled   = false;
             });
         }
 

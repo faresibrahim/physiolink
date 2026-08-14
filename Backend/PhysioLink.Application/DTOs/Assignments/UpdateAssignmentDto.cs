@@ -8,8 +8,8 @@ namespace PhysioLink.Application.DTOs.Assignments
         public int Sets { get; set; }
         public int Reps { get; set; }
         public int DurationMinutes { get; set; }
-        public DateTime ScheduledDate { get; set; }
         public int FrequencyPerWeek { get; set; }
+        public int? FrequencyPerDay { get; set; }
         public AssignmentStatus Status { get; set; }
     }
 }

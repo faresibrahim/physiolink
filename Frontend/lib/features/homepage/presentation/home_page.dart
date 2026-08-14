@@ -142,7 +142,10 @@ class HomePage extends ConsumerWidget {
               .where((a) =>
                   a.appointmentTime != null &&
                   a.appointmentTime!.isAfter(now) &&
-                  a.status != AppointmentStatus.cancelled)
+                  a.status != AppointmentStatus.completed &&
+                  a.status != AppointmentStatus.rejected &&
+                  a.status != AppointmentStatus.expired &&
+                  a.status != AppointmentStatus.cancelledByClinic)
               .toList()
             ..sort((a, b) =>
                 a.appointmentTime!.compareTo(b.appointmentTime!));
@@ -762,22 +765,28 @@ class _NextAppointmentCard extends StatelessWidget {
 
   String _statusLabel(AppLocalizations l10n, AppointmentStatus s) => switch (s) {
         AppointmentStatus.confirmed => l10n.statusConfirmed,
-        AppointmentStatus.pending => l10n.statusPending,
-        AppointmentStatus.cancelled => l10n.statusCancelled,
+        AppointmentStatus.requested => l10n.statusPending,
+        AppointmentStatus.rejected => l10n.statusRejected,
+        AppointmentStatus.expired => l10n.statusExpired,
+        AppointmentStatus.cancelledByClinic => l10n.statusCancelledByClinic,
         AppointmentStatus.completed => l10n.statusDone,
       };
 
   Color _statusColor(AppointmentStatus s) => switch (s) {
         AppointmentStatus.confirmed => AppColors.secondary,
-        AppointmentStatus.pending => const Color(0xFFF59E0B),
-        AppointmentStatus.cancelled => AppColors.destructive,
+        AppointmentStatus.requested => const Color(0xFFF59E0B),
+        AppointmentStatus.rejected => AppColors.destructive,
+        AppointmentStatus.expired => AppColors.textSecondary,
+        AppointmentStatus.cancelledByClinic => AppColors.destructive,
         AppointmentStatus.completed => AppColors.textSecondary,
       };
 
   Color _statusBg(AppointmentStatus s) => switch (s) {
         AppointmentStatus.confirmed => AppColors.secondaryLight,
-        AppointmentStatus.pending => const Color(0xFFFFF8E6),
-        AppointmentStatus.cancelled => const Color(0xFFFFEEED),
+        AppointmentStatus.requested => const Color(0xFFFFF8E6),
+        AppointmentStatus.rejected => const Color(0xFFFFEEED),
+        AppointmentStatus.expired => AppColors.background,
+        AppointmentStatus.cancelledByClinic => const Color(0xFFFFEEED),
         AppointmentStatus.completed => AppColors.background,
       };
 

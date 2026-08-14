@@ -190,5 +190,20 @@
   "therapistWillConfirm": "Your therapist will confirm or suggest an alternative time.",
   "noInternetPeriod": "No internet connection.",
   "serverErrorWithCode": "Server error {code}. Check logs.",
-  "@serverErrorWithCode": { "placeholders": { "code": {"type": "String"} } }
+  "@serverErrorWithCode": { "placeholders": { "code": {"type": "String"} } },
+  "statusRequested": "Pending — awaiting confirmation",
+  "statusRejected": "Rejected",
+  "statusExpired": "Expired",
+  "statusCancelledByClinic": "Cancelled by clinic",
+  "bookAppointment": "Book Appointment",
+  "chooseSlotSubtitle": "Choose an open time with your therapist",
+  "noSlotsTitle": "No open slots",
+  "noSlotsSubtitle": "There are no available times right now. If you haven't been assigned a therapist yet, please contact your clinic.",
+  "slotTaken": "That slot was just taken. Please pick another.",
+  "requestSlotCta": "Request this slot",
+  "requestSentPending": "Request sent — awaiting confirmation",
+  "slotDurationHint": "45 min",
+  "slotBooked": "Booked",
+  "chooseTimeTitle": "Pick a time",
+  "confirmRequestTitle": "Confirm your request"
 }

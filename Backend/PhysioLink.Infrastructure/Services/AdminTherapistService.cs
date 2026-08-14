@@ -110,7 +110,7 @@ namespace PhysioLink.Infrastructure.Services //should live in infrastructure bec
 
             therapist.FirstName = updateTherapistDto.FirstName;
             therapist.LastName = updateTherapistDto.LastName;
-            therapist.Email = updateTherapistDto.Email;
+            therapist.Email = updateTherapistDto.Email.Trim().ToLowerInvariant();
             therapist.Speciality = updateTherapistDto.Speciality;
             therapist.IsActive = updateTherapistDto.IsActive;
             therapist.PhoneNumber = updateTherapistDto.PhoneNumber;

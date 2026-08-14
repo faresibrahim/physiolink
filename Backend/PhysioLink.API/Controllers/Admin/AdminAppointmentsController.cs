@@ -29,6 +29,19 @@ namespace PhysioLink.API.Controllers.Admin
             return Ok(result);
         }
 
+        // GET /api/v1/admin/appointments/history?page=&pageSize=&status=&therapistName=
+        // Archive of past-due appointments (Completed / Rejected / Expired / Cancelled).
+        [HttpGet("history")]
+        public async Task<IActionResult> GetHistory(
+            int page = 1,
+            int pageSize = 20,
+            string? status = null,
+            string? therapistName = null)
+        {
+            var result = await _adminAppointmentService.GetHistoryAsync(page, pageSize, status, therapistName);
+            return Ok(result);
+        }
+
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id)
         {
@@ -59,5 +72,36 @@ namespace PhysioLink.API.Controllers.Admin
             if (!result) return NotFound();
             return NoContent();
         }
+
+        // GET /api/v1/admin/appointments/requests?therapistId=
+        [HttpGet("requests")]
+        public async Task<IActionResult> GetRequests([FromQuery] Guid? therapistId, CancellationToken ct)
+        {
+            var result = await _adminAppointmentService.GetRequestsAsync(therapistId, ct);
+            return Ok(result);
+        }
+
+        // PUT /api/v1/admin/appointments/{id}/accept
+        [HttpPut("{id:guid}/accept")]
+        public async Task<IActionResult> Accept(Guid id, CancellationToken ct)
+            => Map(await _adminAppointmentService.AcceptAsync(id, ct));
+
+        // PUT /api/v1/admin/appointments/{id}/reject
+        [HttpPut("{id:guid}/reject")]
+        public async Task<IActionResult> Reject(Guid id, CancellationToken ct)
+            => Map(await _adminAppointmentService.RejectAsync(id, ct));
+
+        // PUT /api/v1/admin/appointments/{id}/cancel
+        [HttpPut("{id:guid}/cancel")]
+        public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
+            => Map(await _adminAppointmentService.CancelAsync(id, ct));
+
+        private IActionResult Map(AppointmentActionOutcome outcome) => outcome switch
+        {
+            AppointmentActionOutcome.Ok => NoContent(),
+            AppointmentActionOutcome.NotFound => NotFound(),
+            AppointmentActionOutcome.InvalidState => Conflict("Appointment is not in a state that allows this action."),
+            _ => StatusCode(StatusCodes.Status500InternalServerError)
+        };
     }
 }

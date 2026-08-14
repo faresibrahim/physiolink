@@ -23,6 +23,12 @@ namespace PhysioLink.Infrastructure.Data.Configurations
             .IsRequired()
             .HasMaxLength(200);
 
+            // One active user per email. Filtered so soft-deleted rows don't block
+            // re-creating a patient with the same email after deactivation.
+            builder.HasIndex(p => p.Email)
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false");
+
             builder.Property(p=>p.PasswordHash)
             .IsRequired();
 

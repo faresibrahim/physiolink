@@ -15,7 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Appointment {
 
- String get appointmentId; String get title; String get patientId; String get therapistId; DateTime? get appointmentTime; AppointmentStatus get status; DateTime? get createdAt;
+ String get appointmentId; String get title; String? get therapistName; String? get notes; DateTime? get appointmentTime; AppointmentStatus get status;// Honest, server-provided display wording (e.g. "Pending — awaiting
+// confirmation"). Kept alongside `status` so the UI never has to imply a
+// pending request is confirmed (spec Phase 7).
+ String get statusLabel; String? get slotId;
 /// Create a copy of Appointment
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +31,16 @@ $AppointmentCopyWith<Appointment> get copyWith => _$AppointmentCopyWithImpl<Appo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Appointment&&(identical(other.appointmentId, appointmentId) || other.appointmentId == appointmentId)&&(identical(other.title, title) || other.title == title)&&(identical(other.patientId, patientId) || other.patientId == patientId)&&(identical(other.therapistId, therapistId) || other.therapistId == therapistId)&&(identical(other.appointmentTime, appointmentTime) || other.appointmentTime == appointmentTime)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Appointment&&(identical(other.appointmentId, appointmentId) || other.appointmentId == appointmentId)&&(identical(other.title, title) || other.title == title)&&(identical(other.therapistName, therapistName) || other.therapistName == therapistName)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.appointmentTime, appointmentTime) || other.appointmentTime == appointmentTime)&&(identical(other.status, status) || other.status == status)&&(identical(other.statusLabel, statusLabel) || other.statusLabel == statusLabel)&&(identical(other.slotId, slotId) || other.slotId == slotId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,appointmentId,title,patientId,therapistId,appointmentTime,status,createdAt);
+int get hashCode => Object.hash(runtimeType,appointmentId,title,therapistName,notes,appointmentTime,status,statusLabel,slotId);
 
 @override
 String toString() {
-  return 'Appointment(appointmentId: $appointmentId, title: $title, patientId: $patientId, therapistId: $therapistId, appointmentTime: $appointmentTime, status: $status, createdAt: $createdAt)';
+  return 'Appointment(appointmentId: $appointmentId, title: $title, therapistName: $therapistName, notes: $notes, appointmentTime: $appointmentTime, status: $status, statusLabel: $statusLabel, slotId: $slotId)';
 }
 
 
@@ -48,7 +51,7 @@ abstract mixin class $AppointmentCopyWith<$Res>  {
   factory $AppointmentCopyWith(Appointment value, $Res Function(Appointment) _then) = _$AppointmentCopyWithImpl;
 @useResult
 $Res call({
- String appointmentId, String title, String patientId, String therapistId, DateTime? appointmentTime, AppointmentStatus status, DateTime? createdAt
+ String appointmentId, String title, String? therapistName, String? notes, DateTime? appointmentTime, AppointmentStatus status, String statusLabel, String? slotId
 });
 
 
@@ -65,16 +68,17 @@ class _$AppointmentCopyWithImpl<$Res>
 
 /// Create a copy of Appointment
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? appointmentId = null,Object? title = null,Object? patientId = null,Object? therapistId = null,Object? appointmentTime = freezed,Object? status = null,Object? createdAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? appointmentId = null,Object? title = null,Object? therapistName = freezed,Object? notes = freezed,Object? appointmentTime = freezed,Object? status = null,Object? statusLabel = null,Object? slotId = freezed,}) {
   return _then(_self.copyWith(
 appointmentId: null == appointmentId ? _self.appointmentId : appointmentId // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
-as String,patientId: null == patientId ? _self.patientId : patientId // ignore: cast_nullable_to_non_nullable
-as String,therapistId: null == therapistId ? _self.therapistId : therapistId // ignore: cast_nullable_to_non_nullable
-as String,appointmentTime: freezed == appointmentTime ? _self.appointmentTime : appointmentTime // ignore: cast_nullable_to_non_nullable
+as String,therapistName: freezed == therapistName ? _self.therapistName : therapistName // ignore: cast_nullable_to_non_nullable
+as String?,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
+as String?,appointmentTime: freezed == appointmentTime ? _self.appointmentTime : appointmentTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as AppointmentStatus,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as AppointmentStatus,statusLabel: null == statusLabel ? _self.statusLabel : statusLabel // ignore: cast_nullable_to_non_nullable
+as String,slotId: freezed == slotId ? _self.slotId : slotId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -159,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String appointmentId,  String title,  String patientId,  String therapistId,  DateTime? appointmentTime,  AppointmentStatus status,  DateTime? createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String appointmentId,  String title,  String? therapistName,  String? notes,  DateTime? appointmentTime,  AppointmentStatus status,  String statusLabel,  String? slotId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Appointment() when $default != null:
-return $default(_that.appointmentId,_that.title,_that.patientId,_that.therapistId,_that.appointmentTime,_that.status,_that.createdAt);case _:
+return $default(_that.appointmentId,_that.title,_that.therapistName,_that.notes,_that.appointmentTime,_that.status,_that.statusLabel,_that.slotId);case _:
   return orElse();
 
 }
@@ -180,10 +184,10 @@ return $default(_that.appointmentId,_that.title,_that.patientId,_that.therapistI
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String appointmentId,  String title,  String patientId,  String therapistId,  DateTime? appointmentTime,  AppointmentStatus status,  DateTime? createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String appointmentId,  String title,  String? therapistName,  String? notes,  DateTime? appointmentTime,  AppointmentStatus status,  String statusLabel,  String? slotId)  $default,) {final _that = this;
 switch (_that) {
 case _Appointment():
-return $default(_that.appointmentId,_that.title,_that.patientId,_that.therapistId,_that.appointmentTime,_that.status,_that.createdAt);case _:
+return $default(_that.appointmentId,_that.title,_that.therapistName,_that.notes,_that.appointmentTime,_that.status,_that.statusLabel,_that.slotId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +204,10 @@ return $default(_that.appointmentId,_that.title,_that.patientId,_that.therapistI
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String appointmentId,  String title,  String patientId,  String therapistId,  DateTime? appointmentTime,  AppointmentStatus status,  DateTime? createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String appointmentId,  String title,  String? therapistName,  String? notes,  DateTime? appointmentTime,  AppointmentStatus status,  String statusLabel,  String? slotId)?  $default,) {final _that = this;
 switch (_that) {
 case _Appointment() when $default != null:
-return $default(_that.appointmentId,_that.title,_that.patientId,_that.therapistId,_that.appointmentTime,_that.status,_that.createdAt);case _:
+return $default(_that.appointmentId,_that.title,_that.therapistName,_that.notes,_that.appointmentTime,_that.status,_that.statusLabel,_that.slotId);case _:
   return null;
 
 }
@@ -215,16 +219,20 @@ return $default(_that.appointmentId,_that.title,_that.patientId,_that.therapistI
 @JsonSerializable()
 
 class _Appointment implements Appointment {
-  const _Appointment({required this.appointmentId, required this.title, required this.patientId, required this.therapistId, this.appointmentTime, this.status = AppointmentStatus.pending, this.createdAt});
+  const _Appointment({required this.appointmentId, this.title = '', this.therapistName, this.notes, this.appointmentTime, this.status = AppointmentStatus.requested, this.statusLabel = '', this.slotId});
   factory _Appointment.fromJson(Map<String, dynamic> json) => _$AppointmentFromJson(json);
 
 @override final  String appointmentId;
-@override final  String title;
-@override final  String patientId;
-@override final  String therapistId;
+@override@JsonKey() final  String title;
+@override final  String? therapistName;
+@override final  String? notes;
 @override final  DateTime? appointmentTime;
 @override@JsonKey() final  AppointmentStatus status;
-@override final  DateTime? createdAt;
+// Honest, server-provided display wording (e.g. "Pending — awaiting
+// confirmation"). Kept alongside `status` so the UI never has to imply a
+// pending request is confirmed (spec Phase 7).
+@override@JsonKey() final  String statusLabel;
+@override final  String? slotId;
 
 /// Create a copy of Appointment
 /// with the given fields replaced by the non-null parameter values.
@@ -239,16 +247,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Appointment&&(identical(other.appointmentId, appointmentId) || other.appointmentId == appointmentId)&&(identical(other.title, title) || other.title == title)&&(identical(other.patientId, patientId) || other.patientId == patientId)&&(identical(other.therapistId, therapistId) || other.therapistId == therapistId)&&(identical(other.appointmentTime, appointmentTime) || other.appointmentTime == appointmentTime)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Appointment&&(identical(other.appointmentId, appointmentId) || other.appointmentId == appointmentId)&&(identical(other.title, title) || other.title == title)&&(identical(other.therapistName, therapistName) || other.therapistName == therapistName)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.appointmentTime, appointmentTime) || other.appointmentTime == appointmentTime)&&(identical(other.status, status) || other.status == status)&&(identical(other.statusLabel, statusLabel) || other.statusLabel == statusLabel)&&(identical(other.slotId, slotId) || other.slotId == slotId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,appointmentId,title,patientId,therapistId,appointmentTime,status,createdAt);
+int get hashCode => Object.hash(runtimeType,appointmentId,title,therapistName,notes,appointmentTime,status,statusLabel,slotId);
 
 @override
 String toString() {
-  return 'Appointment(appointmentId: $appointmentId, title: $title, patientId: $patientId, therapistId: $therapistId, appointmentTime: $appointmentTime, status: $status, createdAt: $createdAt)';
+  return 'Appointment(appointmentId: $appointmentId, title: $title, therapistName: $therapistName, notes: $notes, appointmentTime: $appointmentTime, status: $status, statusLabel: $statusLabel, slotId: $slotId)';
 }
 
 
@@ -259,7 +267,7 @@ abstract mixin class _$AppointmentCopyWith<$Res> implements $AppointmentCopyWith
   factory _$AppointmentCopyWith(_Appointment value, $Res Function(_Appointment) _then) = __$AppointmentCopyWithImpl;
 @override @useResult
 $Res call({
- String appointmentId, String title, String patientId, String therapistId, DateTime? appointmentTime, AppointmentStatus status, DateTime? createdAt
+ String appointmentId, String title, String? therapistName, String? notes, DateTime? appointmentTime, AppointmentStatus status, String statusLabel, String? slotId
 });
 
 
@@ -276,16 +284,17 @@ class __$AppointmentCopyWithImpl<$Res>
 
 /// Create a copy of Appointment
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? appointmentId = null,Object? title = null,Object? patientId = null,Object? therapistId = null,Object? appointmentTime = freezed,Object? status = null,Object? createdAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? appointmentId = null,Object? title = null,Object? therapistName = freezed,Object? notes = freezed,Object? appointmentTime = freezed,Object? status = null,Object? statusLabel = null,Object? slotId = freezed,}) {
   return _then(_Appointment(
 appointmentId: null == appointmentId ? _self.appointmentId : appointmentId // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
-as String,patientId: null == patientId ? _self.patientId : patientId // ignore: cast_nullable_to_non_nullable
-as String,therapistId: null == therapistId ? _self.therapistId : therapistId // ignore: cast_nullable_to_non_nullable
-as String,appointmentTime: freezed == appointmentTime ? _self.appointmentTime : appointmentTime // ignore: cast_nullable_to_non_nullable
+as String,therapistName: freezed == therapistName ? _self.therapistName : therapistName // ignore: cast_nullable_to_non_nullable
+as String?,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
+as String?,appointmentTime: freezed == appointmentTime ? _self.appointmentTime : appointmentTime // ignore: cast_nullable_to_non_nullable
 as DateTime?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as AppointmentStatus,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as AppointmentStatus,statusLabel: null == statusLabel ? _self.statusLabel : statusLabel // ignore: cast_nullable_to_non_nullable
+as String,slotId: freezed == slotId ? _self.slotId : slotId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

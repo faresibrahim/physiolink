@@ -8,8 +8,8 @@
         public int Sets { get; set; }
         public int Reps { get; set; }
         public int DurationMinutes { get; set; }
-        public DateTime ScheduledDate { get; set; }
         public int FrequencyPerWeek { get; set; }
+        public int? FrequencyPerDay { get; set; }
         public string Status { get; set; } = "Active";
     }
 
@@ -23,8 +23,8 @@
         public int Sets { get; set; }
         public int Reps { get; set; }
         public int DurationMinutes { get; set; }
-        public DateTime ScheduledDate { get; set; }
         public int FrequencyPerWeek { get; set; }
+        public int? FrequencyPerDay { get; set; }
         public string Status { get; set; } = "Active";
     }
 }

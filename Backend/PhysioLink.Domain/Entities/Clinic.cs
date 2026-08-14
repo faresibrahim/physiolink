@@ -9,7 +9,12 @@ namespace PhysioLink.Domain.Entities
         public string Email { get; set; }
         public bool IsActive { get; set;}
 
-        public Clinic(string name, string address, string phoneNumber, string email, bool isActive)
+        // Seeded operating-hours window (spec D11 / 1.5). The slot grid renders one
+        // row per hour in [OpenHour, CloseHour). No settings UI — seeded only.
+        public int OpenHour { get; set; }
+        public int CloseHour { get; set; }
+
+        public Clinic(string name, string address, string phoneNumber, string email, bool isActive, int openHour = 8, int closeHour = 18)
         {
             ClinicId = Guid.NewGuid();
             Name = name;
@@ -17,6 +22,8 @@ namespace PhysioLink.Domain.Entities
             PhoneNumber = phoneNumber;
             Email = email;
             IsActive = isActive;
+            OpenHour = openHour;
+            CloseHour = closeHour;
         }
     }
 }

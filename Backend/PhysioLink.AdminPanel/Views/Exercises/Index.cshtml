@@ -30,9 +30,6 @@
 <div class="library-header">
     <div>
         <h1 class="library-title">Exercise Library</h1>
-        <p class="library-subtitle">
-            @Model.TotalCount exercises available.
-        </p>
     </div>
 </div>
 
@@ -91,7 +88,7 @@
        asp-route-search="@Model.SearchQuery"
        asp-route-difficulty="@Model.DifficultyFilter"
        class="chip @(allActive ? "chip-active" : "")">
-        All <span class="chip-count">@Model.TotalCount</span>
+        All
     </a>
     @foreach (var cat in categories)
     {
@@ -164,36 +161,7 @@ else
                     </div>
 
                     <p class="exercise-description">@exercise.Description</p>
-
-                    <div class="exercise-meta">
-                        <span class="meta-item">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                            @exercise.DurationMinutes min
-                        </span>
-                        <span class="meta-item">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                            </svg>
-                            @exercise.Sets×@exercise.Reps reps
-                        </span>
-                    </div>
                 </div>
-
-                @* Footer — assignment label + action icons (disabled until wired) *@
-                <footer class="exercise-card-footer">
-                    <span class="assigned-count">Available to assign</span>
-                    <div class="card-actions">
-                        <button type="button" class="icon-btn" disabled aria-label="Edit exercise">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </footer>
             </article>
         }
     </div>
@@ -267,25 +235,12 @@ else
             @* Divider *@
             <div class="modal-divider"></div>
 
-            @* Stats row *@
-            <div class="profile-info-row">
-                <div class="info-item">
-                    <p class="info-label">Difficulty</p>
-                    <p class="info-value" id="exerciseModalDifficulty"></p>
-                </div>
-                <div class="info-item">
-                    <p class="info-label">Sets</p>
-                    <p class="info-value" id="exerciseModalSets"></p>
-                </div>
-                <div class="info-item">
-                    <p class="info-label">Reps</p>
-                    <p class="info-value" id="exerciseModalReps"></p>
-                </div>
-                <div class="info-item">
-                    <p class="info-label">Duration</p>
-                    <p class="info-value" id="exerciseModalDuration"></p>
-                </div>
-            </div>
+            @* Difficulty — sets/reps/duration are patient-specific and only
+               shown once an exercise is assigned, not in the library. *@
+            <span class="difficulty-pill" id="exerciseModalDifficulty">
+                <span class="difficulty-dot"></span>
+                <span id="exerciseModalDifficultyText"></span>
+            </span>
         </div>
 
     </div>
@@ -310,6 +265,17 @@ else
     function extractYouTubeId(url) {
         var match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=|shorts\/))([^?&#/]+)/i);
         return match ? match[1] : url;
+    }
+
+    // Mirrors the difficultyClass switch in the Razor loop above, for cards
+    // rendered client-side from the fetched detail JSON.
+    function difficultyClass(difficulty) {
+        switch (difficulty) {
+            case 'Easy':     return 'diff-beginner';
+            case 'Moderate': return 'diff-intermediate';
+            case 'Hard':     return 'diff-advanced';
+            default:         return 'diff-neutral';
+        }
     }
 
     async function openExerciseModal(id) {
@@ -373,10 +339,9 @@ else
                 descAr.style.display = 'none';
             }
 
-            document.getElementById('exerciseModalDifficulty').textContent  = data.difficulty;
-            document.getElementById('exerciseModalSets').textContent        = data.sets;
-            document.getElementById('exerciseModalReps').textContent        = data.reps;
-            document.getElementById('exerciseModalDuration').textContent    = data.durationMinutes + ' min';
+            var difficultyPill = document.getElementById('exerciseModalDifficulty');
+            difficultyPill.className = 'difficulty-pill ' + difficultyClass(data.difficulty);
+            document.getElementById('exerciseModalDifficultyText').textContent = (data.difficulty || '').toUpperCase();
 
             loading.style.display = 'none';
             content.style.display = 'flex';

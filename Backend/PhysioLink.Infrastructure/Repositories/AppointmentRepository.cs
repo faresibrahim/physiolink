@@ -25,14 +25,29 @@ namespace PhysioLink.Infrastructure.Repositories
         {
             var clinicId = _currentClinicService.GetCurrentClinicId()
                 ?? throw new InvalidOperationException("No clinic context. Ensure the patient is authenticated.");
-            var appointment = new Appointment(
-                AppointmentStatus.Pending,
-                DateTime.SpecifyKind(request.AppointmentTime, DateTimeKind.Utc),
-                request.PatientId,
-                request.TherapistName ?? string.Empty,
-                clinicId,
-                request.Notes
-            );
+
+            // Appointment.TherapistId is now a non-null FK (spec 1.4). This legacy
+            // direct-create path is superseded by the slot request flow, but keep it
+            // safe: resolve the patient's assigned therapist so the FK stays valid.
+            var therapist = await _dbContext.Therapists.AsNoTracking()
+                .Where(t => _dbContext.Patients
+                    .Where(p => p.PatientId == request.PatientId)
+                    .Select(p => p.TherapistId)
+                    .FirstOrDefault() == t.TherapistId)
+                .Select(t => new { t.TherapistId, t.FirstName, t.LastName })
+                .FirstOrDefaultAsync();
+
+            var appointment = new Appointment
+            {
+                Status = AppointmentStatus.Requested,
+                AppointmentTime = DateTime.SpecifyKind(request.AppointmentTime, DateTimeKind.Utc),
+                PatientId = request.PatientId,
+                TherapistId = therapist?.TherapistId
+                    ?? throw new InvalidOperationException("Patient has no assigned therapist to book with."),
+                TherapistName = therapist.FirstName + " " + therapist.LastName,
+                ClinicId = clinicId,
+                Notes = request.Notes
+            };
 
             _dbContext.Appointments.Add(appointment);
             await _dbContext.SaveChangesAsync();

@@ -33,11 +33,11 @@ namespace PhysioLink.Infrastructure.Data.Configurations
             .IsRequired();
             
 
-            builder.Property(p=> p.ScheduledDate)
-            .IsRequired();
-
             builder.Property(p=> p.FrequencyPerWeek)
             .IsRequired();
+
+            builder.Property(p=> p.FrequencyPerDay)
+            .IsRequired(false);
 
              builder.Property(p=>p.AssignedAt)
             .IsRequired();            

@@ -13,7 +13,7 @@ namespace PhysioLink.AdminPanel.Services
         [JsonPropertyName("activeAssignmentCount")]
         public int ActiveAssignmentCount { get; set; }
 
-        [JsonPropertyName("appointmentsThisWeek")]
-        public int AppointmentsThisWeek { get; set; }
+        [JsonPropertyName("appointmentsToday")]
+        public int AppointmentsToday { get; set; }
     }
 }

@@ -1,3 +1,15 @@
 @model string
 
-<span class="status-pill status-@Model.ToLower()">@Model</span>
+@{
+    // The CSS class keys off the raw enum name; the visible label is humanised so
+    // the queue reads "Pending" / "Cancelled" rather than the internal enum names.
+    var raw = Model ?? string.Empty;
+    var label = raw switch
+    {
+        "Requested"         => "Pending",
+        "CancelledByClinic" => "Cancelled",
+        _                   => raw
+    };
+}
+
+<span class="status-pill status-@raw.ToLower()">@label</span>

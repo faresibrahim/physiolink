@@ -190,5 +190,20 @@
   "therapistWillConfirm": "سيؤكد معالجك الموعد أو يقترح وقتاً بديلاً.",
   "noInternetPeriod": "لا يوجد اتصال بالإنترنت.",
   "serverErrorWithCode": "خطأ في الخادم {code}. تحقق من السجلات.",
-  "@serverErrorWithCode": { "placeholders": { "code": {"type": "String"} } }
+  "@serverErrorWithCode": { "placeholders": { "code": {"type": "String"} } },
+  "statusRequested": "قيد الانتظار — بانتظار التأكيد",
+  "statusRejected": "مرفوض",
+  "statusExpired": "منتهي الصلاحية",
+  "statusCancelledByClinic": "ألغته العيادة",
+  "bookAppointment": "حجز موعد",
+  "chooseSlotSubtitle": "اختر وقتاً متاحاً مع معالجك",
+  "noSlotsTitle": "لا توجد أوقات متاحة",
+  "noSlotsSubtitle": "لا توجد أوقات متاحة حالياً. إذا لم يتم تعيين معالج لك بعد، يرجى التواصل مع العيادة.",
+  "slotTaken": "تم حجز هذا الوقت للتو. يرجى اختيار وقت آخر.",
+  "requestSlotCta": "اطلب هذا الوقت",
+  "requestSentPending": "تم إرسال الطلب — بانتظار التأكيد",
+  "slotDurationHint": "٤٥ دقيقة",
+  "slotBooked": "محجوز",
+  "chooseTimeTitle": "اختر وقتاً",
+  "confirmRequestTitle": "أكّد طلبك"
 }

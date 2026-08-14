@@ -31,8 +31,8 @@ namespace PhysioLink.AdminPanel.Controllers
                 Sets              = model.Sets,
                 Reps              = model.Reps,
                 DurationMinutes   = model.DurationMinutes,
-                ScheduledDate     = model.ScheduledDate,
                 FrequencyPerWeek  = model.FrequencyPerWeek,
+                FrequencyPerDay   = model.FrequencyPerDay,
                 TherapistName     = string.IsNullOrWhiteSpace(model.TherapistName) ? "Unassigned" : model.TherapistName,
             };
 
@@ -72,8 +72,8 @@ namespace PhysioLink.AdminPanel.Controllers
                 Sets = model.Sets,
                 Reps = model.Reps,
                 DurationMinutes = model.DurationMinutes,
-                ScheduledDate = model.ScheduledDate,    
                 FrequencyPerWeek = model.FrequencyPerWeek,
+                FrequencyPerDay = model.FrequencyPerDay,
                 Status = model.Status,
             };
 

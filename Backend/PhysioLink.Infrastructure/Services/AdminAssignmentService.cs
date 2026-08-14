@@ -30,8 +30,8 @@ namespace PhysioLink.Infrastructure.Services
                     Sets = ea.Sets,
                     Reps = ea.Reps,
                     DurationMinutes = ea.DurationMinutes,
-                    ScheduledDate = ea.ScheduledDate,
                     FrequencyPerWeek = ea.FrequencyPerWeek,
+                    FrequencyPerDay = ea.FrequencyPerDay,
                     Status = ea.Status,
                     Feedback = ea.Feedback,
                     AssignedAt = ea.AssignedAt,
@@ -69,8 +69,8 @@ namespace PhysioLink.Infrastructure.Services
                     Sets = ea.Sets,
                     Reps = ea.Reps,
                     DurationMinutes = ea.DurationMinutes,
-                    ScheduledDate = ea.ScheduledDate,
                     FrequencyPerWeek = ea.FrequencyPerWeek,
+                    FrequencyPerDay = ea.FrequencyPerDay,
                     Status = ea.Status,
                     Feedback = ea.Feedback,
                     AssignedAt = ea.AssignedAt,
@@ -93,8 +93,8 @@ namespace PhysioLink.Infrastructure.Services
                 dto.Sets,
                 dto.Reps,
                 dto.DurationMinutes,
-                DateTime.SpecifyKind(dto.ScheduledDate, DateTimeKind.Utc),
                 dto.FrequencyPerWeek,
+                dto.FrequencyPerDay,
                 assignedAt: DateTime.UtcNow
             );
 
@@ -111,8 +111,8 @@ namespace PhysioLink.Infrastructure.Services
                 Sets = assignment.Sets,
                 Reps = assignment.Reps,
                 DurationMinutes = assignment.DurationMinutes,
-                ScheduledDate = assignment.ScheduledDate,
                 FrequencyPerWeek = assignment.FrequencyPerWeek,
+                FrequencyPerDay = assignment.FrequencyPerDay,
                 Status = assignment.Status,
                 Feedback = assignment.Feedback,
                 AssignedAt = assignment.AssignedAt,
@@ -136,8 +136,8 @@ namespace PhysioLink.Infrastructure.Services
             assignment.Sets = dto.Sets;
             assignment.Reps = dto.Reps;
             assignment.DurationMinutes = dto.DurationMinutes;
-            assignment.ScheduledDate = DateTime.SpecifyKind(dto.ScheduledDate, DateTimeKind.Utc);
             assignment.FrequencyPerWeek = dto.FrequencyPerWeek;
+            assignment.FrequencyPerDay = dto.FrequencyPerDay;
             assignment.Status = dto.Status;
 
             await _dbContext.SaveChangesAsync();
@@ -152,8 +152,8 @@ namespace PhysioLink.Infrastructure.Services
                 Sets = assignment.Sets,
                 Reps = assignment.Reps,
                 DurationMinutes = assignment.DurationMinutes,
-                ScheduledDate = assignment.ScheduledDate,
                 FrequencyPerWeek = assignment.FrequencyPerWeek,
+                FrequencyPerDay = assignment.FrequencyPerDay,
                 Status = assignment.Status,
                 Feedback = assignment.Feedback,
                 AssignedAt = assignment.AssignedAt,

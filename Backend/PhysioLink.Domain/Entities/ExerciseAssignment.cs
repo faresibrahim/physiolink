@@ -11,8 +11,8 @@ namespace PhysioLink.Domain.Entities
         public int Sets { get; set;}
         public int Reps { get; set;}
         public int DurationMinutes { get; set;}
-        public DateTime ScheduledDate { get; set; }
         public int FrequencyPerWeek { get; set; }
+        public int? FrequencyPerDay { get; set; }
         public AssignmentStatus Status { get; set; }
 
         public int? Feedback { get; set;}
@@ -20,7 +20,7 @@ namespace PhysioLink.Domain.Entities
         public DateTime AssignedAt {get; set;}
 
         public ExerciseAssignment(string therapistName, Guid patientId, Guid exerciseId,
-        int sets, int reps, int durationMinutes, DateTime scheduledDate, int frequencyPerWeek, DateTime assignedAt, int? feedback = null)
+        int sets, int reps, int durationMinutes, int frequencyPerWeek, int? frequencyPerDay, DateTime assignedAt, int? feedback = null)
         {
          ExerciseAssignmentId = Guid.NewGuid();
          PatientId = patientId;
@@ -28,9 +28,9 @@ namespace PhysioLink.Domain.Entities
          ExerciseId = exerciseId;
          Sets = sets;
          Reps = reps;
-         DurationMinutes = durationMinutes;   
-         ScheduledDate = scheduledDate;
+         DurationMinutes = durationMinutes;
          FrequencyPerWeek = frequencyPerWeek;
+         FrequencyPerDay = frequencyPerDay;
          Status = AssignmentStatus.Active;
          Feedback = feedback;
          AssignedAt = assignedAt;

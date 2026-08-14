@@ -1,5 +1,5 @@
 import 'package:go_router/go_router.dart';
-import 'package:practice/features/appointments/presentation/pages/appointment_request_page.dart';
+import 'package:practice/features/appointments/presentation/pages/slot_booking_page.dart';
 import 'package:practice/features/appointments/presentation/pages/appointments_page.dart';
 import 'package:practice/features/exercises/domain/entities/exercise_assignment.dart';
 import 'package:practice/features/profile/presentation/pages/profile_page.dart';
@@ -66,7 +66,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/appointment',
-            builder: (context, state) => const AppointmentRequestPage(),
+            builder: (context, state) => const SlotBookingPage(),
           ),
         ],
       ),

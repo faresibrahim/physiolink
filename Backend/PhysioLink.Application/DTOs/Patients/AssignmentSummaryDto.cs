@@ -11,6 +11,5 @@ namespace PhysioLink.Application.DTOs.Patients
         public int DurationMinutes { get; set; }
         public int? Feedback { get; set; }
         public AssignmentStatus Status { get; set; }
-        public DateTime ScheduledDate { get; set; }
     }
 }

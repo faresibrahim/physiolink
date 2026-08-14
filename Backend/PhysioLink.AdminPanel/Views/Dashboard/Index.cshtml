@@ -2,7 +2,22 @@
 
 @{
     ViewData["Title"] = "Dashboard";
+
+    var hour = DateTime.Now.Hour;
+    var greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+    var clinicName = User.FindFirst("ClinicName")?.Value;
 }
+
+<div class="hero">
+    <div>
+        <h1 class="hero-title">@greeting@(string.IsNullOrWhiteSpace(clinicName) ? "" : $", {clinicName}")</h1>
+        <p class="hero-sub">Here's what's happening at your clinic today.</p>
+    </div>
+    <span class="hero-date">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+        @DateTime.Now.ToString("dddd, MMM d")
+    </span>
+</div>
 
 <div class="stats-row">
     <div class="card stat-card">
@@ -12,8 +27,10 @@
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
         </div>
-        <p class="stat-label">Total Patients</p>
-        <div class="stat-value">@Model.PatientCount</div>
+        <div class="stat-body">
+            <p class="stat-label">Total Patients</p>
+            <div class="stat-value">@Model.PatientCount</div>
+        </div>
     </div>
     <div class="card stat-card">
         <div class="stat-icon">
@@ -21,8 +38,10 @@
                 <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
             </svg>
         </div>
-        <p class="stat-label">Active Assignments</p>
-        <div class="stat-value">@Model.ActiveAssignment</div>
+        <div class="stat-body">
+            <p class="stat-label">Active Assignments</p>
+            <div class="stat-value">@Model.ActiveAssignment</div>
+        </div>
     </div>
     <div class="card stat-card">
         <div class="stat-icon">
@@ -31,8 +50,10 @@
                 <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
         </div>
-        <p class="stat-label">This Week's Appointments</p>
-        <div class="stat-value">@Model.ThisWeekAppointments</div>
+        <div class="stat-body">
+            <p class="stat-label">Today's Appointments</p>
+            <div class="stat-value">@Model.TodayAppointments</div>
+        </div>
     </div>
     <div class="card stat-card">
         <div class="stat-icon">
@@ -41,8 +62,10 @@
                 <path d="M18 21v-6m-3 3h6"/>
             </svg>
         </div>
-        <p class="stat-label">Total Therapists</p>
-        <div class="stat-value">@Model.TherapistCount</div>
+        <div class="stat-body">
+            <p class="stat-label">Total Therapists</p>
+            <div class="stat-value">@Model.TherapistCount</div>
+        </div>
     </div>
 </div>
 
@@ -55,6 +78,10 @@
                     <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
                 Upcoming Appointments
+                @if (Model.UpcomingAppointments.Count > 0)
+                {
+                    <span class="count-badge">@Model.UpcomingAppointments.Count</span>
+                }
             </h3>
             <a asp-controller="Appointments" asp-action="Index" class="card-link">View all</a>
         </div>
@@ -68,9 +95,15 @@
                 @foreach (var appt in Model.UpcomingAppointments)
                 {
                     <li class="row-item">
-                        <div>
-                            <p class="row-title">@appt.Title</p>
-                            <p class="row-meta">@appt.PatientName · @appt.AppointmentTime.ToString("MMM d, h:mm tt")</p>
+                        <div class="row-lead">
+                            <div class="appt-date-block">
+                                <span class="appt-month">@appt.AppointmentTime.ToString("MMM")</span>
+                                <span class="appt-day">@appt.AppointmentTime.ToString("dd")</span>
+                            </div>
+                            <div>
+                                <p class="row-title">@appt.Title</p>
+                                <p class="row-meta">@appt.PatientName · @appt.AppointmentTime.ToString("h:mm tt")</p>
+                            </div>
                         </div>
                         @await Html.PartialAsync("_StatusBadge", appt.Status)
                     </li>
@@ -87,6 +120,10 @@
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
                 Recent Patients
+                @if (Model.RecentPatients.Count > 0)
+                {
+                    <span class="count-badge">@Model.RecentPatients.Count</span>
+                }
             </h3>
             <a asp-controller="Patients" asp-action="Index" class="card-link">View all</a>
         </div>

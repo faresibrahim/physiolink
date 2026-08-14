@@ -5,6 +5,6 @@ namespace PhysioLink.Application.DTOs
         public int PatientCount { get; set; }
         public int TherapistCount { get; set; }
         public int ActiveAssignmentCount { get; set; }
-        public int AppointmentsThisWeek { get; set; }
+        public int AppointmentsToday { get; set; }
     }
 }

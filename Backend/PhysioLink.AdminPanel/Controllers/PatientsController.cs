@@ -146,6 +146,37 @@ public class PatientsController : BaseController
         return View(viewModel);
     }
 
+    // GET /Patients/GetById/{id}
+    // Backs the Edit Patient dialog on the Patients list, where each row's
+    // full data isn't already on the page (unlike the Detail page, which
+    // server-renders its own edit modal directly from the loaded patient).
+    [HttpGet]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var patientTask    = _apiClient.GetPatientByIdAsync(id);
+        var therapistsTask = _apiClient.GetTherapistsAsync(1, 100);
+        await Task.WhenAll(patientTask, therapistsTask);
+
+        var patient = await patientTask;
+        if (patient == null) return Json(new { error = "Not found" });
+
+        var therapists = await therapistsTask;
+        var assignedTherapist = therapists?.Items.FirstOrDefault(t =>
+            $"{t.FirstName} {t.LastName}" == patient.TherapistName);
+
+        return Json(new
+        {
+            patientId   = patient.PatientId,
+            firstName   = patient.FirstName,
+            lastName    = patient.LastName,
+            email       = patient.Email,
+            phoneNumber = patient.PhoneNumber,
+            diagnosis   = patient.Diagnosis,
+            therapistId = assignedTherapist?.Id,
+            isActive    = patient.IsActive
+        });
+    }
+
     // POST /Patients/Edit/{id}
     // Submitted by the Edit Patient dialog (Patient Detail page), so failures
     // redirect back to Detail with a TempData message rather than re-rendering

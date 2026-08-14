@@ -20,8 +20,14 @@ class AppointmentsPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
-      child: CustomScrollView(
-        slivers: [
+      child: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async => ref.invalidate(appointmentsProvider),
+        child: CustomScrollView(
+          // Always scrollable so the pull-to-refresh gesture works even when the
+          // empty / error states don't fill the viewport.
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
           // â”€â”€ Header (Request button shown only when appointments exist) â”€â”€â”€â”€â”€â”€â”€
           SliverToBoxAdapter(
             child: Padding(
@@ -94,7 +100,8 @@ class AppointmentsPage extends ConsumerWidget {
           ),
 
           const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -122,27 +129,29 @@ class AppointmentsPage extends ConsumerWidget {
   ) {
     final l10n = AppLocalizations.of(context)!;
     final now = DateTime.now();
+    final startOfToday = DateTime(now.year, now.month, now.day);
 
-    final upcoming = appointments
-        .where(
-          (a) =>
-              a.appointmentTime != null &&
-              a.appointmentTime!.isAfter(now) &&
-              a.status != AppointmentStatus.cancelled,
-        )
-        .toList()
+    // Split purely by due date, not by status: an appointment stays under
+    // "Upcoming" — with whatever badge it carries, including cancelled/rejected —
+    // until its date has passed, then it moves into the past/history section. The
+    // server settles terminal statuses (Confirmed -> Completed, Requested ->
+    // Expired) once a date passes, so everything under "Past" reads as a finished
+    // outcome (completed, cancelled, rejected, or expired).
+    bool isPastDue(Appointment a) =>
+        a.appointmentTime == null || a.appointmentTime!.isBefore(startOfToday);
+
+    final upcoming = appointments.where((a) => !isPastDue(a)).toList()
       ..sort((a, b) => a.appointmentTime!.compareTo(b.appointmentTime!));
 
-    final past = appointments
-        .where(
-          (a) =>
-              (a.appointmentTime != null &&
-                  a.appointmentTime!.isBefore(now)) ||
-              a.status == AppointmentStatus.completed ||
-              a.status == AppointmentStatus.cancelled,
-        )
-        .toList()
-      ..sort((a, b) => b.appointmentTime!.compareTo(a.appointmentTime!));
+    final past = appointments.where(isPastDue).toList()
+      ..sort((a, b) {
+        final at = a.appointmentTime;
+        final bt = b.appointmentTime;
+        if (at == null && bt == null) return 0;
+        if (at == null) return 1;
+        if (bt == null) return -1;
+        return bt.compareTo(at);
+      });
 
     if (appointments.isEmpty) {
       return SliverFillRemaining(
@@ -315,22 +324,28 @@ class _AppointmentRow extends StatelessWidget {
 
   Color _statusColor(AppointmentStatus s) => switch (s) {
         AppointmentStatus.confirmed => AppColors.secondary,
-        AppointmentStatus.pending => const Color(0xFFF59E0B),
-        AppointmentStatus.cancelled => AppColors.destructive,
+        AppointmentStatus.requested => const Color(0xFFF59E0B),
+        AppointmentStatus.rejected => AppColors.destructive,
+        AppointmentStatus.expired => AppColors.textSecondary,
+        AppointmentStatus.cancelledByClinic => AppColors.destructive,
         AppointmentStatus.completed => AppColors.textSecondary,
       };
 
   Color _statusBg(AppointmentStatus s) => switch (s) {
         AppointmentStatus.confirmed => AppColors.secondaryLight,
-        AppointmentStatus.pending => const Color(0xFFFFF8E6),
-        AppointmentStatus.cancelled => const Color(0xFFFFEEED),
+        AppointmentStatus.requested => const Color(0xFFFFF8E6),
+        AppointmentStatus.rejected => const Color(0xFFFFEEED),
+        AppointmentStatus.expired => AppColors.background,
+        AppointmentStatus.cancelledByClinic => const Color(0xFFFFEEED),
         AppointmentStatus.completed => AppColors.background,
       };
 
   String _statusLabel(AppLocalizations l10n, AppointmentStatus s) => switch (s) {
         AppointmentStatus.confirmed => l10n.statusConfirmed,
-        AppointmentStatus.pending => l10n.statusPending,
-        AppointmentStatus.cancelled => l10n.statusCancelled,
+        AppointmentStatus.requested => l10n.statusPending,
+        AppointmentStatus.rejected => l10n.statusRejected,
+        AppointmentStatus.expired => l10n.statusExpired,
+        AppointmentStatus.cancelledByClinic => l10n.statusCancelledByClinic,
         AppointmentStatus.completed => l10n.statusDone,
       };
 
@@ -342,7 +357,7 @@ class _AppointmentRow extends StatelessWidget {
     final eh = endDt.hour % 12 == 0 ? 12 : endDt.hour % 12;
     final em = endDt.minute.toString().padLeft(2, '0');
     final ep = endDt.hour >= 12 ? 'pm' : 'am';
-    return '$h:$m $p â€“ $eh:$em $ep';
+    return '$h:$m $p – $eh:$em $ep';
   }
 
   @override

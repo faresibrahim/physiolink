@@ -1,0 +1,116 @@
+@model PhysioLink.AdminPanel.ViewModels.AppointmentHistoryViewModel
+@{
+    ViewData["Title"] = "Appointment History";
+    ViewData["ActivePage"] = "Appointments";
+
+    // Terminal outcomes only — values must match PhysioLink.Domain.Enums.AppointmentStatus
+    // member names exactly (the API parses this with Enum.TryParse).
+    var statusOptions = new[]
+    {
+        ("Completed", "Completed"),
+        ("CancelledByClinic", "Cancelled"),
+        ("Rejected", "Rejected"),
+        ("Expired", "Expired")
+    };
+}
+
+@* ── Page header ─────────────────────────────────────────────────────────── *@
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Appointment History</h1>
+        <p class="page-sub">@Model.TotalCount finished appointment@(Model.TotalCount == 1 ? "" : "s") on record</p>
+    </div>
+</div>
+
+@* ── Filter bar ──────────────────────────────────────────────────────────── *@
+<form method="get" asp-action="History" class="toolbar">
+
+    @* Status filter *@
+    <select name="status" class="filter-select" aria-label="Filter by status" onchange="this.form.submit()">
+        <option value="">All outcomes</option>
+        @foreach (var (value, label) in statusOptions)
+        {
+            if (Model.StatusFilter == value)
+            {
+                <option value="@value" selected>@label</option>
+            }
+            else
+            {
+                <option value="@value">@label</option>
+            }
+        }
+    </select>
+
+    @* Therapist filter *@
+    <select name="therapistFilter" class="filter-select" aria-label="Filter by therapist" onchange="this.form.submit()">
+        <option value="">All Therapists</option>
+        @foreach (var t in Model.Therapists)
+        {
+            var tName = $"{t.FirstName.Trim()} {t.LastName.Trim()}";
+            if (Model.TherapistFilter == tName)
+            {
+                <option value="@tName" selected>@tName</option>
+            }
+            else
+            {
+                <option value="@tName">@tName</option>
+            }
+        }
+    </select>
+
+    <input type="hidden" name="page" value="1" />
+
+    <a asp-action="Index" asp-controller="Appointments" class="btn btn-ghost ml-auto">
+        ← Back to appointments
+    </a>
+</form>
+
+@* ── History table ───────────────────────────────────────────────────────── *@
+<div class="card card-flush">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date &amp; Time</th>
+                <th>Patient</th>
+                <th>Therapist</th>
+                <th>Title</th>
+                <th>Outcome</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Appointments.Any())
+            {
+                <tr>
+                    <td colspan="6" class="empty-row">No finished appointments match these filters yet.</td>
+                </tr>
+            }
+            @foreach (var appt in Model.Appointments)
+            {
+                var therapist = string.IsNullOrEmpty(appt.TherapistName) ? "—" : appt.TherapistName;
+                <tr>
+                    <td>
+                        <span class="appt-date">@appt.AppointmentTime.ToString("MMM d, yyyy")</span>
+                        <span class="appt-time-chip">@appt.AppointmentTime.ToString("HH:mm")</span>
+                    </td>
+                    <td class="primary-cell">@appt.PatientName</td>
+                    <td class="muted-cell">@therapist</td>
+                    <td class="primary-cell">@appt.Title</td>
+                    <td>
+                        @await Html.PartialAsync("_StatusBadge", appt.Status)
+                    </td>
+                    <td>
+                        <div class="row-actions">
+                            <a asp-controller="Patients" asp-action="Detail"
+                               asp-route-id="@appt.PatientId"
+                               class="btn btn-ghost btn-xs">View Patient</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@* ── Pagination ──────────────────────────────────────────────────────────── *@
+@await Html.PartialAsync("_Pagination", Model.Pagination)

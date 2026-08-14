@@ -6,6 +6,16 @@ public class ApiClient
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
+    // Tokens refreshed during THIS request. ApiClient is registered scoped, so these
+    // live for exactly one HTTP request. The refresh token rotates on every use, and
+    // Response.Cookies written mid-request are NOT reflected back into Request.Cookies —
+    // so without this, a page that makes several API calls would re-read the same expired
+    // access token and re-send the already-rotated (now dead) refresh token on every call
+    // after the first, failing them all. Once one call refreshes, the rest reuse these.
+    private string? _refreshedAccessToken;
+    private string? _refreshedRefreshToken;
+    private readonly SemaphoreSlim _refreshLock = new(1, 1);
+
     public ApiClient(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
     {
         _httpClientFactory = httpClientFactory;
@@ -16,10 +26,17 @@ public class ApiClient
     // Infrastructure
     // -------------------------------------------------------------------------
 
+    // Prefer the token refreshed earlier in this request over the (stale) cookie.
+    private string? CurrentAccessToken =>
+        _refreshedAccessToken ?? _httpContextAccessor.HttpContext?.Request.Cookies["auth_token"];
+
+    private string? CurrentRefreshToken =>
+        _refreshedRefreshToken ?? _httpContextAccessor.HttpContext?.Request.Cookies["refresh_token"];
+
     private HttpClient CreateAuthenticatedClient()
     {
         var client = _httpClientFactory.CreateClient("PhysioLinkApi");
-        var token  = _httpContextAccessor.HttpContext?.Request.Cookies["auth_token"];
+        var token  = CurrentAccessToken;
         if (!string.IsNullOrEmpty(token))
             client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -35,12 +52,13 @@ public class ApiClient
     };
 
     // -------------------------------------------------------------------------
-    // Step 1 — RefreshAsync
+    // Token refresh core
     // -------------------------------------------------------------------------
 
+    // Public entry kept for the login flow / callers that just want fresh tokens.
     public async Task<LoginResponse?> RefreshAsync()
     {
-        var refreshToken = _httpContextAccessor.HttpContext?.Request.Cookies["refresh_token"];
+        var refreshToken = CurrentRefreshToken;
         if (string.IsNullOrEmpty(refreshToken)) return null;
 
         var client   = _httpClientFactory.CreateClient("PhysioLinkApi");   // unauthenticated
@@ -50,103 +68,104 @@ public class ApiClient
         return await response.Content.ReadFromJsonAsync<LoginResponse>();
     }
 
-    // -------------------------------------------------------------------------
-    // Step 2 — Token refresh core
-    // -------------------------------------------------------------------------
-
-    // Attempts to refresh tokens, updates cookies, and retries the call.
-    // Returns the retry HttpResponseMessage, or null if refresh failed (SessionExpired flag is set).
-    private async Task<HttpResponseMessage?> RetryAfterRefresh(Func<HttpClient, Task<HttpResponseMessage>> call)
+    // Refreshes the session at most once per request. `expiredAccessToken` is the token
+    // the caller was holding when it got a 401; if another call already rotated past it
+    // while we waited on the lock, we skip a second (double-rotating) refresh.
+    // Returns true if we now hold a usable access token; false if the session is dead.
+    private async Task<bool> TryRefreshAsync(string? expiredAccessToken)
     {
-        var refreshed = await RefreshAsync();
-        if (refreshed == null) return null;
+        await _refreshLock.WaitAsync();
+        try
+        {
+            if (_refreshedAccessToken is not null && _refreshedAccessToken != expiredAccessToken)
+                return true;
 
-        // Persist new tokens for subsequent requests in this session
-        var opts = TokenCookieOptions();
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append("auth_token",    refreshed.AccessToken!,  opts);
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append("refresh_token", refreshed.RefreshToken!, opts);
+            var refreshed = await RefreshAsync();
+            if (refreshed?.AccessToken is null || refreshed.RefreshToken is null)
+                return false;
 
-        // Must build a new client with the fresh token — Request.Cookies won't reflect
-        // Response.Cookies within the same HTTP request
-        var retryClient = _httpClientFactory.CreateClient("PhysioLinkApi");
-        retryClient.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", refreshed.AccessToken!);
+            _refreshedAccessToken  = refreshed.AccessToken;
+            _refreshedRefreshToken = refreshed.RefreshToken;
 
-        return await call(retryClient);
+            // Persist for the NEXT request too.
+            var opts = TokenCookieOptions();
+            var http = _httpContextAccessor.HttpContext!;
+            http.Response.Cookies.Append("auth_token",    refreshed.AccessToken,  opts);
+            http.Response.Cookies.Append("refresh_token", refreshed.RefreshToken, opts);
+            return true;
+        }
+        finally
+        {
+            _refreshLock.Release();
+        }
     }
 
-    // Returns a deserialized T, or null on failure / expired session.
+    // Runs a call, refreshing once on 401. Throws SessionExpiredException when the
+    // session can no longer be refreshed. Returns the (possibly retried) response.
+    private async Task<HttpResponseMessage> ExecuteRawWithRefreshAsync(Func<HttpClient, Task<HttpResponseMessage>> call)
+    {
+        var usedToken = CurrentAccessToken;
+        var response  = await call(CreateAuthenticatedClient());
+
+        if (response.StatusCode != System.Net.HttpStatusCode.Unauthorized)
+            return response;
+
+        if (!await TryRefreshAsync(usedToken))
+            throw new SessionExpiredException();
+
+        var retry = await call(CreateAuthenticatedClient());
+        if (retry.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            throw new SessionExpiredException();
+
+        return retry;
+    }
+
+    // Returns a deserialized T, or null on a non-auth failure. Throws on expired session.
     private async Task<T?> ExecuteWithRefreshAsync<T>(Func<HttpClient, Task<HttpResponseMessage>> call)
     {
-        var client   = CreateAuthenticatedClient();
-        var response = await call(client);
-
-        if (response.StatusCode != System.Net.HttpStatusCode.Unauthorized)
-        {
-            if (!response.IsSuccessStatusCode) return default;
-            return await response.Content.ReadFromJsonAsync<T>();
-        }
-
-        var retryResponse = await RetryAfterRefresh(call);
-        if (retryResponse == null || !retryResponse.IsSuccessStatusCode) return default;
-        return await retryResponse.Content.ReadFromJsonAsync<T>();
+        var response = await ExecuteRawWithRefreshAsync(call);
+        if (!response.IsSuccessStatusCode) return default;
+        return await response.Content.ReadFromJsonAsync<T>();
     }
 
-    // Returns true on success, false on failure / expired session.
+    // Returns true on success, false on a non-auth failure. Throws on expired session.
     private async Task<bool> ExecuteWithRefreshAsync(Func<HttpClient, Task<HttpResponseMessage>> call)
     {
-        var client   = CreateAuthenticatedClient();
-        var response = await call(client);
-
-        if (response.StatusCode != System.Net.HttpStatusCode.Unauthorized)
-            return response.IsSuccessStatusCode;
-
-        var retryResponse = await RetryAfterRefresh(call);
-        return retryResponse?.IsSuccessStatusCode == true;
+        var response = await ExecuteRawWithRefreshAsync(call);
+        return response.IsSuccessStatusCode;
     }
 
     // -------------------------------------------------------------------------
-    // New-pattern overloads — lambda handles response checking + deserialization
-    // Disambiguated from the HttpResponseMessage overloads by lambda return type.
+    // New-pattern overloads — lambda handles response checking + deserialization.
+    // These can't see the 401 themselves, so a null/false result triggers one refresh
+    // attempt: if the session is still alive the retry runs; if the refresh fails the
+    // session is genuinely gone and we throw. Disambiguated from the HttpResponseMessage
+    // overloads by lambda return type.
     // -------------------------------------------------------------------------
 
     // lambda returns T? (null = failure)
     private async Task<T?> ExecuteWithRefreshAsync<T>(Func<HttpClient, Task<T?>> call) where T : class
     {
-        var result = await call(CreateAuthenticatedClient());
+        var usedToken = CurrentAccessToken;
+        var result    = await call(CreateAuthenticatedClient());
         if (result is not null) return result;
 
-        var refreshed = await RefreshAsync();
-        if (refreshed is null) return default;
+        if (!await TryRefreshAsync(usedToken))
+            throw new SessionExpiredException();
 
-        var opts = TokenCookieOptions();
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append("auth_token",    refreshed.AccessToken!,  opts);
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append("refresh_token", refreshed.RefreshToken!, opts);
-
-        var retryClient = _httpClientFactory.CreateClient("PhysioLinkApi");
-        retryClient.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", refreshed.AccessToken!);
-
-        return await call(retryClient);
+        return await call(CreateAuthenticatedClient());
     }
 
     // lambda returns bool (false = failure)
     private async Task<bool> ExecuteWithRefreshAsync(Func<HttpClient, Task<bool>> call)
     {
+        var usedToken = CurrentAccessToken;
         if (await call(CreateAuthenticatedClient())) return true;
 
-        var refreshed = await RefreshAsync();
-        if (refreshed is null) return false;
+        if (!await TryRefreshAsync(usedToken))
+            throw new SessionExpiredException();
 
-        var opts = TokenCookieOptions();
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append("auth_token",    refreshed.AccessToken!,  opts);
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append("refresh_token", refreshed.RefreshToken!, opts);
-
-        var retryClient = _httpClientFactory.CreateClient("PhysioLinkApi");
-        retryClient.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", refreshed.AccessToken!);
-
-        return await call(retryClient);
+        return await call(CreateAuthenticatedClient());
     }
 
     // -------------------------------------------------------------------------
@@ -242,8 +261,10 @@ public class ApiClient
     public Task<PagedResult<AppointmentSummaryResponse>?> GetUpcomingAppointmentsAsync(int count)
     {
         var from = Uri.EscapeDataString(DateTime.UtcNow.ToString("o"));
+        // Dashboard "Upcoming Appointments" — confirmed only, so a pending request
+        // or a rejected/cancelled/expired one doesn't show as if it were happening.
         return ExecuteWithRefreshAsync<PagedResult<AppointmentSummaryResponse>>(
-                   c => c.GetAsync($"api/v1/admin/appointments?page=1&pageSize={count}&from={from}"));
+                   c => c.GetAsync($"api/v1/admin/appointments?page=1&pageSize={count}&from={from}&status=Confirmed"));
     }
 
     public Task<PagedResult<PatientResponse>?> GetRecentPatientsAsync(int count)
@@ -357,6 +378,26 @@ public class ApiClient
         });
     }
 
+    // Archive of past-due appointments (Completed / Rejected / Expired / Cancelled).
+    public async Task<PagedResult<AppointmentSummaryResponse>?> GetAppointmentHistoryAsync(
+        int page, int pageSize, string? status = null, string? therapistName = null)
+    {
+        return await ExecuteWithRefreshAsync(async client =>
+        {
+            var qs = new List<string>
+            {
+                $"page={page}",
+                $"pageSize={pageSize}"
+            };
+            if (!string.IsNullOrEmpty(status))        qs.Add($"status={Uri.EscapeDataString(status)}");
+            if (!string.IsNullOrEmpty(therapistName)) qs.Add($"therapistName={Uri.EscapeDataString(therapistName)}");
+
+            var response = await client.GetAsync($"api/v1/admin/appointments/history?{string.Join("&", qs)}");
+            if (!response.IsSuccessStatusCode) return null;
+            return await response.Content.ReadFromJsonAsync<PagedResult<AppointmentSummaryResponse>>();
+        });
+    }
+
     public async Task<AppointmentSummaryResponse?> GetAppointmentByIdAsync(Guid id)
     {
         return await ExecuteWithRefreshAsync(async client =>
@@ -369,8 +410,8 @@ public class ApiClient
 
     public async Task<(bool Success, string? Error)> CreateAppointmentAsync(CreateAppointmentRequest request)
     {
-        var client = CreateAuthenticatedClient();
-        var response = await client.PostAsJsonAsync("api/v1/admin/appointments", request);
+        var response = await ExecuteRawWithRefreshAsync(
+            c => c.PostAsJsonAsync("api/v1/admin/appointments", request));
         if (response.IsSuccessStatusCode) return (true, null);
         var body = await response.Content.ReadAsStringAsync();
         return (false, $"{(int)response.StatusCode} {response.ReasonPhrase}: {body}");
@@ -378,8 +419,8 @@ public class ApiClient
 
     public async Task<(bool Success, string? Error)> UpdateAppointmentAsync(Guid id, UpdateAppointmentRequest request)
     {
-        var client = CreateAuthenticatedClient();
-        var response = await client.PutAsJsonAsync($"api/v1/admin/appointments/{id}", request);
+        var response = await ExecuteRawWithRefreshAsync(
+            c => c.PutAsJsonAsync($"api/v1/admin/appointments/{id}", request));
         if (response.IsSuccessStatusCode) return (true, null);
         var body = await response.Content.ReadAsStringAsync();
         return (false, $"{(int)response.StatusCode} {response.ReasonPhrase}: {body}");
@@ -393,4 +434,45 @@ public class ApiClient
             return response.IsSuccessStatusCode;
         });
     }
+
+    // -------------------------------------------------------------------------
+    // Slot scheduling (spec Phase 2 / 6)
+    // -------------------------------------------------------------------------
+
+    public Task<SlotGridResponse?> GetTherapistScheduleAsync(Guid therapistId, DateTime weekStart)
+        => ExecuteWithRefreshAsync<SlotGridResponse>(
+               c => c.GetAsync($"api/v1/admin/therapists/{therapistId}/slots?weekStart={weekStart:yyyy-MM-dd}"));
+
+    // scheduledAt is sent as a bare wall-clock string (no offset) so it is never
+    // shifted by a server timezone; the API interprets it as UTC.
+    public Task<bool> CreateSlotAsync(Guid therapistId, DateTime scheduledAtUtc)
+        => ExecuteWithRefreshAsync(
+               c => c.PostAsJsonAsync($"api/v1/admin/therapists/{therapistId}/slots",
+                   new { scheduledAt = scheduledAtUtc.ToString("yyyy-MM-ddTHH:mm:ss") }));
+
+    public Task<bool> DeleteSlotAsync(Guid therapistId, DateTime scheduledAtUtc)
+        => ExecuteWithRefreshAsync(
+               c => c.DeleteAsync($"api/v1/admin/therapists/{therapistId}/slots?scheduledAt={Uri.EscapeDataString(scheduledAtUtc.ToString("yyyy-MM-ddTHH:mm:ss"))}"));
+
+    // -------------------------------------------------------------------------
+    // Appointment requests queue + decisions (spec Phase 4 / 6)
+    // -------------------------------------------------------------------------
+
+    public Task<List<AppointmentRequestResponse>?> GetAppointmentRequestsAsync(Guid? therapistId)
+    {
+        var url = "api/v1/admin/appointments/requests";
+        if (therapistId.HasValue) url += $"?therapistId={therapistId.Value}";
+        return ExecuteWithRefreshAsync<List<AppointmentRequestResponse>>(c => c.GetAsync(url));
+    }
+
+    public Task<bool> AcceptAppointmentRequestAsync(Guid id)
+        => ExecuteWithRefreshAsync(c => c.PutAsync($"api/v1/admin/appointments/{id}/accept", null));
+
+    public Task<bool> RejectAppointmentRequestAsync(Guid id)
+        => ExecuteWithRefreshAsync(c => c.PutAsync($"api/v1/admin/appointments/{id}/reject", null));
+
+    // Cancels a previously-confirmed appointment (-> CancelledByClinic, slot freed).
+    // Distinct from CancelAppointmentAsync which soft-deletes via the legacy endpoint.
+    public Task<bool> CancelConfirmedAppointmentAsync(Guid id)
+        => ExecuteWithRefreshAsync(c => c.PutAsync($"api/v1/admin/appointments/{id}/cancel", null));
 }

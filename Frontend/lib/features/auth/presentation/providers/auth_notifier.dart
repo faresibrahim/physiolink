@@ -143,17 +143,14 @@ class AuthNotifier extends ChangeNotifier {
     }
   }
 
-  // Replaces the temporary password with one the patient chooses. The backend
-  // verifies the current (temporary) password, rotates tokens, and clears the flag;
+  // Replaces the temporary password with one the patient chooses. The patient
+  // already authenticated with the temporary password at login, so it isn't asked
+  // for again here. The backend rotates tokens and clears the must-change flag;
   // we persist the fresh session so the router lets the patient through.
-  Future<void> changePassword(
-    String currentPassword,
-    String newPassword,
-  ) async {
+  Future<void> changePassword(String newPassword) async {
     final response = await _dio.post(
       '/api/v1/auth/change-password',
       data: {
-        'currentPassword': currentPassword,
         'newPassword': newPassword,
       },
     );

@@ -13,9 +13,9 @@
         </p>
     </div>
 
-    <a asp-action="Create" class="btn btn-primary">
+    <button type="button" onclick="openTherapistModal()" class="btn btn-primary">
         + Add Therapist
-    </a>
+    </button>
 </div>
 
 <div class="therapist-grid">
@@ -97,3 +97,104 @@
 </div>
 
 @await Html.PartialAsync("_Pagination", Model.Pagination)
+
+@* ── Add Therapist Modal ──────────────────────────────────────────────── *@
+<div class="modal-overlay" id="therapistModal" aria-modal="true" role="dialog" aria-labelledby="therapistModalTitle">
+    <div class="modal">
+
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title" id="therapistModalTitle">Add Therapist</h2>
+                <p class="modal-subtitle">Add a new practitioner to your clinic.</p>
+            </div>
+            <button type="button" class="modal-close" onclick="closeTherapistModal()" aria-label="Close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <form method="post" asp-action="Create" asp-controller="Therapists" class="modal-form" id="therapistForm">
+            @Html.AntiForgeryToken()
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="ther-FirstName">First Name</label>
+                    <input type="text" id="ther-FirstName" name="FirstName" class="form-input" placeholder="e.g. Sarah" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="ther-LastName">Last Name</label>
+                    <input type="text" id="ther-LastName" name="LastName" class="form-input" placeholder="e.g. Connor" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ther-Specialty">Specialty</label>
+                <input type="text" id="ther-Specialty" name="Specialty" class="form-input" placeholder="e.g. Sports Rehabilitation" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ther-PhoneNumber">Phone</label>
+                <input type="text" id="ther-PhoneNumber" name="PhoneNumber" class="form-input" placeholder="+970 5XX XXX XXX" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="ther-Email">Email</label>
+                <input type="email" id="ther-Email" name="Email" class="form-input" placeholder="therapist@example.com" />
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" onclick="closeTherapistModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Therapist</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    (function () {
+        var therapistModal = document.getElementById('therapistModal');
+        var therapistForm  = document.getElementById('therapistForm');
+        if (!therapistModal || !therapistForm) return;
+
+        function openTherapistModal() {
+            therapistModal.classList.add('modal-visible');
+        }
+
+        function closeTherapistModal() {
+            therapistModal.classList.remove('modal-visible');
+            therapistForm.reset();
+        }
+
+        // Close on overlay click
+        therapistModal.addEventListener('click', function (e) {
+            if (e.target === therapistModal) closeTherapistModal();
+        });
+
+        // Close on Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && therapistModal.classList.contains('modal-visible')) {
+                closeTherapistModal();
+            }
+        });
+
+        // Client-side validation
+        therapistForm.addEventListener('submit', function (e) {
+            var first     = document.getElementById('ther-FirstName').value.trim();
+            var last      = document.getElementById('ther-LastName').value.trim();
+            var specialty = document.getElementById('ther-Specialty').value.trim();
+            var phone     = document.getElementById('ther-PhoneNumber').value.trim();
+            var email     = document.getElementById('ther-Email').value.trim();
+
+            if (!first || !last || !specialty || !phone || !email) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+            }
+        });
+
+        window.openTherapistModal  = openTherapistModal;
+        window.closeTherapistModal = closeTherapistModal;
+    })();
+</script>

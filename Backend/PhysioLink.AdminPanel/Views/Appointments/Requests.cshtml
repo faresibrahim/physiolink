@@ -1,0 +1,83 @@
+@model PhysioLink.AdminPanel.ViewModels.AppointmentRequestListViewModel
+
+@{
+    ViewData["Title"] = "Appointment Requests";
+    ViewData["ActivePage"] = "Appointments";
+}
+
+<div class="card">
+    <div class="profile-header" style="align-items:center;">
+        <div>
+            <h2 class="profile-name">Pending Requests</h2>
+            <p class="profile-meta">Accept to confirm and book the slot, or reject to free it. Expired requests are hidden automatically.</p>
+        </div>
+        <div class="profile-actions">
+            <a asp-action="Index" asp-controller="Appointments" class="btn btn-ghost btn-sm">All appointments</a>
+        </div>
+    </div>
+
+    <form asp-action="Requests" method="get" style="margin:12px 0 20px;">
+        <label for="therapistFilter" class="profile-meta" style="margin-right:8px;">Filter by therapist:</label>
+        <select id="therapistFilter" name="therapistFilter" onchange="this.form.submit()"
+                style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;">
+            <option value="">All therapists</option>
+            @foreach (var t in Model.Therapists)
+            {
+                var selected = Model.TherapistFilter == t.Id ? "selected" : null;
+                <option value="@t.Id" selected="@selected">@t.FirstName @t.LastName</option>
+            }
+        </select>
+    </form>
+
+    @if (Model.Requests.Count == 0)
+    {
+        <p class="profile-meta" style="padding:24px 0;">No pending requests right now.</p>
+    }
+    else
+    {
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; text-align:left;">
+                <thead>
+                    <tr>
+                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Patient</th>
+                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Therapist</th>
+                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Slot time (UTC)</th>
+                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Type</th>
+                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Notes</th>
+                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Requested</th>
+                        <th style="padding:10px; border-bottom:1px solid #e5e7eb; text-align:right;">Decision</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.Requests)
+                    {
+                        <tr>
+                            <td style="padding:10px; border-bottom:1px solid #f1f5f9; font-weight:600;">@r.PatientName</td>
+                            <td style="padding:10px; border-bottom:1px solid #f1f5f9;">@r.TherapistName</td>
+                            <td style="padding:10px; border-bottom:1px solid #f1f5f9;">@r.ScheduledAt.ToString("ddd, MMM d · HH:mm")</td>
+                            <td style="padding:10px; border-bottom:1px solid #f1f5f9;">@r.Type</td>
+                            <td style="padding:10px; border-bottom:1px solid #f1f5f9; max-width:220px;">@r.Notes</td>
+                            <td style="padding:10px; border-bottom:1px solid #f1f5f9;" class="profile-meta">@r.RequestedAt.ToString("MMM d, HH:mm")</td>
+                            <td style="padding:10px; border-bottom:1px solid #f1f5f9; text-align:right; white-space:nowrap;">
+                                <form asp-action="AcceptRequest" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@r.AppointmentId" />
+                                    <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
+                                    <button type="submit" class="btn btn-sm"
+                                            style="background:#34C759; color:#fff; border:none;">Accept</button>
+                                </form>
+                                <form asp-action="RejectRequest" method="post" style="display:inline;"
+                                      onsubmit="return confirm('Reject this request and free the slot?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@r.AppointmentId" />
+                                    <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
+                                    <button type="submit" class="btn btn-danger-outline btn-sm">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

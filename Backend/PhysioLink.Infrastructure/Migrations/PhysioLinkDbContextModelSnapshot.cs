@@ -80,6 +80,10 @@ namespace PhysioLink.Infrastructure.Migrations
 
                     b.HasIndex("ClinicId");
 
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
+
                     b.ToTable("Users", (string)null);
                 });
 
@@ -87,6 +91,9 @@ namespace PhysioLink.Infrastructure.Migrations
                 {
                     b.Property<Guid>("AppointmentId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AppointmentSlotId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("AppointmentTime")
@@ -111,6 +118,9 @@ namespace PhysioLink.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("TherapistId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("TherapistName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -128,11 +138,55 @@ namespace PhysioLink.Infrastructure.Migrations
 
                     b.HasKey("AppointmentId");
 
+                    b.HasIndex("AppointmentSlotId");
+
                     b.HasIndex("ClinicId");
 
                     b.HasIndex("PatientId");
 
+                    b.HasIndex("TherapistId");
+
                     b.ToTable("Appointments", (string)null);
+                });
+
+            modelBuilder.Entity("PhysioLink.Domain.Entities.AppointmentSlot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("ScheduledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TherapistId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicId");
+
+                    b.HasIndex("TherapistId", "ScheduledAt")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
+
+                    b.HasIndex("TherapistId", "Status", "ScheduledAt");
+
+                    b.ToTable("AppointmentSlots", (string)null);
                 });
 
             modelBuilder.Entity("PhysioLink.Domain.Entities.Clinic", b =>
@@ -145,6 +199,9 @@ namespace PhysioLink.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<int>("CloseHour")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -164,6 +221,9 @@ namespace PhysioLink.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<int>("OpenHour")
+                        .HasColumnType("integer");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -255,6 +315,9 @@ namespace PhysioLink.Infrastructure.Migrations
                     b.Property<int?>("Feedback")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("FrequencyPerDay")
+                        .HasColumnType("integer");
+
                     b.Property<int>("FrequencyPerWeek")
                         .HasColumnType("integer");
 
@@ -266,9 +329,6 @@ namespace PhysioLink.Infrastructure.Migrations
 
                     b.Property<int>("Reps")
                         .HasColumnType("integer");
-
-                    b.Property<DateTime>("ScheduledDate")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Sets")
                         .HasColumnType("integer");
@@ -419,6 +479,11 @@ namespace PhysioLink.Infrastructure.Migrations
 
             modelBuilder.Entity("PhysioLink.Domain.Entities.Appointment", b =>
                 {
+                    b.HasOne("PhysioLink.Domain.Entities.AppointmentSlot", "AppointmentSlot")
+                        .WithMany()
+                        .HasForeignKey("AppointmentSlotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("PhysioLink.Domain.Entities.Clinic", null)
                         .WithMany()
                         .HasForeignKey("ClinicId")
@@ -431,7 +496,32 @@ namespace PhysioLink.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PhysioLink.Domain.Entities.Therapist", null)
+                        .WithMany()
+                        .HasForeignKey("TherapistId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AppointmentSlot");
+
                     b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("PhysioLink.Domain.Entities.AppointmentSlot", b =>
+                {
+                    b.HasOne("PhysioLink.Domain.Entities.Clinic", null)
+                        .WithMany()
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PhysioLink.Domain.Entities.Therapist", "Therapist")
+                        .WithMany()
+                        .HasForeignKey("TherapistId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Therapist");
                 });
 
             modelBuilder.Entity("PhysioLink.Domain.Entities.ExerciseAssignment", b =>

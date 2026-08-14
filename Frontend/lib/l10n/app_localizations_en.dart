@@ -512,4 +512,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String serverErrorWithCode(String code) {
     return 'Server error $code. Check logs.';
   }
+
+  @override
+  String get statusRequested => 'Pending — awaiting confirmation';
+
+  @override
+  String get statusRejected => 'Rejected';
+
+  @override
+  String get statusExpired => 'Expired';
+
+  @override
+  String get statusCancelledByClinic => 'Cancelled by clinic';
+
+  @override
+  String get bookAppointment => 'Book Appointment';
+
+  @override
+  String get chooseSlotSubtitle => 'Choose an open time with your therapist';
+
+  @override
+  String get noSlotsTitle => 'No open slots';
+
+  @override
+  String get noSlotsSubtitle =>
+      'There are no available times right now. If you haven\'t been assigned a therapist yet, please contact your clinic.';
+
+  @override
+  String get slotTaken => 'That slot was just taken. Please pick another.';
+
+  @override
+  String get requestSlotCta => 'Request this slot';
+
+  @override
+  String get requestSentPending => 'Request sent — awaiting confirmation';
+
+  @override
+  String get slotDurationHint => '45 min';
+
+  @override
+  String get slotBooked => 'Booked';
+
+  @override
+  String get chooseTimeTitle => 'Pick a time';
+
+  @override
+  String get confirmRequestTitle => 'Confirm your request';
 }

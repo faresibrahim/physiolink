@@ -1,35 +1,13 @@
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:practice/core/error/app_failure.dart';
 import 'package:practice/features/appointments/domain/entities/appointment.dart';
 import 'package:practice/features/appointments/domain/repositories/appointments_repository.dart';
 import 'package:practice/features/appointments/presentation/providers/appointments_providers.dart';
-import 'package:practice/features/auth/presentation/providers/auth_notifier.dart';
-import 'package:practice/features/auth/presentation/providers/auth_provider.dart';
 
 class MockAppointmentsRepository extends Mock implements AppointmentsRepository {}
-
-class MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}
-
-class MockDio extends Mock implements Dio {}
-
-class FakeAuthNotifier extends AuthNotifier {
-  FakeAuthNotifier() : super(MockFlutterSecureStorage(), MockDio());
-
-  @override
-  String? get patientId => 'patient-abc';
-}
-
-class FakeAuthNotifierNoPatient extends AuthNotifier {
-  FakeAuthNotifierNoPatient() : super(MockFlutterSecureStorage(), MockDio());
-
-  @override
-  String? get patientId => null;
-}
 
 void main() {
   late MockAppointmentsRepository mockRepository;
@@ -43,20 +21,19 @@ void main() {
       final fakeAppointment = Appointment(
         appointmentId: 'appt-1',
         title: 'Follow-up session',
-        patientId: 'patient-abc',
-        therapistId: 'therapist-1',
+        therapistName: 'Dr. Sarah Johnson',
         appointmentTime: DateTime(2026, 5, 10, 9, 0),
         status: AppointmentStatus.confirmed,
+        statusLabel: 'Confirmed',
       );
 
       when(
-        () => mockRepository.getAppointments('patient-abc'),
+        () => mockRepository.getMyAppointments(),
       ).thenAnswer((_) async => Right([fakeAppointment]));
 
       final container = ProviderContainer(
         overrides: [
           appointmentsRepositoryProvider.overrideWithValue(mockRepository),
-          authNotifierProvider.overrideWith((ref) => FakeAuthNotifier()),
         ],
       );
       addTearDown(container.dispose);
@@ -74,10 +51,14 @@ void main() {
       );
     });
 
-    test('returns AuthFailure when patientId is null', () async {
+    test('propagates a repository failure', () async {
+      when(
+        () => mockRepository.getMyAppointments(),
+      ).thenAnswer((_) async => const Left(AuthFailure()));
+
       final container = ProviderContainer(
         overrides: [
-          authNotifierProvider.overrideWith((ref) => FakeAuthNotifierNoPatient()),
+          appointmentsRepositoryProvider.overrideWithValue(mockRepository),
         ],
       );
       addTearDown(container.dispose);

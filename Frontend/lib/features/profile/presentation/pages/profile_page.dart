@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:practice/core/error/app_failure.dart';
 import 'package:practice/core/localization/locale_controller.dart';
@@ -151,8 +151,9 @@ class ProfilePage extends ConsumerWidget {
               ),
             ),
             data: (result) => result.fold(
-              (failure) =>
-                  SliverFillRemaining(child: _buildError(context, failure, ref)),
+              (failure) => SliverFillRemaining(
+                child: _buildError(context, failure, ref),
+              ),
               (patient) => _buildProfile(context, ref, patient),
             ),
           ),
@@ -523,10 +524,7 @@ class _PreferenceRow extends StatelessWidget {
     );
     return Column(
       children: [
-        if (onTap != null)
-          InkWell(onTap: onTap, child: row)
-        else
-          row,
+        if (onTap != null) InkWell(onTap: onTap, child: row) else row,
         if (showDivider)
           const Padding(
             padding: EdgeInsetsDirectional.only(start: 66),

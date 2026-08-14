@@ -18,9 +18,11 @@ namespace PhysioLink.Infrastructure.Repositories
 
         public async Task<ApplicationUser?> GetUserByEmailAsync(string email)
         {
-            
-            return await _dbContext.Users.FirstOrDefaultAsync(u=> u.Email == email);
-
+            // Emails are stored canonically lower-cased (see AdminPatientService), so
+            // normalize the lookup the same way. Comparing against the stored casing
+            // keeps this sargable against the case-sensitive IX_Users_Email index.
+            var normalized = email.Trim().ToLowerInvariant();
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == normalized);
         }
 
         public async Task<ApplicationUser?> GetUserByTokenAsync(string token)

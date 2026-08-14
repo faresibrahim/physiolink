@@ -1021,6 +1021,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Server error {code}. Check logs.'**
   String serverErrorWithCode(String code);
+
+  /// No description provided for @statusRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending — awaiting confirmation'**
+  String get statusRequested;
+
+  /// No description provided for @statusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get statusRejected;
+
+  /// No description provided for @statusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get statusExpired;
+
+  /// No description provided for @statusCancelledByClinic.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled by clinic'**
+  String get statusCancelledByClinic;
+
+  /// No description provided for @bookAppointment.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Appointment'**
+  String get bookAppointment;
+
+  /// No description provided for @chooseSlotSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an open time with your therapist'**
+  String get chooseSlotSubtitle;
+
+  /// No description provided for @noSlotsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No open slots'**
+  String get noSlotsTitle;
+
+  /// No description provided for @noSlotsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no available times right now. If you haven\'t been assigned a therapist yet, please contact your clinic.'**
+  String get noSlotsSubtitle;
+
+  /// No description provided for @slotTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That slot was just taken. Please pick another.'**
+  String get slotTaken;
+
+  /// No description provided for @requestSlotCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Request this slot'**
+  String get requestSlotCta;
+
+  /// No description provided for @requestSentPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent — awaiting confirmation'**
+  String get requestSentPending;
+
+  /// No description provided for @slotDurationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'45 min'**
+  String get slotDurationHint;
+
+  /// No description provided for @slotBooked.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked'**
+  String get slotBooked;
+
+  /// No description provided for @chooseTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a time'**
+  String get chooseTimeTitle;
+
+  /// No description provided for @confirmRequestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your request'**
+  String get confirmRequestTitle;
 }
 
 class _AppLocalizationsDelegate

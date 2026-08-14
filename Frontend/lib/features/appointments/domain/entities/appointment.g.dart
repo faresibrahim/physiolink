@@ -8,34 +8,36 @@ part of 'appointment.dart';
 
 _Appointment _$AppointmentFromJson(Map<String, dynamic> json) => _Appointment(
   appointmentId: json['appointmentId'] as String,
-  title: json['title'] as String,
-  patientId: json['patientId'] as String,
-  therapistId: json['therapistId'] as String,
+  title: json['title'] as String? ?? '',
+  therapistName: json['therapistName'] as String?,
+  notes: json['notes'] as String?,
   appointmentTime: json['appointmentTime'] == null
       ? null
       : DateTime.parse(json['appointmentTime'] as String),
   status:
       $enumDecodeNullable(_$AppointmentStatusEnumMap, json['status']) ??
-      AppointmentStatus.pending,
-  createdAt: json['createdAt'] == null
-      ? null
-      : DateTime.parse(json['createdAt'] as String),
+      AppointmentStatus.requested,
+  statusLabel: json['statusLabel'] as String? ?? '',
+  slotId: json['slotId'] as String?,
 );
 
 Map<String, dynamic> _$AppointmentToJson(_Appointment instance) =>
     <String, dynamic>{
       'appointmentId': instance.appointmentId,
       'title': instance.title,
-      'patientId': instance.patientId,
-      'therapistId': instance.therapistId,
+      'therapistName': instance.therapistName,
+      'notes': instance.notes,
       'appointmentTime': instance.appointmentTime?.toIso8601String(),
       'status': _$AppointmentStatusEnumMap[instance.status]!,
-      'createdAt': instance.createdAt?.toIso8601String(),
+      'statusLabel': instance.statusLabel,
+      'slotId': instance.slotId,
     };
 
 const _$AppointmentStatusEnumMap = {
-  AppointmentStatus.pending: 'Pending',
+  AppointmentStatus.requested: 'Requested',
   AppointmentStatus.confirmed: 'Confirmed',
-  AppointmentStatus.cancelled: 'Cancelled',
   AppointmentStatus.completed: 'Completed',
+  AppointmentStatus.rejected: 'Rejected',
+  AppointmentStatus.expired: 'Expired',
+  AppointmentStatus.cancelledByClinic: 'CancelledByClinic',
 };

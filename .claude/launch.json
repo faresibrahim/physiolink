@@ -12,6 +12,12 @@
       "runtimeExecutable": "dotnet",
       "runtimeArgs": ["run", "--project", "Backend/PhysioLink.AdminPanel/PhysioLink.AdminPanel.csproj", "--urls", "http://localhost:5001"],
       "port": 5001
+    },
+    {
+      "name": "physiolink-flutter-web",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd Frontend && flutter run -d web-server --web-port 8090 --web-hostname 127.0.0.1"],
+      "port": 8090
     }
   ]
 }

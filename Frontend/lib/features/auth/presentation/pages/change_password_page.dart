@@ -14,10 +14,8 @@ class ChangePasswordPage extends ConsumerStatefulWidget {
 }
 
 class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
-  final _currentController = TextEditingController();
   final _newController = TextEditingController();
   final _confirmController = TextEditingController();
-  final _newFocusNode = FocusNode();
   final _confirmFocusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
 
@@ -27,10 +25,8 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
 
   @override
   void dispose() {
-    _currentController.dispose();
     _newController.dispose();
     _confirmController.dispose();
-    _newFocusNode.dispose();
     _confirmFocusNode.dispose();
     super.dispose();
   }
@@ -43,7 +39,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
     try {
       await ref
           .read(authNotifierProvider)
-          .changePassword(_currentController.text, _newController.text);
+          .changePassword(_newController.text);
       // On success the notifier clears mustChangePassword and notifies the router,
       // which redirects to /home automatically — no manual navigation needed.
     } catch (_) {
@@ -124,33 +120,10 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _fieldLabel(l10n.currentPasswordLabel),
-                        const SizedBox(height: 6),
-                        TextFormField(
-                          controller: _currentController,
-                          obscureText: _obscure,
-                          textInputAction: TextInputAction.next,
-                          autocorrect: false,
-                          enableSuggestions: false,
-                          onFieldSubmitted: (_) =>
-                              FocusScope.of(context).requestFocus(_newFocusNode),
-                          validator: (v) => (v == null || v.isEmpty)
-                              ? l10n.currentPasswordRequired
-                              : null,
-                          decoration: _fieldDecoration(
-                            l10n.currentPasswordHint,
-                            withToggle: true,
-                            l10n: l10n,
-                          ),
-                        ),
-
-                        const SizedBox(height: AppSpacing.md),
-
                         _fieldLabel(l10n.newPasswordLabel),
                         const SizedBox(height: 6),
                         TextFormField(
                           controller: _newController,
-                          focusNode: _newFocusNode,
                           obscureText: _obscure,
                           textInputAction: TextInputAction.next,
                           autocorrect: false,
@@ -165,12 +138,13 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                             if (v.length < 6) {
                               return l10n.passwordMinLength;
                             }
-                            if (v == _currentController.text) {
-                              return l10n.newPasswordSameAsTemporary;
-                            }
                             return null;
                           },
-                          decoration: _fieldDecoration(l10n.newPasswordHint),
+                          decoration: _fieldDecoration(
+                            l10n.newPasswordHint,
+                            withToggle: true,
+                            l10n: l10n,
+                          ),
                         ),
 
                         const SizedBox(height: AppSpacing.md),

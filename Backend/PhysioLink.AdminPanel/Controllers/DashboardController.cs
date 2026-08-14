@@ -29,7 +29,7 @@ namespace PhysioLink.AdminPanel.Controllers
             {
                 viewModel.TherapistCount       = dashboard.TherapistCount;
                 viewModel.PatientCount         = dashboard.PatientCount;
-                viewModel.ThisWeekAppointments = dashboard.AppointmentsThisWeek;
+                viewModel.TodayAppointments = dashboard.AppointmentsToday;
                 viewModel.ActiveAssignment     = dashboard.ActiveAssignmentCount;
             }
 
