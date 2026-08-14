@@ -5,6 +5,7 @@ public class ApiClient
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IWebHostEnvironment _environment;
 
     // Tokens refreshed during THIS request. ApiClient is registered scoped, so these
     // live for exactly one HTTP request. The refresh token rotates on every use, and
@@ -16,10 +17,11 @@ public class ApiClient
     private string? _refreshedRefreshToken;
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
 
-    public ApiClient(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+    public ApiClient(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, IWebHostEnvironment environment)
     {
         _httpClientFactory = httpClientFactory;
         _httpContextAccessor = httpContextAccessor;
+        _environment = environment;
     }
 
     // -------------------------------------------------------------------------
@@ -43,10 +45,10 @@ public class ApiClient
         return client;
     }
 
-    private static CookieOptions TokenCookieOptions() => new CookieOptions
+    private CookieOptions TokenCookieOptions() => new CookieOptions
     {
         HttpOnly = true,
-        Secure   = false,
+        Secure   = !_environment.IsDevelopment(),
         SameSite = SameSiteMode.Strict,
         Expires  = DateTimeOffset.UtcNow.AddHours(8)
     };

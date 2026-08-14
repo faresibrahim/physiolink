@@ -10,8 +10,10 @@ namespace PhysioLink.AdminPanel.Controllers
     public class AuthController : Controller
     {
         private readonly ApiClient _apiClient;
-        public AuthController(ApiClient apiClient) {
+        private readonly IWebHostEnvironment _environment;
+        public AuthController(ApiClient apiClient, IWebHostEnvironment environment) {
             _apiClient = apiClient;
+            _environment = environment;
         }
 
         [HttpGet]
@@ -51,7 +53,7 @@ namespace PhysioLink.AdminPanel.Controllers
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false,
+                Secure = !_environment.IsDevelopment(),
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.AddHours(8)
             };
