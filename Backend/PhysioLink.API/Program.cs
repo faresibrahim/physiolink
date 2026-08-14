@@ -153,6 +153,8 @@ app.UseAuthorization();
 // authenticated user, and before endpoints so throttled requests never reach them.
 app.UseRateLimiter();
 
+app.MapGet("/health", () => Results.Ok("healthy"));
+
 app.MapControllers();
 app.Run();
 
