@@ -260,6 +260,9 @@ public class ApiClient
 
     public Task<PagedResult<AppointmentSummaryResponse>?> GetUpcomingAppointmentsAsync(int count)
     {
+        // Cutoff is "now", not start-of-today — a past-today appointment (its time
+        // already gone by) must not show up here, even though it still counts toward
+        // the separate "Today's Appointments" stat, which totals the whole day.
         var from = Uri.EscapeDataString(DateTime.UtcNow.ToString("o"));
         // Dashboard "Upcoming Appointments" — confirmed only, so a pending request
         // or a rejected/cancelled/expired one doesn't show as if it were happening.

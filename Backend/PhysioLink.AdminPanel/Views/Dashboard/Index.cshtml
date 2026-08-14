@@ -1,9 +1,10 @@
 @model PhysioLink.AdminPanel.ViewModels.DashboardViewModel
+@using PhysioLink.AdminPanel.Helpers
 
 @{
     ViewData["Title"] = "Dashboard";
 
-    var hour = DateTime.Now.Hour;
+    var hour = ClinicTime.ToLocal(DateTime.UtcNow).Hour;
     var greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
     var clinicName = User.FindFirst("ClinicName")?.Value;
 }
@@ -97,12 +98,12 @@
                     <li class="row-item">
                         <div class="row-lead">
                             <div class="appt-date-block">
-                                <span class="appt-month">@appt.AppointmentTime.ToString("MMM")</span>
-                                <span class="appt-day">@appt.AppointmentTime.ToString("dd")</span>
+                                <span class="appt-month">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("MMM")</span>
+                                <span class="appt-day">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("dd")</span>
                             </div>
                             <div>
                                 <p class="row-title">@appt.Title</p>
-                                <p class="row-meta">@appt.PatientName · @appt.AppointmentTime.ToString("h:mm tt")</p>
+                                <p class="row-meta">@appt.PatientName · @ClinicTime.ToLocal(appt.AppointmentTime).ToString("h:mm tt")</p>
                             </div>
                         </div>
                         @await Html.PartialAsync("_StatusBadge", appt.Status)

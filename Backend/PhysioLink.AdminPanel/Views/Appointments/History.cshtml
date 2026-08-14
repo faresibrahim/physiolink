@@ -1,4 +1,5 @@
 @model PhysioLink.AdminPanel.ViewModels.AppointmentHistoryViewModel
+@using PhysioLink.AdminPanel.Helpers
 @{
     ViewData["Title"] = "Appointment History";
     ViewData["ActivePage"] = "Appointments";
@@ -90,8 +91,8 @@
                 var therapist = string.IsNullOrEmpty(appt.TherapistName) ? "—" : appt.TherapistName;
                 <tr>
                     <td>
-                        <span class="appt-date">@appt.AppointmentTime.ToString("MMM d, yyyy")</span>
-                        <span class="appt-time-chip">@appt.AppointmentTime.ToString("HH:mm")</span>
+                        <span class="appt-date">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("MMM d, yyyy")</span>
+                        <span class="appt-time-chip">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("HH:mm")</span>
                     </td>
                     <td class="primary-cell">@appt.PatientName</td>
                     <td class="muted-cell">@therapist</td>
