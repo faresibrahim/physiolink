@@ -22,6 +22,23 @@ using Microsoft.OpenApi.Models;
 //Phase 1 build services(This is where the tools I need)
 var builder = WebApplication.CreateBuilder(args);
 
+// Fail fast on missing/weak required secrets instead of crashing later with an
+// opaque NullReferenceException on the first request (or silently accepting a
+// too-short signing key). Both are required in every environment.
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+if (string.IsNullOrWhiteSpace(jwtSecret) || Encoding.UTF8.GetByteCount(jwtSecret) < 32)
+{
+    throw new InvalidOperationException(
+        "JWT_SECRET is not set or is shorter than 32 bytes. Set a strong secret (>= 32 bytes) via environment variable.");
+}
+
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "CONNECTION_STRING is not set. Provide the PostgreSQL connection string via environment variable.");
+}
+
 // Add services to the container.
 //add swagger services
 builder.Services.AddEndpointsApiExplorer();
@@ -70,7 +87,7 @@ builder.Services.AddMemoryCache();
 
 
 builder.Services.AddDbContext<PhysioLinkDbContext>(options =>
-    options.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING")));
+    options.UseNpgsql(connectionString));
 
 
 
@@ -115,7 +132,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = "physiolink-api",
             ValidAudience = "physiolink-flutter",
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!))
+                Encoding.UTF8.GetBytes(jwtSecret))
         };
     });
 
@@ -128,7 +145,13 @@ using (var scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
 }
 
-await DbSeeder.SeedAsync(app.Services);
+// Demo/seed data (known-password admin + patient accounts) must never run in
+// production — it would create real, loginable accounts with public passwords,
+// and the per-email patient blocks would seed even into a populated prod database.
+if (app.Environment.IsDevelopment())
+{
+    await DbSeeder.SeedAsync(app.Services);
+}
 
 
 

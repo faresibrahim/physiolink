@@ -57,6 +57,7 @@ namespace PhysioLink.AdminPanel.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit (EditAssignmentViewModel model)
         {
             if(!ModelState.IsValid)

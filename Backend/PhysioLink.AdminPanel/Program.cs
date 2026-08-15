@@ -20,7 +20,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LogoutPath = "/Auth/Logout";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        // Force Secure outside Development so the session cookie is never sent over
+        // plain HTTP — matching the auth_token/refresh_token cookies. Users reach
+        // Railway over HTTPS at the edge, so the browser always has a secure channel.
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
     });
 
 builder.Services.AddHttpClient("PhysioLinkApi", client =>

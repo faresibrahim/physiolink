@@ -20,9 +20,9 @@ namespace PhysioLink.Application.Services
             return await _exerciseRepository.GetPatientExercisesAsync(pageSize, page,  patientId);
         }
 
-        public async Task<bool> SubmitFeedbackAsync (Guid id, SubmitFeedbackDto level)
+        public async Task<bool> SubmitFeedbackAsync (Guid id, SubmitFeedbackDto level, Guid callerPatientId)
         {
-            return await _exerciseRepository.SubmitFeedbackAsync(id, level);
+            return await _exerciseRepository.SubmitFeedbackAsync(id, level, callerPatientId);
         }
     }
 }

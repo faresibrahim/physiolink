@@ -27,6 +27,12 @@ namespace PhysioLink.Infrastructure.Repositories
 
         public async Task<ApplicationUser?> GetUserByTokenAsync(string token)
         {
+            // Never match on a blank token: an empty string would match any user whose
+            // stored RefreshToken is "" (e.g. a future bad write), handing out a session.
+            if (string.IsNullOrEmpty(token))
+            {
+                return null;
+            }
             return await _dbContext.Users.FirstOrDefaultAsync(t=>t.RefreshToken==token);
         }
 

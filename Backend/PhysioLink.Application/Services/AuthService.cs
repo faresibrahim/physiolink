@@ -43,15 +43,7 @@ namespace PhysioLink.Application.Services
             }
 
             // LoginAsync � after password verification passes:
-            
-            var accessToken = _tokenService.GenerateAccessToken(user);
-
-            var refreshToken = _tokenService.GenerateRefreshToken();
-
-            user.RefreshToken=refreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-
-            await _userRepository.UpdateAsync(user);
+            var (accessToken, refreshToken) = await IssueTokensAsync(user);
 
             var patient = await _patientRepository.GetPatientByUserIdAsync(user.ApplicationUserId);
             var clinicName = await _userRepository.GetClinicNameAsync(user.ClinicId);
@@ -112,21 +104,14 @@ namespace PhysioLink.Application.Services
             }
 
             // RefreshAsync � same:
-           
-            var generatedAccessToken = _tokenService.GenerateAccessToken(user);
-
-            var generatedRefreshToken = _tokenService.GenerateRefreshToken();
-
-            user.RefreshToken=generatedRefreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            await _userRepository.UpdateAsync(user);
+            var (accessToken, refreshToken) = await IssueTokensAsync(user);
 
             var patient = await _patientRepository.GetPatientByUserIdAsync(user.ApplicationUserId);
 
             return new AuthResponseDto
             {
-                AccessToken = generatedAccessToken,
-                RefreshToken = generatedRefreshToken,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
                 PatientId = patient?.PatientId ?? Guid.Empty,
                 MustChangePassword = user.MustChangePassword
             };
@@ -168,13 +153,8 @@ namespace PhysioLink.Application.Services
 
             // Rotate tokens so the caller ends up with a fresh session that reflects
             // the cleared must-change flag, rather than reusing the temporary-password one.
-            var accessToken = _tokenService.GenerateAccessToken(user);
-            var refreshToken = _tokenService.GenerateRefreshToken();
-
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-
-            await _userRepository.UpdateAsync(user);
+            // IssueTokensAsync's single UpdateAsync persists the password change too.
+            var (accessToken, refreshToken) = await IssueTokensAsync(user);
 
             var patient = await _patientRepository.GetPatientByUserIdAsync(user.ApplicationUserId);
             var clinicName = await _userRepository.GetClinicNameAsync(user.ClinicId);
@@ -187,6 +167,21 @@ namespace PhysioLink.Application.Services
                 ClinicName = clinicName,
                 MustChangePassword = false
             };
+        }
+
+        // Issues a fresh access token and rotates the refresh token onto the user
+        // (7-day sliding expiry), persisting the change with a single UpdateAsync.
+        // Any other pending edits already made to `user` are saved in the same call.
+        private async Task<(string AccessToken, string RefreshToken)> IssueTokensAsync(ApplicationUser user)
+        {
+            var accessToken = _tokenService.GenerateAccessToken(user);
+            var refreshToken = _tokenService.GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+            await _userRepository.UpdateAsync(user);
+            return (accessToken, refreshToken);
         }
     }
 }

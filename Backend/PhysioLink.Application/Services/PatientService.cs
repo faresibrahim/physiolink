@@ -29,6 +29,12 @@ namespace PhysioLink.Application.Services
     return await _patientRepository.UpdatePatientProfileAsync(patientId, request);
         }
 
+        public async Task<Guid?> ResolvePatientIdAsync(Guid applicationUserId)
+        {
+            var patient = await _patientRepository.GetPatientByUserIdAsync(applicationUserId);
+            return patient?.PatientId;
+        }
+
        
     }
 }

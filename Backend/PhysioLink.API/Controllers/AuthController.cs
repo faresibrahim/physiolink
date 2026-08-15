@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using PhysioLink.API.Extensions;
 using PhysioLink.API.RateLimiting;
 using PhysioLink.Application.DTOs;
 using PhysioLink.Application.DTOs.Auth;
 using PhysioLink.Application.Interfaces;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 [ApiController]
 [Route("api/v1/auth")]
@@ -56,8 +55,7 @@ public class AuthController : ControllerBase
     [HttpPost("verify-password")]
     public async Task<IActionResult> VerifyPassword([FromBody] VerifyPasswordRequestDto request)
     {
-        var email = User.FindFirst(ClaimTypes.Email)?.Value
-                    ?? User.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
+        var email = User.GetEmail();
 
         if (string.IsNullOrEmpty(email))
         {
@@ -82,8 +80,7 @@ public class AuthController : ControllerBase
     [HttpPost("change-password")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
     {
-        var email = User.FindFirst(ClaimTypes.Email)?.Value
-                    ?? User.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
+        var email = User.GetEmail();
 
         if (string.IsNullOrEmpty(email))
         {

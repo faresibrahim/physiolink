@@ -1,16 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:practice/core/network/api_config.dart';
 
 class DioClient {
   DioClient() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: String.fromEnvironment(
-          'BASE_URL',
-          // Android emulator reaches the host machine's localhost via 10.0.2.2.
-          // Override with --dart-define=BASE_URL=... for a physical device (use
-          // the PC's current LAN IP) or iOS simulator (http://localhost:5218).
-          defaultValue: 'http://10.0.2.2:5218',
-        ),
+        baseUrl: kApiBaseUrl,
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
         headers: {'Content-Type': 'application/json'},
@@ -30,10 +25,7 @@ class _AuthInterceptor extends Interceptor {
   final DioClient _client;
   final refreshDio = Dio(
     BaseOptions(
-      baseUrl: String.fromEnvironment(
-        'BASE_URL',
-        defaultValue: 'http://10.0.2.2:5218',
-      ),
+      baseUrl: kApiBaseUrl,
     ),
   );
 

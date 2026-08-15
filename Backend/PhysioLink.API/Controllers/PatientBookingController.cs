@@ -1,7 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PhysioLink.API.Extensions;
 using PhysioLink.Application.DTOs.Slots;
 using PhysioLink.Application.Interfaces;
 
@@ -25,7 +24,7 @@ namespace PhysioLink.API.Controllers
         [HttpGet("slots")]
         public async Task<IActionResult> GetMySlots([FromQuery] DateTime? from, [FromQuery] DateTime? to, CancellationToken ct)
         {
-            if (GetApplicationUserId() is not { } userId) return Unauthorized();
+            if (User.GetApplicationUserId() is not { } userId) return Unauthorized();
             var slots = await _patientSlotService.GetMySlotsAsync(userId, from, to, ct);
             return Ok(slots);
         }
@@ -34,7 +33,7 @@ namespace PhysioLink.API.Controllers
         [HttpPost("appointments")]
         public async Task<IActionResult> RequestSlot([FromBody] RequestSlotDto request, CancellationToken ct)
         {
-            if (GetApplicationUserId() is not { } userId) return Unauthorized();
+            if (User.GetApplicationUserId() is not { } userId) return Unauthorized();
 
             var result = await _patientSlotService.RequestSlotAsync(userId, request, ct);
             return result.Outcome switch
@@ -51,19 +50,9 @@ namespace PhysioLink.API.Controllers
         [HttpGet("appointments")]
         public async Task<IActionResult> GetMyAppointments(CancellationToken ct)
         {
-            if (GetApplicationUserId() is not { } userId) return Unauthorized();
+            if (User.GetApplicationUserId() is not { } userId) return Unauthorized();
             var appointments = await _patientSlotService.GetMyAppointmentsAsync(userId, ct);
             return Ok(appointments);
-        }
-
-        // The JWT 'sub' is the ApplicationUserId. Default inbound mapping turns 'sub'
-        // into NameIdentifier, so try that first with raw-claim fallbacks.
-        private Guid? GetApplicationUserId()
-        {
-            var raw = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                      ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
-                      ?? User.FindFirst("sub")?.Value;
-            return Guid.TryParse(raw, out var id) ? id : null;
         }
     }
 }

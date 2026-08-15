@@ -7,6 +7,6 @@ namespace PhysioLink.Application.Interfaces
     public interface IExerciseRepository
     {
         public Task<PagedResult<AssignedExerciseDto>> GetPatientExercisesAsync(int pageSize, int page, Guid patientId);
-        public Task<bool> SubmitFeedbackAsync(Guid id, SubmitFeedbackDto request);
+        public Task<bool> SubmitFeedbackAsync(Guid id, SubmitFeedbackDto request, Guid callerPatientId);
     }
 }

@@ -55,9 +55,13 @@ namespace PhysioLink.Infrastructure.Repositories
             };
         }
 
-        public async Task<bool> SubmitFeedbackAsync(Guid id, SubmitFeedbackDto request)
+        public async Task<bool> SubmitFeedbackAsync(Guid id, SubmitFeedbackDto request, Guid callerPatientId)
         {
-            var assignment = await  _dbContext.ExerciseAssignments.FirstOrDefaultAsync(p=>p.ExerciseAssignmentId == id);
+            // Scope the lookup to the caller's own assignment: a valid assignment id
+            // that belongs to another patient returns null here (treated as not found),
+            // so feedback can only be written to the caller's own exercises.
+            var assignment = await  _dbContext.ExerciseAssignments
+                .FirstOrDefaultAsync(p => p.ExerciseAssignmentId == id && p.PatientId == callerPatientId);
             if (assignment == null)
                 return false;
 

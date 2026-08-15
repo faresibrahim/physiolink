@@ -115,6 +115,7 @@ public class AppointmentsController : BaseController
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EditAppointmentViewModel model)
     {
         if (!ModelState.IsValid) 
@@ -152,6 +153,7 @@ public class AppointmentsController : BaseController
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CancelAppointment(Guid id)
     {
         var request = await _apiClient.CancelAppointmentAsync(id);

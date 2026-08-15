@@ -23,6 +23,7 @@ namespace PhysioLink.AdminPanel.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)
         {
             var loginRequest = new LoginRequest

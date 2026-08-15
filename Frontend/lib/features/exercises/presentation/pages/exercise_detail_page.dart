@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:practice/core/network/api_config.dart';
 import 'package:practice/core/theme/app_colors.dart';
 import 'package:practice/core/theme/app_spacing.dart';
 import 'package:practice/core/theme/app_text_styles.dart';
@@ -802,13 +803,6 @@ class _DirectVideoHero extends StatefulWidget {
 }
 
 class _DirectVideoHeroState extends State<_DirectVideoHero> {
-  // Kept in sync with DioClient's BASE_URL so relative video paths resolve
-  // against the same API host.
-  static const _baseUrl = String.fromEnvironment(
-    'BASE_URL',
-    defaultValue: 'http://10.0.2.2:5218',
-  );
-
   late final VideoPlayerController _controller;
   bool _initialized = false;
   String? _error;
@@ -831,7 +825,7 @@ class _DirectVideoHeroState extends State<_DirectVideoHero> {
       return VideoPlayerController.asset('assets/videos/cat_cow_stretch.mp4');
     }
     // Server-relative paths (e.g. /images/foo.mov) resolve against the API host.
-    final resolved = url.startsWith('http') ? url : '$_baseUrl$url';
+    final resolved = url.startsWith('http') ? url : '$kApiBaseUrl$url';
     return VideoPlayerController.networkUrl(Uri.parse(resolved));
   }
 
