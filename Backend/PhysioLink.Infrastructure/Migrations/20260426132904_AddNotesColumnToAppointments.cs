@@ -10,13 +10,20 @@ namespace PhysioLink.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-
+            migrationBuilder.AddColumn<string>(
+                name: "Notes",
+                table: "Appointments",
+                type: "character varying(1000)",
+                maxLength: 1000,
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-
+            migrationBuilder.DropColumn(
+                name: "Notes",
+                table: "Appointments");
         }
     }
 }
