@@ -9,6 +9,8 @@ Thumbs.db
 .env
 secrets.md
 
+
+.claude
 # Claude Code local settings (per-machine permission allowlist, can embed
 # local dev command strings/credentials) — never commit
 .claude/settings.local.json
