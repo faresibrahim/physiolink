@@ -26,6 +26,17 @@
 
 ---
 
+## What's Live
+
+| Resource | URL | Description |
+|---|---|---|
+| Patient App API | [`physiolink-production.up.railway.app`](https://physiolink-production.up.railway.app) | REST API consumed by the Flutter app |
+| Admin Panel | [`physiolink-production-b9b6.up.railway.app`](https://physiolink-production-b9b6.up.railway.app) | ASP.NET Core MVC panel for clinic staff — dashboard, patient management, therapist management, exercise assignment, and appointment scheduling |
+
+Swagger is disabled in production for security; available in local development at `/swagger`.
+
+---
+
 ## Tech Stack
 
 ### Flutter — Patient App
@@ -132,15 +143,6 @@ flutter run --dart-define=BASE_URL=https://physiolink-production.up.railway.app
 
 ---
 
-## Live API
-
-| Resource | URL |
-|---|---|
-| Base URL | `https://physiolink-production.up.railway.app` |
-| Swagger UI | `https://physiolink-production.up.railway.app/swagger` |
-
----
-
 ## Tests
 
 ```bash
@@ -168,7 +170,6 @@ See [`Backend/README.md`](./Backend/README.md) for full instructions:
 
 ## Roadmap
 
-- [ ] Admin panel (ASP.NET Core MVC) — clinic management, patient enrollment, exercise assignment
 - [ ] Video exercise library — MP4/H.264 via Cloudflare Stream
 - [ ] Progress screen — completion rate and RPE trend charts
 - [ ] Push notifications — appointment reminders

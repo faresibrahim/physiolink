@@ -121,7 +121,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // â”€â”€ Email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                         Text(
                           l10n.emailLabel,
                           style: AppTextStyles.footnote.copyWith(
@@ -156,7 +155,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                         const SizedBox(height: AppSpacing.md),
 
-                        // â”€â”€ Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                         Text(
                           l10n.password,
                           style: AppTextStyles.footnote.copyWith(
@@ -213,7 +211,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
                         ),
 
-                        // â”€â”€ Error â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                         AnimatedSize(
                           duration: const Duration(milliseconds: 200),
                           child: _errorMessage != null

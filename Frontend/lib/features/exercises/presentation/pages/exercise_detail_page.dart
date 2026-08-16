@@ -981,7 +981,7 @@ class _DirectVideoHeroState extends State<_DirectVideoHero> {
             right: 12,
             child: GestureDetector(
               onTap: _initialized
-                  ? () => Navigator.of(context).push(
+                  ? () => Navigator.of(context, rootNavigator: true).push(
                         MaterialPageRoute(
                           fullscreenDialog: true,
                           builder: (_) =>
