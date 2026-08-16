@@ -65,6 +65,16 @@ Swagger is disabled in production for security; available in local development a
 | API docs | Swagger / OpenAPI |
 | Deployment | Railway |
 
+### ASP.NET Core — Admin Panel
+
+| Layer | Tool |
+|---|---|
+| Framework | ASP.NET Core (.NET 9) MVC, Razor Views |
+| Auth | Cookie authentication |
+| API access | `IHttpClientFactory` — calls the Patient App API |
+| Searchable selects | Tom Select |
+| Deployment | Railway |
+
 ---
 
 ## Architecture
@@ -136,10 +146,10 @@ flutter run --dart-define=BASE_URL=https://physiolink-production.up.railway.app
 
 ### Demo Credentials
 
-| Field | Value |
-|---|---|
-| Email | `john.smith@example.com` |
-| Password | `patient@123` |
+| Surface | Email | Password |
+|---|---|---|
+| Flutter app (patient) | `john.smith@example.com` | `patient@123` |
+| Admin panel (ClinicAdmin) | `fares.a.ibrahim@gmail.com` | `test@123` |
 
 ---
 
