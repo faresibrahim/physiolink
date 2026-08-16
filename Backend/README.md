@@ -75,7 +75,76 @@ PhysioLink/
 | GET | `/api/v1/patients/{id}/profile` | Patient profile |
 | PUT | `/api/v1/patients/{id}/profile` | Update profile |
 
-Full interactive documentation at `/swagger`.
+Full interactive documentation at `/swagger` (local development only — disabled in production).
+
+### Admin — Therapists
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/admin/therapists` | List therapists |
+| GET | `/api/v1/admin/therapists/{id}` | Therapist detail |
+| POST | `/api/v1/admin/therapists` | Create therapist |
+| PUT | `/api/v1/admin/therapists/{id}` | Update therapist |
+| DELETE | `/api/v1/admin/therapists/{id}` | Delete therapist |
+
+### Admin — Patients
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/admin/patients` | List patients |
+| GET | `/api/v1/admin/patients/{id}` | Patient detail |
+| POST | `/api/v1/admin/patients` | Enroll patient |
+| PUT | `/api/v1/admin/patients/{id}` | Update patient |
+| DELETE | `/api/v1/admin/patients/{id}` | Delete patient |
+
+### Admin — Appointments
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/admin/appointments` | List appointments (paged, filterable by date/status) |
+| GET | `/api/v1/admin/appointments/history` | Archive of past-due appointments (Completed/Rejected/Expired/Cancelled) |
+| GET | `/api/v1/admin/appointments/{id}` | Appointment detail |
+| POST | `/api/v1/admin/appointments` | Create appointment |
+| PUT | `/api/v1/admin/appointments/{id}` | Update appointment |
+| DELETE | `/api/v1/admin/appointments/{id}` | Delete appointment |
+| GET | `/api/v1/admin/appointments/requests` | Pending appointment requests, optionally by therapist |
+| PUT | `/api/v1/admin/appointments/{id}/accept` | Accept a request |
+| PUT | `/api/v1/admin/appointments/{id}/reject` | Reject a request |
+| PUT | `/api/v1/admin/appointments/{id}/cancel` | Cancel an appointment |
+
+### Admin — Exercises
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/admin/exercises` | List exercises (search, difficulty, category filters) |
+| GET | `/api/v1/admin/exercises/{id}` | Exercise detail |
+| POST | `/api/v1/admin/exercises` | Create exercise |
+
+### Admin — Assignments
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/admin/patients/{patientId}/assignments` | List a patient's assigned exercises |
+| GET | `/api/v1/admin/assignments/{id}` | Assignment detail |
+| POST | `/api/v1/admin/patients/{patientId}/assignments` | Assign an exercise to a patient |
+| PUT | `/api/v1/admin/assignments/{id}` | Update assignment |
+| DELETE | `/api/v1/admin/assignments/{id}` | Delete assignment |
+
+### Admin — Slots
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/admin/therapists/{therapistId}/slots` | Weekly availability grid |
+| POST | `/api/v1/admin/therapists/{therapistId}/slots` | Open a slot |
+| DELETE | `/api/v1/admin/therapists/{therapistId}/slots` | Close a slot |
+
+### Admin — Dashboard
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/admin/dashboard` | Clinic overview stats |
+
+All `admin/*` routes require the `ClinicAdmin` role and are consumed by the [Admin Panel](../README.md#whats-live), not the Flutter app.
 
 ---
 
@@ -123,11 +192,12 @@ Swagger UI: `http://localhost:5218/swagger`
 
 ### Seed Data
 
-Migrations include seed data:
+`DbSeeder` runs automatically on startup in `Development` (never in production):
 
-- 1 therapist account
-- 3 patients (including the test patient below)
-- 5 exercises across varying difficulty levels
+- 2 clinics
+- 6 therapists
+- 10 patients (including the test patient below)
+- 3 exercises across varying difficulty levels
 
 **Test patient credentials:**
 
@@ -147,7 +217,19 @@ Deployed on **Railway** with a managed PostgreSQL instance.
 | Resource | URL |
 |---|---|
 | API base | `https://physiolink-production.up.railway.app` |
-| Swagger UI | `https://physiolink-production.up.railway.app/swagger` |
+
+Swagger UI is disabled in production for security; it's only available at `/swagger` when running locally in `Development`.
+
+### Config-as-code
+
+Two Railway services build from this repo, each pinned to its own `.toml`:
+
+| File | Service | Dockerfile |
+|---|---|---|
+| `Backend/railway.toml` | API | `Backend/Dockerfile` |
+| `Backend/railway.adminpanel.toml` | Admin Panel | `Backend/PhysioLink.AdminPanel/Dockerfile` |
+
+Both configs build via Docker and expose a `/health` healthcheck.
 
 ### Deploy Your Own
 
@@ -157,12 +239,8 @@ Deployed on **Railway** with a managed PostgreSQL instance.
    - `JWT_SECRET`
    - `CONNECTION_STRING` (Railway injects this automatically for the PostgreSQL plugin)
    - `ASPNETCORE_ENVIRONMENT` = `Production`
-4. Railway builds via `Dockerfile` and deploys on every push to `main`
-5. Run migrations post-deploy via the Railway dashboard shell:
-
-```bash
-dotnet ef database update --project PhysioLink.Infrastructure --startup-project PhysioLink.API
-```
+4. Railway builds via `Dockerfile` and deploys on every push to `master`
+5. Migrations run automatically — `Program.cs` calls `dbContext.Database.MigrateAsync()` on startup, before the app accepts requests. No manual migration step is needed post-deploy.
 
 ---
 
