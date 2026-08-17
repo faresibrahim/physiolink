@@ -459,6 +459,11 @@ public class ApiClient
         => ExecuteWithRefreshAsync(
                c => c.DeleteAsync($"api/v1/admin/therapists/{therapistId}/slots?scheduledAt={Uri.EscapeDataString(scheduledAtUtc.ToString("yyyy-MM-ddTHH:mm:ss"))}"));
 
+    // Available slots for one therapist — the options in the "New Appointment" modal.
+    public Task<List<TherapistSlotResponse>?> GetTherapistAvailableSlotsAsync(Guid therapistId)
+        => ExecuteWithRefreshAsync<List<TherapistSlotResponse>>(
+               c => c.GetAsync($"api/v1/admin/therapists/{therapistId}/slots/available"));
+
     // -------------------------------------------------------------------------
     // Appointment requests queue + decisions (spec Phase 4 / 6)
     // -------------------------------------------------------------------------

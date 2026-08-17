@@ -14,5 +14,10 @@ namespace PhysioLink.Application.Interfaces
         // Toggle a cell off. Refused (SlotIsLive) if the slot is Requested/Booked;
         // the guard is server-side, never the greyed UI (spec 2.3).
         Task<SlotWriteOutcome> DeleteSlotAsync(Guid therapistId, DateTime scheduledAt);
+
+        // Available, future slots for one therapist — the pickable options in the
+        // admin "New Appointment" modal. Null when the therapist is not in the
+        // caller's clinic (mirrors GetWeekGridAsync).
+        Task<List<TherapistSlotOptionDto>?> GetAvailableSlotsAsync(Guid therapistId, DateTime? from, DateTime? to);
     }
 }

@@ -273,18 +273,32 @@
                     <option value="">— Select a therapist —</option>
                     @foreach (var therapist in Model.Therapists)
                     {
-                        <option value="@therapist.FirstName.Trim() @therapist.LastName.Trim()">
+                        <option value="@therapist.FirstName.Trim() @therapist.LastName.Trim()" data-id="@therapist.Id">
                             @therapist.FirstName.Trim() @therapist.LastName.Trim()
                         </option>
                     }
                 </select>
             </div>
 
-            @* --- Appointment date + time --- *@
-            <div class="form-group">
+            @* --- Appointment date + time ---
+               Create mode: pick from the therapist's open slots (hidden until a
+               therapist is chosen). Edit mode: the raw datetime field. The hidden
+               AppointmentTime carries whichever value is chosen. *@
+            <div class="form-group" id="dateTimeGroup">
                 <label class="form-label" for="AppointmentTime">Date &amp; Time</label>
                 <input type="datetime-local" id="AppointmentTime" name="AppointmentTime" class="form-input" />
             </div>
+
+            <div class="form-group" id="slotPickerGroup" style="display:none;">
+                <label class="form-label">Available slots</label>
+                <div id="slotPickerBody" class="slot-picker"></div>
+                <p class="form-hint" id="slotPickerLoading" style="display:none;">Loading available times…</p>
+                <p class="form-hint" id="slotPickerEmpty" style="display:none;">
+                    No open slots for this therapist. Open times in
+                    <a asp-action="Schedule" asp-controller="Therapists">Manage Schedule</a>.
+                </p>
+            </div>
+            <input type="hidden" id="SelectedSlotId" name="SlotId" value="" />
 
             @* Shown in edit mode once the appointment is no longer pending. *@
             <p id="lockedFieldsNote" class="form-hint" style="display:none;">
@@ -313,6 +327,20 @@
         </form>
     </div>
 </div>
+
+<style>
+    .slot-picker { display: flex; flex-direction: column; gap: 16px; max-height: 260px; overflow-y: auto; }
+    .slot-day { display: flex; flex-direction: column; gap: 8px; }
+    .slot-day-label { font-size: 12px; font-weight: 600; color: #8E8E93; letter-spacing: 0.3px; }
+    .slot-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .slot-chip {
+        min-height: 44px; padding: 8px 16px; border: 1px solid #E5E5EA; border-radius: 8px;
+        background: #fff; color: #323232; font-size: 14px; font-weight: 600; cursor: pointer;
+        transition: border-color .12s, background .12s, color .12s;
+    }
+    .slot-chip:hover { border-color: #004AAD; }
+    .slot-chip.selected { background: #004AAD; border-color: #004AAD; color: #fff; }
+</style>
 
 <script>
     (function () {
@@ -347,6 +375,102 @@
                             break;
                         }
                     }
+                }
+                // Therapist changed → refresh the open-slot picker for the new one.
+                loadTherapistSlots();
+            }
+
+            // --- Slot picker (create mode) --------------------------------
+            // Only open slots for the selected therapist are pickable; the field
+            // stays hidden until a therapist is chosen.
+            function selectedTherapistId() {
+                var sel = document.getElementById('ApptTherapistName');
+                var opt = sel.options[sel.selectedIndex];
+                return opt ? (opt.getAttribute('data-id') || '') : '';
+            }
+
+            function clearSelectedSlot() {
+                document.getElementById('SelectedSlotId').value = '';
+                document.getElementById('AppointmentTime').value = '';
+            }
+
+            function pickSlot(btn, slotId, utc) {
+                clearSelectedSlot();
+                document.getElementById('SelectedSlotId').value = slotId;
+                document.getElementById('AppointmentTime').value = utc;
+                var chips = document.querySelectorAll('#slotPickerBody .slot-chip');
+                for (var i = 0; i < chips.length; i++) chips[i].classList.remove('selected');
+                btn.classList.add('selected');
+            }
+
+            function renderSlots(slots) {
+                var body = document.getElementById('slotPickerBody');
+                body.innerHTML = '';
+                // Group by day label, preserving chronological order from the API.
+                var order = [];
+                var byDay = {};
+                slots.forEach(function (s) {
+                    if (!byDay[s.dayLabel]) { byDay[s.dayLabel] = []; order.push(s.dayLabel); }
+                    byDay[s.dayLabel].push(s);
+                });
+                order.forEach(function (day) {
+                    var dayEl = document.createElement('div');
+                    dayEl.className = 'slot-day';
+                    var label = document.createElement('div');
+                    label.className = 'slot-day-label';
+                    label.textContent = day;
+                    dayEl.appendChild(label);
+                    var chips = document.createElement('div');
+                    chips.className = 'slot-chips';
+                    byDay[day].forEach(function (s) {
+                        var chip = document.createElement('button');
+                        chip.type = 'button';
+                        chip.className = 'slot-chip';
+                        chip.textContent = s.timeLabel;
+                        chip.addEventListener('click', function () { pickSlot(chip, s.slotId, s.utc); });
+                        chips.appendChild(chip);
+                    });
+                    dayEl.appendChild(chips);
+                    body.appendChild(dayEl);
+                });
+            }
+
+            async function loadTherapistSlots() {
+                // Slot picker is create-mode only.
+                var isEdit = formEl.action.indexOf('Edit') !== -1;
+                var group = document.getElementById('slotPickerGroup');
+                var body = document.getElementById('slotPickerBody');
+                var loading = document.getElementById('slotPickerLoading');
+                var empty = document.getElementById('slotPickerEmpty');
+
+                clearSelectedSlot();
+
+                var therapistId = selectedTherapistId();
+                if (isEdit || !therapistId) {
+                    // Hidden until a therapist is selected.
+                    group.style.display = 'none';
+                    body.innerHTML = '';
+                    return;
+                }
+
+                group.style.display = 'block';
+                body.innerHTML = '';
+                empty.style.display = 'none';
+                loading.style.display = 'block';
+
+                try {
+                    var res = await fetch('/Appointments/TherapistSlots?therapistId=' + encodeURIComponent(therapistId));
+                    var slots = res.ok ? await res.json() : [];
+                    loading.style.display = 'none';
+                    if (!slots || slots.length === 0) {
+                        empty.style.display = 'block';
+                        return;
+                    }
+                    renderSlots(slots);
+                } catch (err) {
+                    console.error('[appt] failed to load slots:', err);
+                    loading.style.display = 'none';
+                    empty.style.display = 'block';
                 }
             }
 
@@ -427,6 +551,16 @@
                     document.getElementById('AppointmentTime').disabled   = false;
                     document.getElementById('lockedFieldsNote').style.display = 'none';
                 }
+
+                // Time input: edit uses the raw datetime field; create uses the
+                // slot picker (revealed only once a therapist is chosen).
+                document.getElementById('dateTimeGroup').style.display = isEdit ? 'block' : 'none';
+                if (isEdit) {
+                    document.getElementById('slotPickerGroup').style.display = 'none';
+                    document.getElementById('SelectedSlotId').value = '';
+                } else {
+                    loadTherapistSlots();
+                }
             }
 
             // --- Open create mode ----------------------------------------
@@ -484,15 +618,25 @@
                 if (e.target === modalEl) closeAppointmentModal();
             });
 
+            // Therapist changed → reload the slot picker (create mode).
+            document.getElementById('ApptTherapistName').addEventListener('change', loadTherapistSlots);
+
             // Submit validation
             formEl.addEventListener('submit', function (e) {
                 var isEdit = formEl.action.indexOf('Edit') !== -1;
-                if (!isEdit && !document.getElementById('PatientId').value) {
-                    e.preventDefault();
-                    alert('Please select a patient.');
-                    return;
-                }
-                if (!document.getElementById('AppointmentTime').value) {
+                if (!isEdit) {
+                    if (!document.getElementById('PatientId').value) {
+                        e.preventDefault();
+                        alert('Please select a patient.');
+                        return;
+                    }
+                    // Create requires picking one of the therapist's open slots.
+                    if (!document.getElementById('SelectedSlotId').value) {
+                        e.preventDefault();
+                        alert('Please select an available time slot.');
+                        return;
+                    }
+                } else if (!document.getElementById('AppointmentTime').value) {
                     e.preventDefault();
                     alert('Please select a date and time.');
                     return;

@@ -21,6 +21,14 @@ public class SlotCellResponse
     [JsonPropertyName("slotId")]      public Guid? SlotId { get; set; }
 }
 
+// Mirrors the API's TherapistSlotOptionDto — the available slots offered in the
+// "New Appointment" modal.
+public class TherapistSlotResponse
+{
+    [JsonPropertyName("slotId")]      public Guid SlotId { get; set; }
+    [JsonPropertyName("scheduledAt")] public DateTime ScheduledAt { get; set; }
+}
+
 // Mirrors the API's AppointmentRequestQueueDto (spec 4.1). Status arrives as a
 // string (the API serializes enums as strings).
 public class AppointmentRequestResponse

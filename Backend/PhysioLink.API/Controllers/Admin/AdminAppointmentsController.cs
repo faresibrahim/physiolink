@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PhysioLink.Application.DTOs.Appointments;
+using PhysioLink.Application.Exceptions;
 using PhysioLink.Application.Interfaces;
 
 namespace PhysioLink.API.Controllers.Admin
@@ -53,8 +54,16 @@ namespace PhysioLink.API.Controllers.Admin
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateAppointmentDto createAppointmentDto)
         {
-            var result = await _adminAppointmentService.CreateAsync(createAppointmentDto);
-            return CreatedAtAction(nameof(GetById), new { id = result.AppointmentId }, result);
+            try
+            {
+                var result = await _adminAppointmentService.CreateAsync(createAppointmentDto);
+                return CreatedAtAction(nameof(GetById), new { id = result.AppointmentId }, result);
+            }
+            catch (SlotConflictException ex)
+            {
+                // The chosen slot was claimed between fetch and submit.
+                return Conflict(ex.Message);
+            }
         }
 
         [HttpPut("{id:guid}")]

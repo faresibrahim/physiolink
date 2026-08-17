@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PhysioLink.AdminPanel.Helpers;
 using PhysioLink.AdminPanel.Services;
 using PhysioLink.AdminPanel.ViewModels;
 using PhysioLink.AdminPanel.ViewModels.Shared;
@@ -100,6 +101,7 @@ public class AppointmentsController : BaseController
             Title = model.Title,
             Notes = model.Notes,
             AppointmentTime = model.AppointmentTime,
+            SlotId = model.SlotId,
         };
 
         var (ok, error) = await _apiClient.CreateAppointmentAsync(appointment);
@@ -150,6 +152,30 @@ public class AppointmentsController : BaseController
         var appointment = await _apiClient.GetAppointmentByIdAsync(id);
         if (appointment == null) return Json(new { error = "Not found" });
         return Json(appointment);
+    }
+
+    // GET /Appointments/TherapistSlots?therapistId=  — JSON for the modal's slot
+    // picker. Returns the therapist's open slots, each with the raw UTC value (for
+    // the hidden field) and clinic-local labels (for display).
+    [HttpGet]
+    public async Task<IActionResult> TherapistSlots(Guid therapistId)
+    {
+        if (therapistId == Guid.Empty) return Json(Array.Empty<object>());
+
+        var slots = await _apiClient.GetTherapistAvailableSlotsAsync(therapistId);
+        if (slots == null) return Json(Array.Empty<object>());
+
+        var options = slots.Select(s => new
+        {
+            slotId    = s.SlotId,
+            // Raw UTC wall clock for the hidden datetime field (the modal round-trips
+            // appointment times as UTC, matching the edit flow).
+            utc       = s.ScheduledAt.ToString("yyyy-MM-ddTHH:mm:ss"),
+            dayLabel  = ClinicTime.ToLocal(s.ScheduledAt).ToString("ddd, MMM d"),
+            timeLabel = ClinicTime.ToLocal(s.ScheduledAt).ToString("HH:mm"),
+        });
+
+        return Json(options);
     }
 
     [HttpPost]

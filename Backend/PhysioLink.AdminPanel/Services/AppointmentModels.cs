@@ -9,6 +9,8 @@ public class CreateAppointmentRequest
     public Guid PatientId { get; set; }
     public string? TherapistName { get; set; }
     public DateTime AppointmentTime { get; set; }
+    // The open slot the admin picked; the API claims it and books against it.
+    public Guid? SlotId { get; set; }
 }
 
 public class UpdateAppointmentRequest

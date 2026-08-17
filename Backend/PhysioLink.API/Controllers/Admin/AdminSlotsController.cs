@@ -28,6 +28,16 @@ namespace PhysioLink.API.Controllers.Admin
             return Ok(grid);
         }
 
+        // GET /api/v1/admin/therapists/{therapistId}/slots/available?from=&to=
+        // Available future slots — the options for the manual "New Appointment" modal.
+        [HttpGet("available")]
+        public async Task<IActionResult> GetAvailable(Guid therapistId, [FromQuery] DateTime? from, [FromQuery] DateTime? to)
+        {
+            var slots = await _adminSlotService.GetAvailableSlotsAsync(therapistId, from, to);
+            if (slots == null) return NotFound();
+            return Ok(slots);
+        }
+
         // POST /api/v1/admin/therapists/{therapistId}/slots  { scheduledAt }
         [HttpPost]
         public async Task<IActionResult> Create(Guid therapistId, [FromBody] CreateSlotDto dto)

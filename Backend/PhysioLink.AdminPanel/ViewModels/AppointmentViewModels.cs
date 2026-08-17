@@ -35,6 +35,8 @@ namespace PhysioLink.AdminPanel.ViewModels
         public required string Title { get; set; }
         public string? Notes { get; set; }
         public DateTime AppointmentTime { get; set; }
+        // The open slot the admin picked in the modal; drives the booking server-side.
+        public Guid? SlotId { get; set; }
     }
 
     public class EditAppointmentViewModel

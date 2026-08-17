@@ -77,6 +77,32 @@ namespace PhysioLink.Infrastructure.Services
             };
         }
 
+        public async Task<List<TherapistSlotOptionDto>?> GetAvailableSlotsAsync(Guid therapistId, DateTime? from, DateTime? to)
+        {
+            // Therapists is clinic-scoped, so this also enforces clinic ownership (D4).
+            var therapistExists = await _dbContext.Therapists
+                .AnyAsync(t => t.TherapistId == therapistId);
+            if (!therapistExists) return null;
+
+            var now = DateTime.UtcNow;
+            var fromUtc = from.HasValue ? DateTime.SpecifyKind(from.Value, DateTimeKind.Utc) : now;
+            var toUtc = to.HasValue ? DateTime.SpecifyKind(to.Value, DateTimeKind.Utc) : now.AddDays(60);
+
+            return await _dbContext.AppointmentSlots.AsNoTracking()
+                .Where(s => s.TherapistId == therapistId
+                            && s.Status == SlotStatus.Available
+                            && s.ScheduledAt > now
+                            && s.ScheduledAt >= fromUtc
+                            && s.ScheduledAt <= toUtc)
+                .OrderBy(s => s.ScheduledAt)
+                .Select(s => new TherapistSlotOptionDto
+                {
+                    SlotId = s.Id,
+                    ScheduledAt = s.ScheduledAt
+                })
+                .ToListAsync();
+        }
+
         public async Task<SlotWriteOutcome> CreateSlotAsync(Guid therapistId, DateTime scheduledAt)
         {
             var clinicId = _currentClinicService.GetCurrentClinicId()

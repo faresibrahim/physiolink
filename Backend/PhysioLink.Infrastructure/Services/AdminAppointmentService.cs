@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PhysioLink.Application.DTOs;
 using PhysioLink.Application.DTOs.Appointments;
+using PhysioLink.Application.Exceptions;
 using PhysioLink.Application.Interfaces;
 using PhysioLink.Domain.Entities;
 using PhysioLink.Domain.Enums;
@@ -160,6 +161,65 @@ namespace PhysioLink.Infrastructure.Services
                 .Where(p => p.PatientId == dto.PatientId)
                 .Select(p => p.FirstName + " " + p.LastName)
                 .FirstOrDefaultAsync() ?? string.Empty;
+
+            // Slot-driven booking (the "New Appointment" modal): claim a specific open
+            // slot so this path and the slot grid can never double-book. The slot is
+            // the source of truth for time + therapist, and the appointment is created
+            // already Confirmed (an admin booking on the patient's behalf is firm).
+            if (dto.SlotId is Guid slotId)
+            {
+                await using var tx = await _dbContext.Database.BeginTransactionAsync();
+
+                // Race-safe: only succeeds while the slot is still Available (clinic-
+                // scoped by the global filter). The loser sees 0 rows.
+                var claimed = await _dbContext.AppointmentSlots
+                    .Where(s => s.Id == slotId
+                                && s.Status == SlotStatus.Available
+                                && s.ScheduledAt > DateTime.UtcNow)
+                    .ExecuteUpdateAsync(set => set.SetProperty(s => s.Status, SlotStatus.Booked));
+
+                if (claimed == 0)
+                    throw new SlotConflictException("That time was just taken. Please pick another open slot.");
+
+                var slot = await _dbContext.AppointmentSlots.AsNoTracking()
+                    .Where(s => s.Id == slotId)
+                    .Select(s => new { s.ScheduledAt, s.TherapistId })
+                    .FirstAsync();
+
+                var slotTherapist = await _dbContext.Therapists.AsNoTracking()
+                    .Where(t => t.TherapistId == slot.TherapistId)
+                    .Select(t => new { t.FirstName, t.LastName })
+                    .FirstAsync();
+
+                var booked = new Appointment
+                {
+                    Status = AppointmentStatus.Confirmed,
+                    AppointmentTime = slot.ScheduledAt,
+                    PatientId = dto.PatientId,
+                    TherapistId = slot.TherapistId,
+                    TherapistName = slotTherapist.FirstName + " " + slotTherapist.LastName,
+                    AppointmentSlotId = slotId,
+                    ClinicId = clinicId,
+                    Notes = dto.Notes,
+                    Title = dto.Title
+                };
+
+                _dbContext.Appointments.Add(booked);
+                await _dbContext.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                return new AdminAppointmentDto
+                {
+                    AppointmentId = booked.AppointmentId,
+                    Title = booked.Title,
+                    Notes = booked.Notes,
+                    PatientId = booked.PatientId,
+                    PatientName = patientName,
+                    TherapistName = booked.TherapistName,
+                    AppointmentTime = booked.AppointmentTime,
+                    Status = booked.Status
+                };
+            }
 
             var appointmentTimeUtc = DateTime.SpecifyKind(dto.AppointmentTime, DateTimeKind.Utc);
 
