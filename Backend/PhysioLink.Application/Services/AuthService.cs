@@ -54,6 +54,7 @@ namespace PhysioLink.Application.Services
                 RefreshToken = refreshToken,
                 PatientId = patient?.PatientId ?? Guid.Empty,
                 ClinicName = clinicName,
+                Role = user.Role,
                 MustChangePassword = user.MustChangePassword
             };
 

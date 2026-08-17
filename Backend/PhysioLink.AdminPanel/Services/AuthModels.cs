@@ -15,5 +15,7 @@ namespace PhysioLink.AdminPanel.Services
         public string? RefreshToken { get; set; }
         [JsonPropertyName("clinicName")]
         public string? ClinicName { get; set; }
+        [JsonPropertyName("role")]
+        public string? Role { get; set; }
     }
 }

@@ -1010,6 +1010,16 @@ textarea.input {
         color: var(--text-primary);
     }
 
+/* Constant patient glyph — replaces initials wherever a patient is listed
+   (patients table, dashboard recent-patients) so identity comes from the
+   name text, not a color-coded circle. */
+.patient-icon {
+    width: var(--icon-md);
+    height: var(--icon-md);
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
 /* =============================================================================
    TABLES — dense 40px rows, quiet uppercase header
    ============================================================================= */
@@ -2435,25 +2445,140 @@ textarea.input {
     min-width: 150px;
 }
 
+/* Date is the secondary label; time is the value admins actually scan for,
+   so it carries the visual weight (bold, near-black, larger) while the date
+   stays a small muted eyebrow above it. */
 .appt-date {
     display: block;
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     font-weight: 500;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     white-space: nowrap;
 }
 
-.appt-time-chip {
-    display: inline-block;
+.appt-time {
+    display: block;
     margin-top: 2px;
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    color: var(--primary);
-    background: var(--primary-soft);
-    border-radius: var(--space-1);
-    padding: 1px var(--space-1);
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
     font-variant-numeric: tabular-nums;
 }
+
+/* =============================================================================
+   REQUEST QUEUE — pending-request cards (Appointments/Requests)
+   ============================================================================= */
+
+.request-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.request-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+    padding: var(--space-3);
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+    .request-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-pop);
+        border-color: #D5D9E0;
+    }
+
+.request-date-block {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-md);
+}
+
+.request-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.request-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.request-patient {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.request-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 2px 0 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+}
+
+.request-meta-icon {
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+.request-dot {
+    color: var(--text-tertiary);
+}
+
+.request-type-chip {
+    display: inline-flex;
+    align-items: center;
+    margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    border-radius: var(--radius-full);
+}
+
+.request-notes {
+    margin: var(--space-2) 0 0;
+    padding-left: var(--space-2);
+    border-left: 2px solid var(--divider);
+    font-size: var(--font-size-sm);
+    font-style: italic;
+    color: var(--text-secondary);
+    line-height: var(--line-height-normal);
+}
+
+.request-requested-meta {
+    margin: var(--space-2) 0 0;
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+.request-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex-shrink: 0;
+}
+
+    .request-actions .btn {
+        width: 108px;
+    }
 
 /* =============================================================================
    EMPTY STATES
@@ -2739,6 +2864,20 @@ textarea.input {
     .modal-overlay {
         padding: var(--space-2);
     }
+
+    .request-card {
+        flex-direction: column;
+    }
+
+    .request-actions {
+        flex-direction: row;
+        width: 100%;
+    }
+
+        .request-actions .btn {
+            flex: 1;
+            width: auto;
+        }
 }
 
 @media (prefers-reduced-motion: reduce) {

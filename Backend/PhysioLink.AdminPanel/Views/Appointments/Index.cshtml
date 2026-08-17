@@ -138,7 +138,7 @@
                 <tr>
                     <td>
                         <span class="appt-date">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("MMM d")</span>
-                        <span class="appt-time-chip">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("HH:mm")</span>
+                        <span class="appt-time">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("HH:mm")</span>
                     </td>
                     <td class="primary-cell">@appt.PatientName</td>
                     <td class="muted-cell">@therapist</td>
@@ -290,8 +290,19 @@
             </div>
 
             <div class="form-group" id="slotPickerGroup" style="display:none;">
-                <label class="form-label">Available slots</label>
-                <div id="slotPickerBody" class="slot-picker"></div>
+                <label class="form-label">Select a date &amp; time</label>
+
+                <div id="slotCalendar" class="slot-cal"></div>
+
+                <div id="slotDaySection" style="display:none;">
+                    <div class="slot-day-head">
+                        <span class="slot-day-title">Available times</span>
+                    </div>
+                    <p class="slot-day-date" id="slotDayDate"></p>
+                    <div id="slotDayBody" class="slot-chips"></div>
+                    <p class="form-hint" id="slotDayEmpty" style="display:none;">No open times on this day.</p>
+                </div>
+
                 <p class="form-hint" id="slotPickerLoading" style="display:none;">Loading available times…</p>
                 <p class="form-hint" id="slotPickerEmpty" style="display:none;">
                     No open slots for this therapist. Open times in
@@ -329,17 +340,45 @@
 </div>
 
 <style>
-    .slot-picker { display: flex; flex-direction: column; gap: 16px; max-height: 260px; overflow-y: auto; }
-    .slot-day { display: flex; flex-direction: column; gap: 8px; }
-    .slot-day-label { font-size: 12px; font-weight: 600; color: #8E8E93; letter-spacing: 0.3px; }
+    /* Month calendar (mirrors the Flutter booking page) */
+    .slot-cal { border: 1px solid #E5E5EA; border-radius: 12px; padding: 12px; }
+    .slot-cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .slot-cal-title { font-size: 14px; font-weight: 600; color: #323232; }
+    .slot-cal-nav {
+        width: 32px; height: 32px; border: none; background: transparent; cursor: pointer;
+        color: #004AAD; font-size: 20px; line-height: 1; border-radius: 8px;
+    }
+    .slot-cal-nav:hover { background: #E8F0FE; }
+    .slot-cal-nav:disabled { color: #C7C7CC; cursor: default; background: transparent; }
+    .slot-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .slot-cal-wd { text-align: center; font-size: 11px; font-weight: 600; color: #8E8E93; padding: 4px 0; }
+    .slot-cal-day {
+        position: relative; height: 40px; display: flex; align-items: center; justify-content: center;
+        border-radius: 999px; font-size: 13px; color: #C7C7CC; cursor: default; user-select: none;
+    }
+    .slot-cal-day.has-slots { color: #323232; cursor: pointer; }
+    .slot-cal-day.has-slots:hover { background: #F2F2F7; }
+    .slot-cal-day.today { background: #E8F0FE; color: #004AAD; font-weight: 700; }
+    .slot-cal-day.selected, .slot-cal-day.selected:hover { background: #004AAD; color: #fff; font-weight: 700; }
+    .slot-cal-day .dot {
+        position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+        width: 5px; height: 5px; border-radius: 50%; background: #4CAF82;
+    }
+    .slot-cal-day.selected .dot { background: #fff; }
+
+    /* Selected-day time chips — brand green (secondary) tint, green when selected */
+    .slot-day-head { display: flex; align-items: center; gap: 8px; margin: 16px 0 4px; }
+    .slot-day-title { font-size: 14px; font-weight: 600; color: #323232; }
+    .slot-duration-pill { padding: 2px 8px; border-radius: 999px; background: #E8F0FE; color: #004AAD; font-size: 11px; font-weight: 600; }
+    .slot-day-date { font-size: 12px; color: #8E8E93; margin: 0 0 8px; }
     .slot-chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .slot-chip {
-        min-height: 44px; padding: 8px 16px; border: 1px solid #E5E5EA; border-radius: 8px;
-        background: #fff; color: #323232; font-size: 14px; font-weight: 600; cursor: pointer;
-        transition: border-color .12s, background .12s, color .12s;
+        min-height: 44px; padding: 10px 16px; border: 1px solid rgba(76, 175, 130, .3); border-radius: 12px;
+        background: linear-gradient(135deg, #ffffff, #E8F5EE); color: #323232; font-size: 14px; font-weight: 600;
+        cursor: pointer; transition: background .12s, border-color .12s, color .12s;
     }
-    .slot-chip:hover { border-color: #004AAD; }
-    .slot-chip.selected { background: #004AAD; border-color: #004AAD; color: #fff; }
+    .slot-chip:hover { border-color: #4CAF82; }
+    .slot-chip.selected { background: #4CAF82; border-color: #4CAF82; color: #fff; }
 </style>
 
 <script>
@@ -380,9 +419,19 @@
                 loadTherapistSlots();
             }
 
-            // --- Slot picker (create mode) --------------------------------
+            // --- Slot picker (create mode): month calendar + day slots ----
             // Only open slots for the selected therapist are pickable; the field
-            // stays hidden until a therapist is chosen.
+            // stays hidden until a therapist is chosen. Mirrors the Flutter booking
+            // page: pick a day on the calendar, then a time chip (green when picked).
+            var slotsByDate = {};             // 'yyyy-MM-dd' -> [{slotId, utc, timeLabel, dayLabel}]
+            var calYear = 0, calMonth = 0;    // displayed month (calMonth is 1-12)
+            var minKey = null, maxKey = null; // first / last available day (yyyy-MM-dd)
+            var selectedDate = null;
+
+            var WD = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+
             function selectedTherapistId() {
                 var sel = document.getElementById('ApptTherapistName');
                 var opt = sel.options[sel.selectedIndex];
@@ -394,83 +443,168 @@
                 document.getElementById('AppointmentTime').value = '';
             }
 
-            function pickSlot(btn, slotId, utc) {
-                clearSelectedSlot();
-                document.getElementById('SelectedSlotId').value = slotId;
-                document.getElementById('AppointmentTime').value = utc;
-                var chips = document.querySelectorAll('#slotPickerBody .slot-chip');
-                for (var i = 0; i < chips.length; i++) chips[i].classList.remove('selected');
-                btn.classList.add('selected');
+            function pad2(n) { return (n < 10 ? '0' : '') + n; }
+            function ymd(y, m, d) { return y + '-' + pad2(m) + '-' + pad2(d); }
+            function monthIndex(y, m) { return y * 12 + (m - 1); }
+
+            function todayLocalKey() {
+                var n = new Date();
+                return ymd(n.getFullYear(), n.getMonth() + 1, n.getDate());
             }
 
-            function renderSlots(slots) {
-                var body = document.getElementById('slotPickerBody');
+            function pickSlot(chip, slotId, utc) {
+                document.getElementById('SelectedSlotId').value = slotId;
+                document.getElementById('AppointmentTime').value = utc;
+                var chips = document.querySelectorAll('#slotDayBody .slot-chip');
+                for (var i = 0; i < chips.length; i++) chips[i].classList.remove('selected');
+                chip.classList.add('selected');
+            }
+
+            // Render the chosen day's open times as green-tinted chips.
+            function renderDaySlots(dateKey) {
+                selectedDate = dateKey;
+                clearSelectedSlot(); // switching day clears any previously picked time
+                var section = document.getElementById('slotDaySection');
+                var body = document.getElementById('slotDayBody');
+                var empty = document.getElementById('slotDayEmpty');
+                var dateEl = document.getElementById('slotDayDate');
                 body.innerHTML = '';
-                // Group by day label, preserving chronological order from the API.
-                var order = [];
-                var byDay = {};
+                var slots = slotsByDate[dateKey] || [];
+                section.style.display = 'block';
+                dateEl.textContent = slots.length ? slots[0].dayLabel : '';
+                if (!slots.length) { empty.style.display = 'block'; return; }
+                empty.style.display = 'none';
                 slots.forEach(function (s) {
-                    if (!byDay[s.dayLabel]) { byDay[s.dayLabel] = []; order.push(s.dayLabel); }
-                    byDay[s.dayLabel].push(s);
+                    var chip = document.createElement('button');
+                    chip.type = 'button';
+                    chip.className = 'slot-chip';
+                    chip.textContent = s.timeLabel;
+                    chip.addEventListener('click', function () { pickSlot(chip, s.slotId, s.utc); });
+                    body.appendChild(chip);
                 });
-                order.forEach(function (day) {
-                    var dayEl = document.createElement('div');
-                    dayEl.className = 'slot-day';
-                    var label = document.createElement('div');
-                    label.className = 'slot-day-label';
-                    label.textContent = day;
-                    dayEl.appendChild(label);
-                    var chips = document.createElement('div');
-                    chips.className = 'slot-chips';
-                    byDay[day].forEach(function (s) {
-                        var chip = document.createElement('button');
-                        chip.type = 'button';
-                        chip.className = 'slot-chip';
-                        chip.textContent = s.timeLabel;
-                        chip.addEventListener('click', function () { pickSlot(chip, s.slotId, s.utc); });
-                        chips.appendChild(chip);
-                    });
-                    dayEl.appendChild(chips);
-                    body.appendChild(dayEl);
+            }
+
+            function canGo(dir) {
+                if (minKey === null) return false;
+                var target = monthIndex(calYear, calMonth) + dir;
+                var minM = monthIndex(+minKey.substring(0, 4), +minKey.substring(5, 7));
+                var maxM = monthIndex(+maxKey.substring(0, 4), +maxKey.substring(5, 7));
+                return target >= minM && target <= maxM;
+            }
+
+            function shiftMonth(dir) {
+                if (!canGo(dir)) return;
+                var idx = monthIndex(calYear, calMonth) + dir;
+                calYear = Math.floor(idx / 12);
+                calMonth = (idx % 12) + 1;
+                renderCalendar();
+            }
+
+            function renderCalendar() {
+                var cal = document.getElementById('slotCalendar');
+                cal.innerHTML = '';
+
+                var head = document.createElement('div');
+                head.className = 'slot-cal-head';
+                var prev = document.createElement('button');
+                prev.type = 'button'; prev.className = 'slot-cal-nav'; prev.innerHTML = '&lsaquo;';
+                prev.disabled = !canGo(-1);
+                prev.addEventListener('click', function () { shiftMonth(-1); });
+                var title = document.createElement('div');
+                title.className = 'slot-cal-title';
+                title.textContent = MONTHS[calMonth - 1] + ' ' + calYear;
+                var next = document.createElement('button');
+                next.type = 'button'; next.className = 'slot-cal-nav'; next.innerHTML = '&rsaquo;';
+                next.disabled = !canGo(1);
+                next.addEventListener('click', function () { shiftMonth(1); });
+                head.appendChild(prev); head.appendChild(title); head.appendChild(next);
+                cal.appendChild(head);
+
+                var grid = document.createElement('div');
+                grid.className = 'slot-cal-grid';
+                WD.forEach(function (w) {
+                    var el = document.createElement('div');
+                    el.className = 'slot-cal-wd'; el.textContent = w;
+                    grid.appendChild(el);
                 });
+
+                // Monday-based leading offset (JS getDay: 0=Sun).
+                var firstDow = (new Date(calYear, calMonth - 1, 1).getDay() + 6) % 7;
+                var daysInMonth = new Date(calYear, calMonth, 0).getDate();
+                var todayKey = todayLocalKey();
+
+                for (var b = 0; b < firstDow; b++) grid.appendChild(document.createElement('div'));
+
+                for (var day = 1; day <= daysInMonth; day++) {
+                    var key = ymd(calYear, calMonth, day);
+                    var cell = document.createElement('div');
+                    cell.className = 'slot-cal-day';
+                    cell.textContent = day;
+                    if (key === todayKey) cell.classList.add('today');
+                    if (slotsByDate[key] && slotsByDate[key].length) {
+                        cell.classList.add('has-slots');
+                        var dot = document.createElement('span');
+                        dot.className = 'dot';
+                        cell.appendChild(dot);
+                        (function (k, c) {
+                            c.addEventListener('click', function () {
+                                selectedDate = k;
+                                renderCalendar();
+                                renderDaySlots(k);
+                            });
+                        })(key, cell);
+                    }
+                    if (key === selectedDate) cell.classList.add('selected');
+                    grid.appendChild(cell);
+                }
+                cal.appendChild(grid);
             }
 
             async function loadTherapistSlots() {
                 // Slot picker is create-mode only.
                 var isEdit = formEl.action.indexOf('Edit') !== -1;
                 var group = document.getElementById('slotPickerGroup');
-                var body = document.getElementById('slotPickerBody');
+                var cal = document.getElementById('slotCalendar');
+                var daySection = document.getElementById('slotDaySection');
                 var loading = document.getElementById('slotPickerLoading');
-                var empty = document.getElementById('slotPickerEmpty');
+                var emptyAll = document.getElementById('slotPickerEmpty');
 
                 clearSelectedSlot();
+                slotsByDate = {}; selectedDate = null; minKey = maxKey = null;
 
                 var therapistId = selectedTherapistId();
                 if (isEdit || !therapistId) {
                     // Hidden until a therapist is selected.
                     group.style.display = 'none';
-                    body.innerHTML = '';
                     return;
                 }
 
                 group.style.display = 'block';
-                body.innerHTML = '';
-                empty.style.display = 'none';
+                cal.innerHTML = '';
+                daySection.style.display = 'none';
+                emptyAll.style.display = 'none';
                 loading.style.display = 'block';
 
                 try {
                     var res = await fetch('/Appointments/TherapistSlots?therapistId=' + encodeURIComponent(therapistId));
                     var slots = res.ok ? await res.json() : [];
                     loading.style.display = 'none';
-                    if (!slots || slots.length === 0) {
-                        empty.style.display = 'block';
-                        return;
-                    }
-                    renderSlots(slots);
+                    if (!slots || !slots.length) { emptyAll.style.display = 'block'; return; }
+
+                    slots.forEach(function (s) {
+                        (slotsByDate[s.date] = slotsByDate[s.date] || []).push(s);
+                    });
+                    var keys = Object.keys(slotsByDate).sort();
+                    minKey = keys[0]; maxKey = keys[keys.length - 1];
+                    selectedDate = keys[0];
+                    calYear = +minKey.substring(0, 4);
+                    calMonth = +minKey.substring(5, 7);
+                    renderCalendar();
+                    renderDaySlots(selectedDate);
                 } catch (err) {
                     console.error('[appt] failed to load slots:', err);
                     loading.style.display = 'none';
-                    empty.style.display = 'block';
+                    emptyAll.style.display = 'block';
                 }
             }
 

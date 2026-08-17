@@ -38,12 +38,22 @@ namespace PhysioLink.AdminPanel.Controllers
                 return RedirectToAction("Login");
             }
 
+            // The admin panel is for clinic admins only. A valid patient (or any other
+            // role) authenticates against the shared API but has nothing to do here, so
+            // treat it as an invalid login rather than signing them into a dead panel.
+            if (!string.Equals(response.Role, "ClinicAdmin", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ErrorMessage"] = "Invalid email or password";
+                return RedirectToAction("Login");
+            }
+
             // Tell ASP.NET Core auth middleware the user is authenticated.
             // Without this, [Authorize] on Dashboard never sees a signed-in user
             // and immediately redirects back to /Auth/Login regardless of the cookie.
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, loginViewModel.Email),
+                new Claim(ClaimTypes.Role, response.Role),
                 new Claim("ClinicName", response.ClinicName ?? string.Empty)
             };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

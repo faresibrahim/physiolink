@@ -2,83 +2,122 @@
 @using PhysioLink.AdminPanel.Helpers
 
 @{
-    ViewData["Title"] = "Appointment Requests";
+    ViewData["Title"] = "Requests";
     ViewData["ActivePage"] = "Appointments";
+
+    var count = Model.Requests.Count;
+    var countLabel = count == 1 ? "1 request" : $"{count} requests";
 }
 
-<div class="card">
-    <div class="profile-header" style="align-items:center;">
-        <div>
-            <h2 class="profile-name">Pending Requests</h2>
-            <p class="profile-meta">Accept to confirm and book the slot, or reject to free it. Expired requests are hidden automatically.</p>
-        </div>
-        <div class="profile-actions">
-            <a asp-action="Index" asp-controller="Appointments" class="btn btn-ghost btn-sm">All appointments</a>
-        </div>
+@* =========================================================================
+   PAGE HEADER
+   ========================================================================= *@
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Requests</h1>
+        <p class="page-sub">@countLabel waiting on a decision — expired requests are hidden automatically.</p>
     </div>
+    <a asp-action="Index" asp-controller="Appointments" class="btn btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" /></svg>
+        All appointments
+    </a>
+</div>
 
-    <form asp-action="Requests" method="get" style="margin:12px 0 20px;">
-        <label for="therapistFilter" class="profile-meta" style="margin-right:8px;">Filter by therapist:</label>
-        <select id="therapistFilter" name="therapistFilter" onchange="this.form.submit()"
-                style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;">
-            <option value="">All therapists</option>
+@* =========================================================================
+   THERAPIST FILTER — dropdown list, auto-submits on change
+   ========================================================================= *@
+<form method="get" asp-action="Requests" style="display:inline-block;">
+    <div class="select-field">
+        <select name="therapistFilter" class="filter-select" onchange="this.form.submit()">
+            <option value="" selected="@(Model.TherapistFilter == null)">All therapists</option>
             @foreach (var t in Model.Therapists)
             {
-                var selected = Model.TherapistFilter == t.Id ? "selected" : null;
-                <option value="@t.Id" selected="@selected">@t.FirstName @t.LastName</option>
+                bool active = Model.TherapistFilter == t.Id;
+                <option value="@t.Id" selected="@active">@t.FirstName @t.LastName</option>
             }
         </select>
-    </form>
+        <svg class="select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+    </div>
+</form>
 
-    @if (Model.Requests.Count == 0)
-    {
-        <p class="profile-meta" style="padding:24px 0;">No pending requests right now.</p>
-    }
-    else
-    {
-        <div style="overflow-x:auto;">
-            <table style="width:100%; border-collapse:collapse; text-align:left;">
-                <thead>
-                    <tr>
-                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Patient</th>
-                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Therapist</th>
-                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Slot time (UTC)</th>
-                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Type</th>
-                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Notes</th>
-                        <th style="padding:10px; border-bottom:1px solid #e5e7eb;">Requested</th>
-                        <th style="padding:10px; border-bottom:1px solid #e5e7eb; text-align:right;">Decision</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var r in Model.Requests)
+@* =========================================================================
+   QUEUE
+   ========================================================================= *@
+@if (count == 0)
+{
+    <div class="card empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success); margin-bottom:var(--space-2);">
+            <path d="M9 11l3 3L22 4" />
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+        </svg>
+        <h3 class="empty-state-title">All caught up</h3>
+        <p class="empty-state-subtitle">No pending requests right now.</p>
+    </div>
+}
+else
+{
+    <div class="request-list">
+        @foreach (var r in Model.Requests)
+        {
+            var scheduledLocal = ClinicTime.ToLocal(r.ScheduledAt);
+            <div class="request-card">
+                <div class="appt-date-block request-date-block">
+                    <span class="appt-month">@scheduledLocal.ToString("MMM")</span>
+                    <span class="appt-day">@scheduledLocal.ToString("dd")</span>
+                </div>
+
+                <div class="request-body">
+                    <div class="request-top">
+                        <div>
+                            <p class="request-patient">@r.PatientName</p>
+                            <div class="request-meta">
+                                <svg class="request-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                <span>@r.TherapistName</span>
+                                <span class="request-dot">&bull;</span>
+                                <svg class="request-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                                <span>@scheduledLocal.ToString("ddd, MMM d · HH:mm")</span>
+                            </div>
+                        </div>
+                        <span class="status-pill status-requested">Pending</span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(r.Type))
                     {
-                        <tr>
-                            <td style="padding:10px; border-bottom:1px solid #f1f5f9; font-weight:600;">@r.PatientName</td>
-                            <td style="padding:10px; border-bottom:1px solid #f1f5f9;">@r.TherapistName</td>
-                            <td style="padding:10px; border-bottom:1px solid #f1f5f9;">@ClinicTime.ToLocal(r.ScheduledAt).ToString("ddd, MMM d · HH:mm")</td>
-                            <td style="padding:10px; border-bottom:1px solid #f1f5f9;">@r.Type</td>
-                            <td style="padding:10px; border-bottom:1px solid #f1f5f9; max-width:220px;">@r.Notes</td>
-                            <td style="padding:10px; border-bottom:1px solid #f1f5f9;" class="profile-meta">@r.RequestedAt.ToString("MMM d, HH:mm")</td>
-                            <td style="padding:10px; border-bottom:1px solid #f1f5f9; text-align:right; white-space:nowrap;">
-                                <form asp-action="AcceptRequest" method="post" style="display:inline;">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@r.AppointmentId" />
-                                    <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
-                                    <button type="submit" class="btn btn-sm"
-                                            style="background:#34C759; color:#fff; border:none;">Accept</button>
-                                </form>
-                                <form asp-action="RejectRequest" method="post" style="display:inline;"
-                                      onsubmit="return confirm('Reject this request and free the slot?');">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@r.AppointmentId" />
-                                    <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
-                                    <button type="submit" class="btn btn-danger-outline btn-sm">Reject</button>
-                                </form>
-                            </td>
-                        </tr>
+                        <span class="request-type-chip">@r.Type</span>
                     }
-                </tbody>
-            </table>
-        </div>
-    }
-</div>
+
+                    @if (!string.IsNullOrWhiteSpace(r.Notes))
+                    {
+                        <p class="request-notes">&ldquo;@r.Notes&rdquo;</p>
+                    }
+
+                    <p class="request-requested-meta">Requested @r.RequestedAt.ToString("MMM d, HH:mm")</p>
+                </div>
+
+                <div class="request-actions">
+                    <form asp-action="AcceptRequest" method="post" class="inline-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@r.AppointmentId" />
+                        <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                            Accept
+                        </button>
+                    </form>
+                    <form asp-action="RejectRequest" method="post" class="inline-form"
+                          onsubmit="return confirm('Reject this request and free the slot?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@r.AppointmentId" />
+                        <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
+                        <button type="submit" class="btn btn-danger-outline btn-sm">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            Reject
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+}

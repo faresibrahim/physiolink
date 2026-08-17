@@ -171,7 +171,9 @@ public class AppointmentsController : BaseController
             // Raw UTC wall clock for the hidden datetime field (the modal round-trips
             // appointment times as UTC, matching the edit flow).
             utc       = s.ScheduledAt.ToString("yyyy-MM-ddTHH:mm:ss"),
-            dayLabel  = ClinicTime.ToLocal(s.ScheduledAt).ToString("ddd, MMM d"),
+            // Clinic-local calendar day (buckets the slot onto the calendar) and labels.
+            date      = ClinicTime.ToLocal(s.ScheduledAt).ToString("yyyy-MM-dd"),
+            dayLabel  = ClinicTime.ToLocal(s.ScheduledAt).ToString("dddd, MMM d"),
             timeLabel = ClinicTime.ToLocal(s.ScheduledAt).ToString("HH:mm"),
         });
 
