@@ -1,4 +1,4 @@
-package com.example.practice
+package com.physiolink.patient
 
 import io.flutter.embedding.android.FlutterActivity
 

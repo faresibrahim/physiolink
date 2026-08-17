@@ -191,55 +191,30 @@ class HomePage extends ConsumerWidget {
                   AppSpacing.md,
                   0,
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _StatCard(
-                        icon: Icons.fitness_center_rounded,
-                        iconColor: const Color(0xFF7C5CFC),
-                        iconBg: const Color(0xFFF0ECFF),
-                        value: exercisesAsync.when(
-                          data: (r) => r.fold(
-                            (_) => 'â€”',
-                            (list) {
-                              final done =
-                                  list.where((e) => e.feedback != null).length;
-                              return '$done / ${list.length}';
-                            },
-                          ),
-                          loading: () => '…',
-                          error: (_, _) => '—',
-                        ),
-                        label: l10n.exercisesTodayStat,
-                      ),
+                child: _StatsStrip(
+                  exercisesValue: exercisesAsync.when(
+                    data: (r) => r.fold(
+                      (_) => '—',
+                      (list) {
+                        final done =
+                            list.where((e) => e.feedback != null).length;
+                        return '$done/${list.length}';
+                      },
                     ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: _StatCard(
-                        icon: Icons.local_fire_department_rounded,
-                        iconColor: const Color(0xFFF59E0B),
-                        iconBg: const Color(0xFFFFF8E6),
-                        value: '$streak',
-                        label: l10n.streakDaysStat,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: _StatCard(
-                        icon: Icons.calendar_today_rounded,
-                        iconColor: AppColors.secondary,
-                        iconBg: AppColors.secondaryLight,
-                        value: nextAppointment != null
-                            ? _dayAbbr(nextAppointment.appointmentTime!)
-                            : '—',
-                        label: nextAppointment != null
-                            ? l10n.nextTimeStat(
-                                _timeLabel(nextAppointment.appointmentTime!),
-                              )
-                            : l10n.nextNoneStat,
-                      ),
-                    ),
-                  ],
+                    loading: () => '…',
+                    error: (_, _) => '—',
+                  ),
+                  exercisesLabel: l10n.exercisesTodayStat,
+                  streakValue: '$streak',
+                  streakLabel: l10n.streakDaysStat,
+                  nextValue: nextAppointment != null
+                      ? _dayAbbr(nextAppointment.appointmentTime!)
+                      : '—',
+                  nextLabel: nextAppointment != null
+                      ? l10n.nextTimeStat(
+                          _timeLabel(nextAppointment.appointmentTime!),
+                        )
+                      : l10n.nextNoneStat,
                 ),
               ),
             ),
@@ -495,65 +470,128 @@ class _HeroHeader extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  const _StatCard({
+class _StatsStrip extends StatelessWidget {
+  const _StatsStrip({
+    required this.exercisesValue,
+    required this.exercisesLabel,
+    required this.streakValue,
+    required this.streakLabel,
+    required this.nextValue,
+    required this.nextLabel,
+  });
+
+  final String exercisesValue;
+  final String exercisesLabel;
+  final String streakValue;
+  final String streakLabel;
+  final String nextValue;
+  final String nextLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Expanded(
+              child: _StatItem(
+                icon: Icons.fitness_center_rounded,
+                iconColor: AppColors.primary,
+                value: exercisesValue,
+                label: exercisesLabel,
+              ),
+            ),
+            const _StatDivider(),
+            Expanded(
+              child: _StatItem(
+                icon: Icons.local_fire_department_rounded,
+                iconColor: AppColors.warning,
+                value: streakValue,
+                label: streakLabel,
+              ),
+            ),
+            const _StatDivider(),
+            Expanded(
+              child: _StatItem(
+                icon: Icons.event_rounded,
+                iconColor: AppColors.secondary,
+                value: nextValue,
+                label: nextLabel,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatDivider extends StatelessWidget {
+  const _StatDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      color: AppColors.divider,
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  const _StatItem({
     required this.icon,
     required this.iconColor,
-    required this.iconBg,
     required this.value,
     required this.label,
   });
 
   final IconData icon;
   final Color iconColor;
-  final Color iconBg;
   final String value;
   final String label;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(10),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: iconColor),
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              value,
+              style: AppTextStyles.title2.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                height: 1.2,
+              ),
             ),
-            child: Icon(icon, size: 17, color: iconColor),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            value,
-            style: AppTextStyles.headline.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+          child: Text(
             label,
+            textAlign: TextAlign.center,
             style: AppTextStyles.caption.copyWith(
               color: AppColors.textSecondary,
-              fontSize: 12,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

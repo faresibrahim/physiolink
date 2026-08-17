@@ -22,8 +22,20 @@ class ExercisesPage extends ConsumerStatefulWidget {
 }
 
 class _ExercisesPageState extends ConsumerState<ExercisesPage> {
+  final _searchController = TextEditingController();
   String _searchQuery = '';
   _FilterTab _filter = _FilterTab.all;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() => _searchQuery = '');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,34 +54,12 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
               AppSpacing.md,
               0,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.exercises,
-                  style: AppTextStyles.title1.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.divider, width: 1),
-                    ),
-                    child: const Icon(
-                      Icons.tune_rounded,
-                      size: 18,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ),
-              ],
+            child: Text(
+              l10n.exercises,
+              style: AppTextStyles.title1.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
             ),
           ),
 
@@ -82,7 +72,15 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
               0,
             ),
             child: TextField(
+              controller: _searchController,
+              textInputAction: TextInputAction.search,
+              style: AppTextStyles.body,
               decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.surface,
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.sm,
+                ),
                 hintText: l10n.searchExercises,
                 hintStyle: AppTextStyles.body.copyWith(
                   color: AppColors.textSecondary,
@@ -92,59 +90,62 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
                   color: AppColors.textSecondary,
                   size: 20,
                 ),
+                suffixIcon: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  transitionBuilder: (child, anim) =>
+                      FadeTransition(opacity: anim, child: child),
+                  child: _searchQuery.isEmpty
+                      ? const SizedBox.shrink()
+                      : Semantics(
+                          button: true,
+                          label: l10n.clearSearch,
+                          child: GestureDetector(
+                            onTap: _clearSearch,
+                            child: const Icon(
+                              Icons.cancel_rounded,
+                              color: AppColors.textSecondary,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                ),
+                suffixIconConstraints: const BoxConstraints(
+                  minWidth: 44,
+                  minHeight: 44,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                  borderSide: const BorderSide(
+                    color: AppColors.primary,
+                    width: 1.5,
+                  ),
+                ),
               ),
               onChanged: (v) => setState(() => _searchQuery = v.toLowerCase()),
             ),
           ),
 
-          // â”€â”€ Filter chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-          exercisesAsync.when(
-            data: (result) =>
-                result.fold((_) => const SizedBox.shrink(), (exercises) {
-                  final activeCount = exercises
-                      .where((e) => e.feedback == null)
-                      .length;
-                  final completedCount = exercises
-                      .where((e) => e.feedback != null)
-                      .length;
-
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.md,
-                      AppSpacing.sm,
-                      AppSpacing.md,
-                      0,
-                    ),
-                    child: Row(
-                      children: [
-                        _FilterChip(
-                          label: l10n.filterAll,
-                          count: exercises.length,
-                          selected: _filter == _FilterTab.all,
-                          onTap: () => setState(() => _filter = _FilterTab.all),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        _FilterChip(
-                          label: l10n.filterActive,
-                          count: activeCount,
-                          selected: _filter == _FilterTab.active,
-                          onTap: () =>
-                              setState(() => _filter = _FilterTab.active),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        _FilterChip(
-                          label: l10n.filterCompleted,
-                          count: completedCount,
-                          selected: _filter == _FilterTab.completed,
-                          onTap: () =>
-                              setState(() => _filter = _FilterTab.completed),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
+          // â”€â”€ Filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.md,
+              AppSpacing.md,
+              0,
+            ),
+            child: _FilterSegments(
+              selected: _filter,
+              labels: [l10n.filterAll, l10n.filterActive, l10n.filterCompleted],
+              onChanged: (tab) => setState(() => _filter = tab),
+            ),
           ),
 
           // â”€â”€ List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -195,9 +196,7 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
             ? l10n.searchNoMatchSubtitle
             : l10n.noExercisesAssignedSubtitle,
         ctaLabel: _searchQuery.isNotEmpty ? l10n.clearSearch : null,
-        onCta: _searchQuery.isNotEmpty
-            ? () => setState(() => _searchQuery = '')
-            : null,
+        onCta: _searchQuery.isNotEmpty ? _clearSearch : null,
       );
     }
 
@@ -282,63 +281,80 @@ class _ExercisesPageState extends ConsumerState<ExercisesPage> {
   }
 }
 
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.count,
+/// Segmented control with a single pill that slides between the options,
+/// so switching filters reads as one continuous movement.
+class _FilterSegments extends StatelessWidget {
+  const _FilterSegments({
     required this.selected,
-    required this.onTap,
+    required this.labels,
+    required this.onChanged,
   });
 
-  final String label;
-  final int count;
-  final bool selected;
-  final VoidCallback onTap;
+  final _FilterTab selected;
+  final List<String> labels;
+  final ValueChanged<_FilterTab> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primary : AppColors.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? AppColors.primary : AppColors.divider,
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: AppTextStyles.footnote.copyWith(
-                color: selected ? Colors.white : AppColors.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(width: 5),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-              decoration: BoxDecoration(
-                color: selected
-                    ? Colors.white.withValues(alpha: 0.25)
-                    : AppColors.background,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                '$count',
-                style: AppTextStyles.caption.copyWith(
-                  color: selected ? Colors.white : AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
+    const tabs = _FilterTab.values;
+    final index = tabs.indexOf(selected);
+
+    return Container(
+      height: 44,
+      padding: const EdgeInsets.all(AppSpacing.xs),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+      ),
+      child: Stack(
+        children: [
+          // Sliding indicator. Alignment runs -1 → 1 across the three slots.
+          AnimatedAlign(
+            duration: const Duration(milliseconds: 240),
+            curve: Curves.easeOutCubic,
+            alignment: AlignmentDirectional(index - 1.0, 0),
+            child: FractionallySizedBox(
+              widthFactor: 1 / tabs.length,
+              heightFactor: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+          Row(
+            children: [
+              for (var i = 0; i < tabs.length; i++)
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    selected: i == index,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => onChanged(tabs[i]),
+                      child: Center(
+                        child: AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 240),
+                          curve: Curves.easeOutCubic,
+                          style: AppTextStyles.footnote.copyWith(
+                            color: i == index
+                                ? Colors.white
+                                : AppColors.textSecondary,
+                            fontWeight: i == index
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
+                          child: Text(labels[i]),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }

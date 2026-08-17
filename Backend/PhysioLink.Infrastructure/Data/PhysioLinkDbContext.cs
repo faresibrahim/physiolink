@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using PhysioLink.Domain.Entities;
 using PhysioLink.Application.Interfaces;
@@ -7,11 +8,23 @@ namespace PhysioLink.Infrastructure.Data
 {
     public class PhysioLinkDbContext : DbContext
     {
-        private readonly ICurrentClinicService _currentClinicService;
+        // Resolved ONCE per request, at construction. The clinic-scoped query filter
+        // references THIS field (rooted on the DbContext instance), so EF Core re-reads
+        // it from the executing context on every query — even though the model is compiled
+        // once at startup and cached app-wide. Capturing the clinic *service* as an
+        // Expression.Constant instead froze one request's clinic scope into the cached
+        // model, which leaked every clinic's data to every other clinic.
+        private readonly Guid? _currentClinicId;
+
+        // Cached FieldInfo for _currentClinicId, used to build a context-rooted member
+        // access in the query filter (Expression.Field needs the non-public field).
+        private static readonly FieldInfo CurrentClinicIdField =
+            typeof(PhysioLinkDbContext).GetField(
+                nameof(_currentClinicId), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
         public PhysioLinkDbContext(DbContextOptions<PhysioLinkDbContext> options, ICurrentClinicService currentClinicService) : base(options)
         {
-            _currentClinicService = currentClinicService;
+            _currentClinicId = currentClinicService.GetCurrentClinicId();
         }
 
         public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
@@ -63,12 +76,15 @@ namespace PhysioLink.Infrastructure.Data
             var clinicId = Expression.Call(
                 typeof(EF), nameof(EF.Property), new[] { typeof(Guid?) },
                 param, Expression.Constant("ClinicId"));
-            var getCurrentClinicId = Expression.Call(
-                Expression.Constant(_currentClinicService),
-                typeof(ICurrentClinicService).GetMethod(nameof(ICurrentClinicService.GetCurrentClinicId))!);
+            // Root the current clinic id on THIS context instance. This produces the same
+            // expression shape as a `e => EF.Property<Guid?>(e,"ClinicId") == _currentClinicId`
+            // lambda would, which EF Core re-parameterizes against the executing context on
+            // every query. Never capture the clinic id (or its service) as an Expression.Constant
+            // here — the model is cached at startup and a constant would pin one clinic forever.
+            var currentClinicId = Expression.Field(Expression.Constant(this), CurrentClinicIdField);
             var body = Expression.AndAlso(
                 Expression.Equal(isDeleted, Expression.Constant(false)),
-                Expression.Equal(clinicId, getCurrentClinicId));
+                Expression.Equal(clinicId, currentClinicId));
             return Expression.Lambda(body, param);
         }
 

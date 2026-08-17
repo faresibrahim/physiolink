@@ -57,6 +57,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Container(
+        // Fills the viewport so the gradient doesn't shrink-wrap the scroll
+        // content and leave the Scaffold background showing at the bottom.
+        constraints: const BoxConstraints.expand(),
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -74,18 +77,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 // Logo icon
                 SvgPicture.asset(
                   'assets/images/physiolink_logo.svg',
-                  width: 52,
-                  height: 52,
+                  width: 96,
+                  height: 96,
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
 
                 // App name
                 Text(
                   'PhysioLink',
                   style: AppTextStyles.largeTitle.copyWith(
+                    fontSize: 32,
                     color: AppColors.primary,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w900,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -95,7 +99,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 Text(
                   l10n.tagline,
                   textAlign: TextAlign.center,
-                  style: AppTextStyles.callout.copyWith(
+                  style: AppTextStyles.body.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -141,14 +145,58 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ? l10n.emailRequired
                               : null,
                           decoration: InputDecoration(
+                            filled: true,
+                            fillColor: AppColors.background,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: 16,
+                            ),
                             hintText: 'you@example.com',
                             hintStyle: AppTextStyles.body.copyWith(
                               color: AppColors.textSecondary,
                             ),
                             prefixIcon: const Icon(
                               Icons.mail_outline_rounded,
-                              size: 18,
+                              size: 20,
                               color: AppColors.textSecondary,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.card,
+                              ),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.card,
+                              ),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.card,
+                              ),
+                              borderSide: const BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.card,
+                              ),
+                              borderSide: const BorderSide(
+                                color: AppColors.destructive,
+                              ),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.card,
+                              ),
+                              borderSide: const BorderSide(
+                                color: AppColors.destructive,
+                                width: 1.5,
+                              ),
                             ),
                           ),
                         ),
@@ -179,33 +227,77 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             return null;
                           },
                           decoration: InputDecoration(
+                            filled: true,
+                            fillColor: AppColors.background,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: 16,
+                            ),
                             hintText: l10n.passwordHint,
                             hintStyle: AppTextStyles.body.copyWith(
                               color: AppColors.textSecondary,
                             ),
                             prefixIcon: const Icon(
                               Icons.lock_outline_rounded,
-                              size: 18,
+                              size: 20,
                               color: AppColors.textSecondary,
                             ),
-                            suffixIcon: GestureDetector(
-                              onTap: () => setState(
-                                () => _obscurePassword = !_obscurePassword,
+                            suffixIcon: Semantics(
+                              button: true,
+                              label: _obscurePassword ? l10n.show : l10n.hide,
+                              child: GestureDetector(
+                                onTap: () => setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                ),
+                                child: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                  size: 20,
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsetsDirectional.only(
-                                  end: 14,
-                                ),
-                                child: Align(
-                                  widthFactor: 1,
-                                  child: Text(
-                                    _obscurePassword ? l10n.show : l10n.hide,
-                                    style: AppTextStyles.footnote.copyWith(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
+                            ),
+                            suffixIconConstraints: const BoxConstraints(
+                              minWidth: 44,
+                              minHeight: 44,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.card,
+                              ),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.card,
+                              ),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.card,
+                              ),
+                              borderSide: const BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.card,
+                              ),
+                              borderSide: const BorderSide(
+                                color: AppColors.destructive,
+                              ),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.card,
+                              ),
+                              borderSide: const BorderSide(
+                                color: AppColors.destructive,
+                                width: 1.5,
                               ),
                             ),
                           ),
@@ -240,7 +332,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                         const SizedBox(height: AppSpacing.lg),
 
-                        // â”€â”€ Log In Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                         GestureDetector(
                           onTap: _isLoading ? null : _submit,
                           child: AnimatedContainer(

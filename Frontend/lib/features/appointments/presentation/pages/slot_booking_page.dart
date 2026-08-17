@@ -255,11 +255,30 @@ class _CalendarBookingViewState extends State<_CalendarBookingView> {
             startingDayOfWeek: StartingDayOfWeek.monday,
             calendarFormat: CalendarFormat.month,
             availableGestures: AvailableGestures.horizontalSwipe,
-            rowHeight: 46,
+            rowHeight: 56,
             daysOfWeekHeight: 28,
             sixWeekMonthsEnforced: false,
             selectedDayPredicate: (d) => isSameDay(d, selected),
             enabledDayPredicate: _hasSlots,
+            // Dot under a day = it still has open times. Days that exist but are
+            // fully booked stay selectable, just without the dot.
+            eventLoader: (day) => widget.slots
+                .where((s) => s.isAvailable && isSameDay(s.scheduledAt, day))
+                .toList(),
+            calendarBuilders: CalendarBuilders<AppointmentSlot>(
+              markerBuilder: (context, day, events) {
+                if (events.isEmpty) return null;
+                return Container(
+                  width: 5,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: AppSpacing.xs),
+                  decoration: const BoxDecoration(
+                    color: AppColors.secondary,
+                    shape: BoxShape.circle,
+                  ),
+                );
+              },
+            ),
             onDaySelected: (sel, foc) {
               setState(() {
                 _selectedDay = _dateOnly(sel);
@@ -287,6 +306,9 @@ class _CalendarBookingViewState extends State<_CalendarBookingView> {
             ),
             calendarStyle: CalendarStyle(
               outsideDaysVisible: false,
+              // Caps the day circle at 32px so the availability dot below it
+              // always clears, on phone and tablet widths alike.
+              cellMargin: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
               defaultTextStyle: AppTextStyles.callout.copyWith(color: AppColors.textPrimary),
               weekendTextStyle: AppTextStyles.callout.copyWith(color: AppColors.textPrimary),
               disabledTextStyle: AppTextStyles.callout.copyWith(
@@ -320,7 +342,30 @@ class _CalendarBookingViewState extends State<_CalendarBookingView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(l10n.chooseTimeTitle, style: AppTextStyles.title2),
+              Row(
+                children: [
+                  Text(l10n.chooseTimeTitle, style: AppTextStyles.title2),
+                  const SizedBox(width: AppSpacing.sm),
+                  // Session length stated once here instead of on every card.
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                    ),
+                    child: Text(
+                      l10n.slotDurationHint,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 '${DateFormat.EEEE(locale).format(selected)}, ${DateFormat.MMMMd(locale).format(selected)}',
@@ -332,24 +377,40 @@ class _CalendarBookingViewState extends State<_CalendarBookingView> {
 
         const SizedBox(height: AppSpacing.md),
 
-        // Selected-day slots
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              for (final slot in daySlots)
-                SizedBox(
-                  width: cardWidth,
-                  child: _SlotCard(
-                    time: DateFormat.jm(locale).format(slot.scheduledAt),
-                    subtitle: slot.isAvailable ? l10n.slotDurationHint : l10n.slotBooked,
-                    available: slot.isAvailable,
-                    onTap: slot.isAvailable ? () => widget.onTap(slot) : null,
+        // Selected-day slots — cross-faded so switching days reads as a change
+        // of content rather than an instant swap.
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 260),
+          switchInCurve: Curves.easeOutCubic,
+          transitionBuilder: (child, anim) => FadeTransition(
+            opacity: anim,
+            child: SlideTransition(
+              position: Tween(
+                begin: const Offset(0, 0.06),
+                end: Offset.zero,
+              ).animate(anim),
+              child: child,
+            ),
+          ),
+          child: Padding(
+            key: ValueKey(selected),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                for (final slot in daySlots)
+                  SizedBox(
+                    width: cardWidth,
+                    child: _SlotCard(
+                      time: DateFormat.jm(locale).format(slot.scheduledAt),
+                      bookedLabel: l10n.slotBooked,
+                      available: slot.isAvailable,
+                      onTap: slot.isAvailable ? () => widget.onTap(slot) : null,
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
@@ -358,81 +419,155 @@ class _CalendarBookingViewState extends State<_CalendarBookingView> {
 }
 
 // ── One time card (flat, >=44px tall) ───────────────────────────────────────
-// Available cards are tappable; booked cards are muted, struck through, and
-// carry a lock — kept on screen so a taken time reads as "Booked" rather than
-// vanishing.
-class _SlotCard extends StatelessWidget {
+// Open times carry the brand tint so the grid reads as a set of pickable
+// choices; booked times recede to a muted, struck-through slab — kept on screen
+// so a taken time reads as "Booked" rather than vanishing.
+class _SlotCard extends StatefulWidget {
   const _SlotCard({
     required this.time,
-    required this.subtitle,
+    required this.bookedLabel,
     required this.available,
     required this.onTap,
   });
 
   final String time;
-  final String subtitle;
+  final String bookedLabel;
   final bool available;
   final VoidCallback? onTap;
 
   @override
+  State<_SlotCard> createState() => _SlotCardState();
+}
+
+class _SlotCardState extends State<_SlotCard> {
+  bool _pressed = false;
+
+  void _setPressed(bool value) {
+    if (_pressed != value) setState(() => _pressed = value);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final content = Container(
-      height: 64,
+    final available = widget.available;
+
+    // A shade deeper than the brand green, used only as the far end of the
+    // pressed-state gradient so the fill has real depth instead of one flat hue.
+    final secondaryDeep = Color.lerp(AppColors.secondary, Colors.black, 0.16)!;
+
+    final card = AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+      height: 56,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        // Booked cards get a muted fill to set them apart from open ones.
+        gradient: available
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: _pressed
+                    ? [AppColors.secondary, secondaryDeep]
+                    : [Colors.white, AppColors.secondaryLight],
+              )
+            : null,
         color: available ? null : AppColors.background,
-        borderRadius: BorderRadius.circular(AppRadius.button),
-        border: Border.all(color: AppColors.divider),
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(
+          color: available
+              ? AppColors.secondary.withValues(alpha: _pressed ? 0 : 0.3)
+              : AppColors.divider,
+        ),
+        boxShadow: available && !_pressed
+            ? [
+                BoxShadow(
+                  color: AppColors.secondary.withValues(alpha: 0.18),
+                  blurRadius: 14,
+                  offset: const Offset(0, 5),
+                ),
+              ]
+            : null,
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            time,
-            style: available
-                ? AppTextStyles.headline
-                : AppTextStyles.headline.copyWith(
+      child: available
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  child: Icon(
+                    Icons.watch_later_rounded,
+                    key: ValueKey(_pressed),
+                    size: 15,
+                    color: _pressed ? Colors.white : AppColors.secondary,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeOut,
+                  style: AppTextStyles.headline.copyWith(
+                    color: _pressed ? Colors.white : AppColors.secondary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  child: Text(widget.time),
+                ),
+              ],
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  widget.time,
+                  style: AppTextStyles.subheadline.copyWith(
                     color: AppColors.textSecondary,
                     decoration: TextDecoration.lineThrough,
                     decorationColor: AppColors.textSecondary,
                   ),
-          ),
-          const SizedBox(height: 2),
-          if (available)
-            Text(subtitle, style: AppTextStyles.caption)
-          else
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.lock_rounded, size: 11, color: AppColors.textSecondary),
-                const SizedBox(width: 3),
-                Text(subtitle, style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
+                ),
+                const SizedBox(height: 1),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.lock_rounded,
+                      size: 10,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      widget.bookedLabel,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-        ],
-      ),
     );
 
-    // Booked slots render without an InkWell, so they are visibly present but
-    // completely unclickable.
+    // Booked slots render with no gesture handling at all, so they are visibly
+    // present but completely unclickable.
     if (!available) {
-      return Material(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.button),
-        child: content,
+      return Semantics(
+        enabled: false,
+        label: '${widget.time}, ${widget.bookedLabel}',
+        child: ExcludeSemantics(child: card),
       );
     }
 
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(AppRadius.button),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.button),
-        splashColor: AppColors.primaryLight,
-        highlightColor: AppColors.primaryLight,
-        child: content,
+    return Semantics(
+      button: true,
+      label: widget.time,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        onTapDown: (_) => _setPressed(true),
+        onTapUp: (_) => _setPressed(false),
+        onTapCancel: () => _setPressed(false),
+        child: AnimatedScale(
+          scale: _pressed ? 0.96 : 1,
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
+          child: ExcludeSemantics(child: card),
+        ),
       ),
     );
   }
@@ -456,7 +591,7 @@ class _SkeletonList extends StatelessWidget {
         Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
-          children: [for (var i = 0; i < 6; i++) ShimmerCard(height: 64, width: cardWidth)],
+          children: [for (var i = 0; i < 6; i++) ShimmerCard(height: 56, width: cardWidth)],
         ),
       ],
     );
