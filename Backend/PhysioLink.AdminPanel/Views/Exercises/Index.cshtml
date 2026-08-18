@@ -358,10 +358,8 @@ else
         videoFile.pause(); // stops local file playback
     }
 
-    // Close on overlay click
-    modal.addEventListener('click', function (e) {
-        if (e.target === modal) closeExerciseModal();
-    });
+    // Deliberately no overlay-click-to-close: closing should be an explicit
+    // choice, not a stray click while viewing exercise details.
 
     // Expose for onclick
     window.openExerciseModal  = openExerciseModal;

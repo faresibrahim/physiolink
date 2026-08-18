@@ -236,6 +236,11 @@
         <form method="post" asp-action="Create" asp-controller="Appointments" class="modal-form" id="appointmentForm">
             @Html.AntiForgeryToken()
 
+            @* Inline validation banner — populated by JS when a required field is
+               missing so the warning appears where the user is looking instead of a
+               native alert() or a redirect that closes the modal. Hidden by default. *@
+            <div class="alert alert-error" id="appointmentFormError" style="display:none;"></div>
+
             @* Hidden fields *@
             <input type="hidden" id="AppointmentId" name="AppointmentId" value="" disabled />
 
@@ -458,6 +463,7 @@
                 var chips = document.querySelectorAll('#slotDayBody .slot-chip');
                 for (var i = 0; i < chips.length; i++) chips[i].classList.remove('selected');
                 chip.classList.add('selected');
+                clearFormError();
             }
 
             // Render the chosen day's open times as green-tinted chips.
@@ -697,14 +703,32 @@
                 }
             }
 
+            // --- Inline form error banner ---------------------------------
+            // Keeps the warning inside the modal instead of a native alert() or a
+            // server round-trip that redirects and closes the modal.
+            function showFormError(message) {
+                var el = document.getElementById('appointmentFormError');
+                el.textContent = message;
+                el.style.display = 'flex';
+                el.scrollIntoView({ block: 'nearest' });
+            }
+
+            function clearFormError() {
+                var el = document.getElementById('appointmentFormError');
+                el.style.display = 'none';
+                el.textContent = '';
+            }
+
             // --- Open create mode ----------------------------------------
             function openAppointmentModal() {
+                clearFormError();
                 setModalMode('create');
                 modalEl.classList.add('modal-visible');
             }
 
             // --- Open edit mode ------------------------------------------
             async function openEditAppointmentModal(appointmentId) {
+                clearFormError();
                 try {
                     var response = await fetch('/Appointments/GetById/' + encodeURIComponent(appointmentId));
                     if (!response.ok) { alert('Could not load appointment.'); return; }
@@ -739,6 +763,7 @@
                 formEl.reset();
                 if (patientTomSelect) patientTomSelect.clear();
                 document.getElementById('ApptTherapistName').value = '';
+                clearFormError();
                 setModalMode('create');
             }
 
@@ -747,32 +772,40 @@
             window.openEditAppointmentModal = openEditAppointmentModal;
             window.closeAppointmentModal    = closeAppointmentModal;
 
-            // Close on overlay click
-            modalEl.addEventListener('click', function (e) {
-                if (e.target === modalEl) closeAppointmentModal();
-            });
+            // Deliberately no overlay-click-to-close: an admin mid-form shouldn't lose
+            // their entered data from a stray click. Close only via the X or Cancel.
 
             // Therapist changed → reload the slot picker (create mode).
             document.getElementById('ApptTherapistName').addEventListener('change', loadTherapistSlots);
 
-            // Submit validation
+            // Submit validation — every required field is checked client-side so an
+            // incomplete form never reaches the server. That matters because the
+            // server-side failure path redirects back to Index, which closes the
+            // modal; catching it here keeps the modal open with the warning in view.
             formEl.addEventListener('submit', function (e) {
+                clearFormError();
                 var isEdit = formEl.action.indexOf('Edit') !== -1;
+
+                if (!isEdit && !document.getElementById('PatientId').value) {
+                    e.preventDefault();
+                    showFormError('Please select a patient.');
+                    return;
+                }
+                if (!document.getElementById('ApptTitle').value.trim()) {
+                    e.preventDefault();
+                    showFormError('Please enter a title for the appointment.');
+                    return;
+                }
                 if (!isEdit) {
-                    if (!document.getElementById('PatientId').value) {
-                        e.preventDefault();
-                        alert('Please select a patient.');
-                        return;
-                    }
                     // Create requires picking one of the therapist's open slots.
                     if (!document.getElementById('SelectedSlotId').value) {
                         e.preventDefault();
-                        alert('Please select an available time slot.');
+                        showFormError('Please select an available time slot.');
                         return;
                     }
                 } else if (!document.getElementById('AppointmentTime').value) {
                     e.preventDefault();
-                    alert('Please select a date and time.');
+                    showFormError('Please select a date and time.');
                     return;
                 }
                 // Locked fields are disabled so they can't be changed, but disabled
@@ -781,6 +814,10 @@
                 document.getElementById('ApptTherapistName').disabled = false;
                 document.getElementById('AppointmentTime').disabled   = false;
             });
+
+            // Once the admin starts fixing the problem, drop the stale warning.
+            formEl.addEventListener('input', clearFormError);
+            formEl.addEventListener('change', clearFormError);
         }
 
         if (document.readyState === 'loading') {

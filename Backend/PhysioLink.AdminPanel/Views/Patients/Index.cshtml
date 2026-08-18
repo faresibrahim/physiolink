@@ -244,10 +244,8 @@
             editModal.classList.remove('modal-visible');
         }
 
-        // Close on overlay click
-        editModal.addEventListener('click', function (e) {
-            if (e.target === editModal) closeEditPatientModal();
-        });
+        // Deliberately no overlay-click-to-close: an admin mid-form shouldn't lose
+        // their entered data from a stray click. Close only via the X or Cancel.
 
         // Close on Escape
         document.addEventListener('keydown', function (e) {
@@ -337,10 +335,8 @@
             credentialsModal.classList.remove('modal-visible');
         }
 
-        // Close on overlay click
-        credentialsModal.addEventListener('click', function (e) {
-            if (e.target === credentialsModal) closeCredentialsModal();
-        });
+        // Deliberately no overlay-click-to-close: closing should be an explicit
+        // choice (Done), not a stray click while the credentials are still visible.
 
         window.closeCredentialsModal = closeCredentialsModal;
     })();

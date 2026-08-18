@@ -252,10 +252,8 @@
             passwordError.style.display = 'none';
         }
 
-        // Close on overlay click
-        deactivateModal.addEventListener('click', function (e) {
-            if (e.target === deactivateModal) closeDeactivateModal();
-        });
+        // Deliberately no overlay-click-to-close: closing should be an explicit
+        // choice, not a stray click on this confirmation dialog.
 
         // Close on Escape
         document.addEventListener('keydown', function (e) {
@@ -469,10 +467,8 @@
                 }
             }
 
-            // Close when clicking the overlay (but not the modal content)
-            modalEl.addEventListener('click', function (e) {
-                if (e.target === modalEl) closeAssignModal();
-            });
+            // Deliberately no overlay-click-to-close: an admin mid-form shouldn't lose
+            // their entered data from a stray click. Close only via the X or Cancel.
 
             // Submit validation
             formEl.addEventListener('submit', function (e) {

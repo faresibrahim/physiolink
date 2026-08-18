@@ -95,10 +95,8 @@
             patientForm.reset();
         }
 
-        // Close on overlay click
-        patientModal.addEventListener('click', function (e) {
-            if (e.target === patientModal) closePatientModal();
-        });
+        // Deliberately no overlay-click-to-close: an admin mid-form shouldn't lose
+        // their entered data from a stray click. Close only via the X or Cancel.
 
         // Close on Escape
         document.addEventListener('keydown', function (e) {
