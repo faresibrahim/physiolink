@@ -2627,10 +2627,23 @@ textarea.input {
 }
 
     .auth-card .brand {
+        flex-direction: column;
         justify-content: center;
+        gap: var(--space-2);
         margin-bottom: var(--space-4);
         border-bottom: none;
         padding-bottom: 0;
+    }
+
+    .auth-card .brand-name {
+        font-size: var(--font-size-2xl);
+        text-align: center;
+    }
+
+    .auth-card .brand-sub {
+        font-size: var(--font-size-sm);
+        text-align: center;
+        margin-top: 3px;
     }
 
 .auth-title {
@@ -2657,6 +2670,30 @@ textarea.input {
 
     .auth-form .btn {
         margin-top: var(--space-2);
+    }
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    margin: calc(var(--space-1) * -1) 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+    .checkbox-label .checkbox-input {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        flex-shrink: 0;
+        accent-color: var(--primary);
+        cursor: pointer;
+    }
+
+    .checkbox-label .checkbox-text {
+        font-size: var(--font-size-sm);
+        color: var(--text-primary);
     }
 
 /* =============================================================================

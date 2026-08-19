@@ -19,7 +19,16 @@ namespace PhysioLink.AdminPanel.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            // Only ever set when the last login checked "Remember me" — lets the
+            // login page greet a returning admin by name and preselect the checkbox.
+            var rememberedEmail = Request.Cookies["remember_email"];
+            var model = new LoginViewModel
+            {
+                Email = rememberedEmail ?? string.Empty,
+                Password = string.Empty,
+                RememberMe = !string.IsNullOrEmpty(rememberedEmail)
+            };
+            return View(model);
         }
 
         [HttpPost]
@@ -57,20 +66,46 @@ namespace PhysioLink.AdminPanel.Controllers
                 new Claim("ClinicName", response.ClinicName ?? string.Empty)
             };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Remember me extends the session to 30 days (capped in practice by the
+            // API's 7-day refresh-token sliding expiry — this just keeps the browser
+            // cookies alive long enough for that refresh to keep working). Without
+            // IsPersistent the auth cookie is session-only and dies when the browser closes.
+            var sessionLength = loginViewModel.RememberMe ? TimeSpan.FromDays(30) : TimeSpan.FromHours(8);
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity));
+                new ClaimsPrincipal(identity),
+                new AuthenticationProperties
+                {
+                    IsPersistent = loginViewModel.RememberMe,
+                    ExpiresUtc = DateTimeOffset.UtcNow.Add(sessionLength)
+                });
 
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
                 Secure = !_environment.IsDevelopment(),
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddHours(8)
+                Expires = DateTimeOffset.UtcNow.Add(sessionLength)
             };
 
             Response.Cookies.Append("auth_token", response.AccessToken!, cookieOptions);
             Response.Cookies.Append("refresh_token", response.RefreshToken!, cookieOptions);
+
+            if (loginViewModel.RememberMe)
+            {
+                Response.Cookies.Append("remember_email", loginViewModel.Email, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = !_environment.IsDevelopment(),
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddDays(30)
+                });
+            }
+            else
+            {
+                Response.Cookies.Delete("remember_email");
+            }
 
             return RedirectToAction("Index", "Dashboard");
         }

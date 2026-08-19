@@ -22,15 +22,12 @@
     <div class="card auth-card">
 
         <div class="brand">
-            <img src="~/images/physiolink_logo.svg" alt="PhysioLink" width="40" height="40" />
+            <img src="~/images/physiolink_logo.svg" alt="PhysioLink" width="56" height="56" />
             <div>
                 <div class="brand-name">PhysioLink</div>
                 <div class="brand-sub">Admin Panel</div>
             </div>
         </div>
-
-        <h1 class="auth-title">Welcome back</h1>
-        <p class="auth-sub">Sign in to manage your clinic</p>
 
         @if (TempData["ErrorMessage"] is string err)
         {
@@ -46,6 +43,10 @@
                 <label asp-for="Password"></label>
                 <input asp-for="Password" class="input" type="password" placeholder="••••••••" autocomplete="current-password" />
             </div>
+            <label class="checkbox-label">
+                <input asp-for="RememberMe" class="checkbox-input" />
+                <span class="checkbox-text">Remember me</span>
+            </label>
             <button type="submit" class="btn btn-primary btn-block">Sign in</button>
         </form>
 
