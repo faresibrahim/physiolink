@@ -2748,11 +2748,11 @@ textarea.input {
 
 .ts-dropdown {
     border: 1px solid var(--divider) !important;
-    border-radius: var(--radius-sm) !important;
+    border-radius: var(--radius-md) !important;
     box-shadow: var(--shadow-pop) !important;
     font-family: inherit !important;
-    font-size: var(--font-size-sm) !important;
-    margin-top: var(--space-1) !important;
+    font-size: var(--font-size-base) !important;
+    margin-top: var(--space-2) !important;
     overflow: hidden !important;
 }
 
@@ -2770,6 +2770,222 @@ textarea.input {
         .ts-dropdown .option:last-child {
             border-bottom: none !important;
         }
+
+/* =============================================================================
+   ACCORDION PICKER — a select whose groups collapse. Used by the assign-exercise
+   dialog: the panel lists joint categories, and one expands at a time to reveal
+   its exercises, so the library stays scannable instead of unrolling at once.
+   ============================================================================= */
+
+.picker {
+    position: relative;
+}
+
+.picker-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    width: 100%;
+    height: var(--control-h);
+    padding: 0 var(--space-3);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 150ms, box-shadow 150ms;
+}
+
+    .picker-control:hover {
+        border-color: var(--text-tertiary);
+    }
+
+    .picker-control:focus-visible {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-ring);
+    }
+
+.picker-open .picker-control {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-ring);
+}
+
+.picker-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+    .picker-value.is-placeholder {
+        color: var(--text-tertiary);
+    }
+
+.picker-chevron {
+    flex-shrink: 0;
+    color: var(--text-secondary);
+    transition: transform 150ms;
+}
+
+.picker-open .picker-chevron {
+    transform: rotate(180deg);
+}
+
+/* Panel — elevated over the form fields below it (modal-level intent) */
+.picker-panel {
+    position: absolute;
+    top: calc(100% + var(--space-1));
+    left: 0;
+    right: 0;
+    z-index: 20;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: var(--space-1) 0;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    box-shadow: var(--shadow-pop);
+}
+
+.picker-group + .picker-group {
+    border-top: 1px solid var(--divider-soft);
+}
+
+/* Joint row — 44px tap target, chevron rotates down when expanded */
+.picker-group-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: left;
+    cursor: pointer;
+}
+
+    .picker-group-header:hover {
+        background: var(--surface-sunken);
+    }
+
+    .picker-group-header[aria-expanded="true"] {
+        color: var(--primary);
+    }
+
+.picker-group-chevron {
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+    transition: transform 150ms;
+}
+
+.picker-group-header[aria-expanded="true"] .picker-group-chevron {
+    transform: rotate(90deg);
+    color: var(--primary);
+}
+
+.picker-group-name {
+    flex: 1;
+}
+
+/* Matches .chip-count — the count treatment on the joint chips these mirror */
+.picker-group-count {
+    flex-shrink: 0;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+    opacity: 0.75;
+}
+
+.picker-group-header[aria-expanded="true"] .picker-group-count {
+    color: var(--primary);
+    opacity: 0.9;
+}
+
+/* Nested exercises — indented under their joint and tinted, so the hierarchy
+   is readable without a second dropdown. */
+.picker-group-items {
+    padding-bottom: var(--space-1);
+    background: var(--surface-sunken);
+}
+
+/* Row = selectable name (fills the row) + a detail arrow on the right */
+.picker-option {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-height: 44px;
+}
+
+    .picker-option:hover,
+    .picker-option.is-selected {
+        background: var(--primary-soft);
+    }
+
+/* The name — selecting the exercise */
+.picker-option-select {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-6);
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    color: var(--text-primary);
+    text-align: left;
+    cursor: pointer;
+}
+
+    .picker-option:hover .picker-option-select,
+    .picker-option.is-selected .picker-option-select {
+        color: var(--primary);
+    }
+
+    .picker-option.is-selected .picker-option-select {
+        font-weight: 600;
+    }
+
+/* The arrow — opens the exercise's detail modal (video + description) */
+.picker-option-preview {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    border: none;
+    border-left: 1px solid var(--divider-soft);
+    background: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: color 150ms, background 150ms;
+}
+
+    .picker-option-preview:hover {
+        background: var(--primary-soft-hover);
+        color: var(--primary);
+    }
+
+    .picker-option-preview:focus-visible {
+        outline: none;
+        color: var(--primary);
+        box-shadow: inset 0 0 0 2px var(--primary-ring);
+    }
+
+.picker-empty {
+    padding: var(--space-3);
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
 
         .ts-dropdown .option:hover,
         .ts-dropdown .option.active {

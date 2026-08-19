@@ -305,18 +305,83 @@
             <input type="hidden" name="TherapistName" value="@Model.Patient.TherapistName" />
             <input type="hidden" id="ExerciseAssignmentId" name="ExerciseAssignmentId" value="" disabled />
 
-            @* Create mode — exercise picker *@
+            @* Create mode — exercise picker, grouped by joint category.
+               Categories mirror the chip filters on the Exercise Library page
+               (Views/Exercises/Index.cshtml) and the ExerciseCategory enum. *@
+            @{
+                var jointCategories = new[] { "Shoulder", "Elbow", "Wrist", "Spine", "Core", "Hip", "Knee", "Ankle" };
+                var exercisesByCategory = Model.Exercises
+                    .GroupBy(e => e.Category)
+                    .ToDictionary(g => g.Key, g => g.OrderBy(e => e.Name).ToList(), StringComparer.OrdinalIgnoreCase);
+            }
+            @* Catch-all so an exercise with an unrecognized category is still
+               selectable rather than silently missing from the picker. *@
+            @{
+                var ungrouped = Model.Exercises
+                    .Where(e => !jointCategories.Contains(e.Category, StringComparer.OrdinalIgnoreCase))
+                    .OrderBy(e => e.Name)
+                    .ToList();
+                var pickerGroups = jointCategories
+                    .Where(c => exercisesByCategory.ContainsKey(c))
+                    .Select(c => (Label: c, Items: exercisesByCategory[c]))
+                    .ToList();
+                if (ungrouped.Count > 0) { pickerGroups.Add(("Other", ungrouped)); }
+            }
             <div class="form-group" id="exercisePickerGroup">
-                <label class="form-label" for="ExerciseId">Exercise</label>
-                <select id="ExerciseId" name="ExerciseId" class="form-input">
-                    <option value="">— Select an exercise —</option>
-                    @foreach (var exercise in Model.Exercises)
-                    {
-                        <option value="@exercise.ExerciseId">
-                            @exercise.Name
-                        </option>
-                    }
-                </select>
+                <label class="form-label" id="exercisePickerLabel">Exercise</label>
+
+                @* Custom accordion picker: a native <select> can't collapse its
+                   optgroups, so the joint categories are their own expandable rows
+                   and the real value rides on the hidden input below. *@
+                <input type="hidden" id="ExerciseId" name="ExerciseId" value="" />
+
+                <div class="picker" id="exercisePicker">
+                    <button type="button" class="picker-control" id="exercisePickerControl"
+                            aria-haspopup="listbox" aria-expanded="false" aria-labelledby="exercisePickerLabel">
+                        <span class="picker-value is-placeholder" id="exercisePickerValue">Select an exercise</span>
+                        <svg class="picker-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+
+                    <div class="picker-panel" id="exercisePickerPanel" role="listbox" aria-labelledby="exercisePickerLabel" hidden>
+                        @if (pickerGroups.Count == 0)
+                        {
+                            <p class="picker-empty">No exercises in the library yet.</p>
+                        }
+                        @foreach (var grp in pickerGroups)
+                        {
+                            <div class="picker-group">
+                                <button type="button" class="picker-group-header" aria-expanded="false">
+                                    <svg class="picker-group-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                    <span class="picker-group-name">@grp.Label</span>
+                                    <span class="picker-group-count">@grp.Items.Count</span>
+                                </button>
+                                <div class="picker-group-items" hidden>
+                                    @foreach (var exercise in grp.Items)
+                                    {
+                                        <div class="picker-option" role="option" aria-selected="false"
+                                             data-id="@exercise.ExerciseId" data-name="@exercise.Name">
+                                            <button type="button" class="picker-option-select">@exercise.Name</button>
+                                            <button type="button" class="picker-option-preview"
+                                                    data-preview-id="@exercise.ExerciseId"
+                                                    title="View exercise details"
+                                                    aria-label="View details for @exercise.Name">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <span class="form-hint">Pick a joint, then choose an exercise from it.</span>
             </div>
 
             @* Edit mode — exercise name display (read-only) *@
@@ -387,7 +452,103 @@
                 return;
             }
 
-            var tomSelect = null;
+            // ── Exercise picker (categories → nested exercises) ──────────────
+            var picker        = document.getElementById('exercisePicker');
+            var pickerControl = document.getElementById('exercisePickerControl');
+            var pickerPanel   = document.getElementById('exercisePickerPanel');
+            var pickerValue   = document.getElementById('exercisePickerValue');
+            var exerciseInput = document.getElementById('ExerciseId');
+
+            function openPicker() {
+                pickerPanel.hidden = false;
+                pickerControl.setAttribute('aria-expanded', 'true');
+                picker.classList.add('picker-open');
+            }
+
+            function closePicker() {
+                pickerPanel.hidden = true;
+                pickerControl.setAttribute('aria-expanded', 'false');
+                picker.classList.remove('picker-open');
+            }
+
+            // Collapses every category. Called when the picker is reset so it always
+            // reopens showing the joint list rather than a previously-expanded group.
+            function collapseAllGroups() {
+                pickerPanel.querySelectorAll('.picker-group-header').forEach(function (header) {
+                    header.setAttribute('aria-expanded', 'false');
+                    header.nextElementSibling.hidden = true;
+                });
+            }
+
+            function resetPicker() {
+                exerciseInput.value = '';
+                pickerValue.textContent = 'Select an exercise';
+                pickerValue.classList.add('is-placeholder');
+                pickerPanel.querySelectorAll('.picker-option').forEach(function (opt) {
+                    opt.classList.remove('is-selected');
+                    opt.setAttribute('aria-selected', 'false');
+                });
+                collapseAllGroups();
+                closePicker();
+            }
+
+            if (picker) {
+                pickerControl.addEventListener('click', function () {
+                    if (pickerPanel.hidden) { openPicker(); } else { closePicker(); }
+                });
+
+                // Accordion: opening one joint closes the others, so the panel stays
+                // short enough to scan instead of unrolling the whole library.
+                pickerPanel.addEventListener('click', function (e) {
+                    var header = e.target.closest('.picker-group-header');
+                    if (header) {
+                        var wasOpen = header.getAttribute('aria-expanded') === 'true';
+                        collapseAllGroups();
+                        if (!wasOpen) {
+                            header.setAttribute('aria-expanded', 'true');
+                            header.nextElementSibling.hidden = false;
+                        }
+                        return;
+                    }
+
+                    // Arrow button — open the exercise's detail modal (video + description)
+                    // without selecting it or closing the picker.
+                    var preview = e.target.closest('.picker-option-preview');
+                    if (preview) {
+                        e.stopPropagation();
+                        if (typeof window.openExerciseModal === 'function') {
+                            window.openExerciseModal(preview.dataset.previewId);
+                        }
+                        return;
+                    }
+
+                    var option = e.target.closest('.picker-option');
+                    if (!option) return;
+
+                    exerciseInput.value = option.dataset.id;
+                    pickerValue.textContent = option.dataset.name;
+                    pickerValue.classList.remove('is-placeholder');
+
+                    pickerPanel.querySelectorAll('.picker-option').forEach(function (opt) {
+                        var isSelected = opt === option;
+                        opt.classList.toggle('is-selected', isSelected);
+                        opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+                    });
+                    closePicker();
+                });
+
+                // Click-away and Escape close the panel only — never the modal itself.
+                document.addEventListener('click', function (e) {
+                    if (!pickerPanel.hidden && !picker.contains(e.target)) closePicker();
+                });
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && !pickerPanel.hidden) {
+                        e.stopPropagation();
+                        closePicker();
+                        pickerControl.focus();
+                    }
+                });
+            }
 
             function setModalMode(mode) {
                 var isEdit = mode === 'edit';
@@ -408,6 +569,7 @@
             }
 
             function openAssignModal() {
+                resetPicker();
                 setModalMode('create');
                 modalEl.classList.add('modal-visible');
             }
@@ -445,7 +607,7 @@
             function closeAssignModal() {
                 modalEl.classList.remove('modal-visible');
                 formEl.reset();
-                if (tomSelect) tomSelect.clear();
+                resetPicker();
                 setModalMode('create');
             }
 
@@ -454,27 +616,13 @@
             window.openEditModal    = openEditModal;
             window.closeAssignModal = closeAssignModal;
 
-            // Initialise TomSelect on the exercise picker (optional)
-            if (typeof TomSelect !== 'undefined') {
-                try {
-                    tomSelect = new TomSelect('#ExerciseId', {
-                        placeholder: 'Search exercise library...',
-                        searchField: 'text',
-                        maxOptions: 500
-                    });
-                } catch (e) {
-                    console.warn('[assign] TomSelect failed to initialise:', e);
-                }
-            }
-
             // Deliberately no overlay-click-to-close: an admin mid-form shouldn't lose
             // their entered data from a stray click. Close only via the X or Cancel.
 
             // Submit validation
             formEl.addEventListener('submit', function (e) {
                 var isEdit = formEl.action.indexOf('Edit') !== -1;
-                var picker = document.getElementById('ExerciseId');
-                if (!isEdit && picker && !picker.value) {
+                if (!isEdit && exerciseInput && !exerciseInput.value) {
                     e.preventDefault();
                     alert('Please select an exercise.');
                 }
@@ -488,6 +636,11 @@
         }
     })();
 </script>
+
+@* Exercise detail modal (video + description) — shared partial, opened from the
+   arrow on each exercise in the assign-exercise picker. Renders after the assign
+   modal so it stacks above it. *@
+@await Html.PartialAsync("_ExerciseDetailModal")
 
 @* ── Unassign Exercise (hidden form, confirm-then-submit) ────────────────── *@
 <form method="post" asp-action="Unassign" asp-controller="Assignment" id="unassignForm" style="display:none;">
