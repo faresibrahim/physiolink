@@ -150,6 +150,13 @@ public class PatientsController : BaseController
         }
 
         var (bytes, contentType, fileName) = result.Value;
+        // The stored Content-Type came from the uploader's browser at upload time and
+        // is never verified against the actual bytes. Serving it inline on our own
+        // authenticated origin means a mismatched file could otherwise tempt a legacy
+        // browser into MIME-sniffing it into something more dangerous than declared
+        // (e.g. text/plain reinterpreted as HTML). nosniff pins the browser to the
+        // declared type — belt-and-suspenders alongside the upload-time whitelist.
+        Response.Headers.XContentTypeOptions = "nosniff";
         Response.Headers.ContentDisposition =
             new System.Net.Mime.ContentDisposition { Inline = true, FileName = fileName }.ToString();
         return File(bytes, contentType);
@@ -167,6 +174,7 @@ public class PatientsController : BaseController
         }
 
         var (bytes, contentType, fileName) = result.Value;
+        Response.Headers.XContentTypeOptions = "nosniff";
         return File(bytes, contentType, fileName);
     }
 
