@@ -3135,7 +3135,7 @@ textarea.input {
         background: var(--surface-sunken);
     }
 
-/* Type badge — square, colored per file kind */
+/* One flat paperclip glyph for every attachment kind — no per-type badge color */
 .attachment-icon {
     flex-shrink: 0;
     display: inline-flex;
@@ -3143,18 +3143,8 @@ textarea.input {
     justify-content: center;
     width: 36px;
     height: 36px;
-    border-radius: var(--radius-sm);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
+    color: var(--text-secondary);
 }
-
-.attachment-icon-pdf     { background: var(--danger-soft);    color: var(--danger-text); }
-.attachment-icon-img     { background: var(--primary-soft);   color: var(--primary); }
-.attachment-icon-doc     { background: #E7EEFB;               color: #2B5BA8; }
-.attachment-icon-xls     { background: var(--success-soft);   color: var(--success-text); }
-.attachment-icon-txt     { background: var(--warning-soft);   color: var(--warning-text); }
-.attachment-icon-generic { background: var(--divider-soft);   color: var(--text-secondary); }
 
 .attachment-body {
     flex: 1;

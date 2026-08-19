@@ -13,20 +13,6 @@
         return $"{bytes / (1024.0 * 1024.0):0.#} MB";
     }
 
-    // Picks a short badge label + color class per file kind, from the content type
-    // (falling back to the extension), so the list reads at a glance.
-    static (string Label, string Css) AttachmentKind(string contentType, string fileName)
-    {
-        var ct = (contentType ?? "").ToLowerInvariant();
-        var ext = System.IO.Path.GetExtension(fileName ?? "").TrimStart('.').ToLowerInvariant();
-
-        if (ct == "application/pdf" || ext == "pdf") return ("PDF", "pdf");
-        if (ct.StartsWith("image/") || ext is "png" or "jpg" or "jpeg" or "gif" or "webp" or "heic") return ("IMG", "img");
-        if (ct.Contains("word") || ext is "doc" or "docx") return ("DOC", "doc");
-        if (ct.Contains("sheet") || ct.Contains("excel") || ext is "xls" or "xlsx" or "csv") return ("XLS", "xls");
-        if (ct.StartsWith("text/") || ext == "txt") return ("TXT", "txt");
-        return ("FILE", "generic");
-    }
 }
 
 @* =========================================================================
@@ -211,15 +197,17 @@
                 }
                 @foreach (var att in Model.Attachments)
                 {
-                    var kind = AttachmentKind(att.ContentType, att.FileName);
                     <li class="attachment-item">
-                        <span class="attachment-icon attachment-icon-@kind.Css" aria-hidden="true">@kind.Label</span>
+                        <span class="attachment-icon" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                        </span>
                         <div class="attachment-body">
                             <a class="attachment-name"
-                               asp-action="DownloadAttachment" asp-controller="Patients"
+                               asp-action="ViewAttachment" asp-controller="Patients"
                                asp-route-patientId="@Model.Patient.PatientId"
                                asp-route-attachmentId="@att.PatientAttachmentId"
-                               title="Download @att.FileName">@att.FileName</a>
+                               target="_blank" rel="noopener"
+                               title="View @att.FileName">@att.FileName</a>
                             <span class="attachment-meta">@FormatBytes(att.SizeBytes) · @att.CreatedAt.ToLocalTime().ToString("MMM d, yyyy")</span>
                         </div>
                         <div class="attachment-actions">

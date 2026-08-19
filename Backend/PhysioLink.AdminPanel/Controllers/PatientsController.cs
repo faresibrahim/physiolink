@@ -135,6 +135,26 @@ public class PatientsController : BaseController
         return RedirectToAction(nameof(Detail), new { id = patientId });
     }
 
+    // GET /Patients/ViewAttachment?patientId=&attachmentId= — opened by clicking the
+    // filename. Same bytes as DownloadAttachment, but with an "inline" disposition so
+    // a browser-renderable file (PDF, image, text) opens in the tab instead of saving.
+    // Anything the browser can't render (e.g. .docx) still falls back to a download.
+    [HttpGet]
+    public async Task<IActionResult> ViewAttachment(Guid patientId, Guid attachmentId)
+    {
+        var result = await _apiClient.DownloadPatientAttachmentAsync(patientId, attachmentId);
+        if (result == null)
+        {
+            TempData["ErrorMessage"] = "That attachment could not be found.";
+            return RedirectToAction(nameof(Detail), new { id = patientId });
+        }
+
+        var (bytes, contentType, fileName) = result.Value;
+        Response.Headers.ContentDisposition =
+            new System.Net.Mime.ContentDisposition { Inline = true, FileName = fileName }.ToString();
+        return File(bytes, contentType);
+    }
+
     // GET /Patients/DownloadAttachment?patientId=&attachmentId=
     [HttpGet]
     public async Task<IActionResult> DownloadAttachment(Guid patientId, Guid attachmentId)
