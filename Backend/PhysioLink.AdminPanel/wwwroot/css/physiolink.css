@@ -1545,6 +1545,56 @@ textarea.input {
     margin-top: var(--space-2);
 }
 
+/* Numbered steps — mirrors the Flutter exercise detail page: a circular index
+   badge per sentence. Used for both the English and Arabic descriptions. */
+.step-single {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.step-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+}
+
+.step-num {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-full);
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.step-text {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    color: var(--text-secondary);
+}
+
+/* Arabic list inherits dir:rtl from its container, so flex places the badge on
+   the right and the text reads right-to-left — no per-item overrides needed. */
+
 .modal-divider {
     height: 1px;
     background: var(--divider);

@@ -51,14 +51,15 @@
                 <p>No demonstration video for this exercise yet.</p>
             </div>
 
-            @* Description *@
-            <p id="exerciseModalDescription" class="modal-description"></p>
+            @* Description — rendered as numbered steps (mirrors the Flutter app),
+               or a single paragraph when the copy is one sentence. *@
+            <div id="exerciseModalDescription" class="modal-description"></div>
 
             @* Arabic translation of the steps — hidden when the exercise has none *@
-            <p id="exerciseModalDescriptionAr"
-               class="modal-description modal-description-ar"
-               lang="ar" dir="rtl"
-               style="display:none;"></p>
+            <div id="exerciseModalDescriptionAr"
+                 class="modal-description modal-description-ar"
+                 lang="ar" dir="rtl"
+                 style="display:none;"></div>
 
             @* Divider *@
             <div class="modal-divider"></div>
@@ -93,6 +94,52 @@
     function extractYouTubeId(url) {
         var match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=|shorts\/))([^?&#/]+)/i);
         return match ? match[1] : url;
+    }
+
+    // Renders a description as numbered steps, mirroring the Flutter exercise
+    // detail page: split on sentence-ending punctuation (Latin + Arabic ؟ ۔),
+    // drop blanks, and number each step. One sentence falls back to a paragraph.
+    function renderSteps(container, text, isArabic) {
+        container.innerHTML = '';
+        var trimmed = (text || '').trim();
+        if (!trimmed) {
+            container.style.display = 'none';
+            return;
+        }
+        container.style.display = 'block';
+
+        var sentences = trimmed
+            .split(/(?<=[.!?؟۔])\s+/)
+            .map(function (s) { return s.trim(); })
+            .filter(function (s) { return s.length > 0; });
+
+        if (sentences.length <= 1) {
+            var p = document.createElement('p');
+            p.className = 'step-single';
+            p.textContent = trimmed;
+            container.appendChild(p);
+            return;
+        }
+
+        var list = document.createElement('ol');
+        list.className = 'step-list';
+        sentences.forEach(function (sentence, i) {
+            var item = document.createElement('li');
+            item.className = 'step-item';
+
+            var num = document.createElement('span');
+            num.className = 'step-num';
+            num.textContent = String(i + 1);
+
+            var body = document.createElement('span');
+            body.className = 'step-text';
+            body.textContent = sentence;
+
+            item.appendChild(num);
+            item.appendChild(body);
+            list.appendChild(item);
+        });
+        container.appendChild(list);
     }
 
     // Mirrors the difficultyClass switch in the Razor loop above, for cards
@@ -155,17 +202,9 @@
                 noVideo.style.display  = 'flex';
             }
 
-            // Description + stats
-            document.getElementById('exerciseModalDescription').textContent = data.description;
-
-            var descAr = document.getElementById('exerciseModalDescriptionAr');
-            if (data.descriptionAr) {
-                descAr.textContent   = data.descriptionAr;
-                descAr.style.display = 'block';
-            } else {
-                descAr.textContent   = '';
-                descAr.style.display = 'none';
-            }
+            // Description + Arabic translation — each as numbered steps.
+            renderSteps(document.getElementById('exerciseModalDescription'), data.description, false);
+            renderSteps(document.getElementById('exerciseModalDescriptionAr'), data.descriptionAr, true);
 
             var difficultyPill = document.getElementById('exerciseModalDifficulty');
             difficultyPill.className = 'difficulty-pill ' + difficultyClass(data.difficulty);
