@@ -4,6 +4,31 @@
     ViewData["ActivePage"] = "Patients";
 }
 
+@functions {
+    // Human-readable file size for the attachment list.
+    static string FormatBytes(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024.0:0.#} KB";
+        return $"{bytes / (1024.0 * 1024.0):0.#} MB";
+    }
+
+    // Picks a short badge label + color class per file kind, from the content type
+    // (falling back to the extension), so the list reads at a glance.
+    static (string Label, string Css) AttachmentKind(string contentType, string fileName)
+    {
+        var ct = (contentType ?? "").ToLowerInvariant();
+        var ext = System.IO.Path.GetExtension(fileName ?? "").TrimStart('.').ToLowerInvariant();
+
+        if (ct == "application/pdf" || ext == "pdf") return ("PDF", "pdf");
+        if (ct.StartsWith("image/") || ext is "png" or "jpg" or "jpeg" or "gif" or "webp" or "heic") return ("IMG", "img");
+        if (ct.Contains("word") || ext is "doc" or "docx") return ("DOC", "doc");
+        if (ct.Contains("sheet") || ct.Contains("excel") || ext is "xls" or "xlsx" or "csv") return ("XLS", "xls");
+        if (ct.StartsWith("text/") || ext == "txt") return ("TXT", "txt");
+        return ("FILE", "generic");
+    }
+}
+
 @* =========================================================================
    PAGE HEADER — title row above the two-column layout
    ========================================================================= *@
@@ -151,6 +176,74 @@
        RIGHT COLUMN — sidebar (stats, appointments, danger zone)
        ===================================================================== *@
     <aside class="detail-sidebar">
+
+        @* --- Attachments ----------------------------------------------- *@
+        <div class="card">
+            <div class="card-header-row">
+                <div>
+                    <h3 class="card-title">Attachments</h3>
+                    <p class="card-subtitle">@Model.Attachments.Count file@(Model.Attachments.Count == 1 ? "" : "s") · scans, referrals & documents</p>
+                </div>
+            </div>
+
+            <form method="post" asp-action="UploadAttachment" asp-controller="Patients"
+                  enctype="multipart/form-data" id="attachmentUploadForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="patientId" value="@Model.Patient.PatientId" />
+
+                <label class="upload-zone" id="uploadZone">
+                    <svg class="upload-zone-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span class="upload-zone-text"><strong>Click to upload</strong> or drag a file here</span>
+                    <span class="upload-zone-hint">PDF, image, or document · up to 10 MB</span>
+                    <input type="file" name="file" id="attachmentFile" class="upload-input"
+                           accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.heic,.doc,.docx,.xls,.xlsx,.txt,.csv" />
+                </label>
+            </form>
+
+            <ul class="attachment-list">
+                @if (Model.Attachments.Count == 0)
+                {
+                    <li class="attachment-empty">No attachments yet.</li>
+                }
+                @foreach (var att in Model.Attachments)
+                {
+                    var kind = AttachmentKind(att.ContentType, att.FileName);
+                    <li class="attachment-item">
+                        <span class="attachment-icon attachment-icon-@kind.Css" aria-hidden="true">@kind.Label</span>
+                        <div class="attachment-body">
+                            <a class="attachment-name"
+                               asp-action="DownloadAttachment" asp-controller="Patients"
+                               asp-route-patientId="@Model.Patient.PatientId"
+                               asp-route-attachmentId="@att.PatientAttachmentId"
+                               title="Download @att.FileName">@att.FileName</a>
+                            <span class="attachment-meta">@FormatBytes(att.SizeBytes) · @att.CreatedAt.ToLocalTime().ToString("MMM d, yyyy")</span>
+                        </div>
+                        <div class="attachment-actions">
+                            <a class="icon-btn"
+                               asp-action="DownloadAttachment" asp-controller="Patients"
+                               asp-route-patientId="@Model.Patient.PatientId"
+                               asp-route-attachmentId="@att.PatientAttachmentId"
+                               title="Download" aria-label="Download @att.FileName">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            </a>
+                            <form method="post" asp-action="DeleteAttachment" asp-controller="Patients" class="attachment-delete-form"
+                                  onsubmit="return confirm('Remove &quot;@att.FileName.Replace("\"", "").Replace("'", "")&quot;?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="patientId" value="@Model.Patient.PatientId" />
+                                <input type="hidden" name="attachmentId" value="@att.PatientAttachmentId" />
+                                <button type="submit" class="icon-btn danger" title="Remove" aria-label="Remove @att.FileName">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
 
         @* --- Danger zone ----------------------------------------------- *@
         <div class="card danger-card">
@@ -655,4 +748,42 @@
         document.getElementById('UnassignAssignmentId').value = assignmentId;
         document.getElementById('unassignForm').submit();
     }
+</script>
+
+@* ── Attachment upload zone: choosing or dropping a file submits immediately ── *@
+<script>
+    (function () {
+        var form  = document.getElementById('attachmentUploadForm');
+        var zone  = document.getElementById('uploadZone');
+        var input = document.getElementById('attachmentFile');
+        if (!form || !zone || !input) return;
+
+        function submitSelected() {
+            if (!input.files || input.files.length === 0) return;
+            zone.classList.add('upload-zone-busy');
+            form.submit();
+        }
+
+        input.addEventListener('change', submitSelected);
+
+        // Drag-and-drop: drop a file onto the zone and it uploads the same way.
+        ['dragenter', 'dragover'].forEach(function (evt) {
+            zone.addEventListener(evt, function (e) {
+                e.preventDefault();
+                zone.classList.add('upload-zone-drag');
+            });
+        });
+        ['dragleave', 'drop'].forEach(function (evt) {
+            zone.addEventListener(evt, function (e) {
+                e.preventDefault();
+                zone.classList.remove('upload-zone-drag');
+            });
+        });
+        zone.addEventListener('drop', function (e) {
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                input.files = e.dataTransfer.files;
+                submitSelected();
+            }
+        });
+    })();
 </script>

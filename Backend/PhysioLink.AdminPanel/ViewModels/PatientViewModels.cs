@@ -21,6 +21,7 @@ public class PatientDetailViewModel
     public PatientDetailResponse Patient { get; set; } = null!;
     public List<TherapistResponse> Therapists { get; set; } = [];
     public List<ExerciseResponse> Exercises { get; set; } = [];
+    public List<PatientAttachmentResponse> Attachments { get; set; } = [];
 
     // Resolved from Patient.TherapistName against Therapists, so the Edit
     // Patient dialog can preselect the currently-assigned therapist.

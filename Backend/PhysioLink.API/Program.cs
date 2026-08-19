@@ -111,6 +111,7 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<ICurrentClinicService, CurrentClinicService>();
 builder.Services.AddScoped<IAdminTherapistService, AdminTherapistService>();
 builder.Services.AddScoped<IAdminPatientService, AdminPatientService>();
+builder.Services.AddScoped<IPatientAttachmentService, PatientAttachmentService>();
 builder.Services.AddScoped<IAdminAssignmentService, AdminAssignmentService>();
 builder.Services.AddScoped<IAdminAppointmentService, AdminAppointmentService>();
 builder.Services.AddScoped<IAdminSlotService, AdminSlotService>();

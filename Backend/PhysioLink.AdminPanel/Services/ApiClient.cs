@@ -257,6 +257,71 @@ public class ApiClient
                c => c.DeleteAsync($"api/v1/admin/patients/{id}"));
 
     // -------------------------------------------------------------------------
+    // Patient attachments
+    // -------------------------------------------------------------------------
+
+    public Task<List<PatientAttachmentResponse>?> GetPatientAttachmentsAsync(Guid patientId)
+        => ExecuteWithRefreshAsync<List<PatientAttachmentResponse>>(
+               c => c.GetAsync($"api/v1/admin/patients/{patientId}/attachments"));
+
+    // Forwards the uploaded file to the API as multipart/form-data. Returns the API's
+    // error message (e.g. "That file type isn't allowed.") on a 400 so the panel can show it.
+    public async Task<(bool Success, string? Error)> UploadPatientAttachmentAsync(Guid patientId, IFormFile file)
+    {
+        // Buffer the upload once. HttpContent can't be replayed, so a 401-then-refresh
+        // retry needs a fresh content instance each attempt — hence the factory below.
+        byte[] bytes;
+        using (var ms = new MemoryStream())
+        {
+            await file.CopyToAsync(ms);
+            bytes = ms.ToArray();
+        }
+        var fileName = file.FileName;
+        var contentType = file.ContentType;
+
+        var response = await ExecuteRawWithRefreshAsync(c =>
+        {
+            var form = new MultipartFormDataContent();
+            var fileContent = new ByteArrayContent(bytes);
+            if (!string.IsNullOrEmpty(contentType))
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+            form.Add(fileContent, "file", fileName);
+            return c.PostAsync($"api/v1/admin/patients/{patientId}/attachments", form);
+        });
+
+        if (response.IsSuccessStatusCode) return (true, null);
+
+        string? error = null;
+        try
+        {
+            var problem = await response.Content.ReadFromJsonAsync<ErrorMessageResponse>();
+            error = problem?.Message;
+        }
+        catch { /* non-JSON body; fall through to generic message */ }
+
+        return (false, error ?? "Upload failed. Please try again.");
+    }
+
+    // Returns the raw file so the panel controller can stream it to the browser.
+    public async Task<(byte[] Bytes, string ContentType, string FileName)?> DownloadPatientAttachmentAsync(Guid patientId, Guid attachmentId)
+    {
+        var response = await ExecuteRawWithRefreshAsync(
+            c => c.GetAsync($"api/v1/admin/patients/{patientId}/attachments/{attachmentId}/download"));
+        if (!response.IsSuccessStatusCode) return null;
+
+        var bytes = await response.Content.ReadAsByteArrayAsync();
+        var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+        var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+            ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"')
+            ?? "attachment";
+        return (bytes, contentType, fileName);
+    }
+
+    public Task<bool> DeletePatientAttachmentAsync(Guid patientId, Guid attachmentId)
+        => ExecuteWithRefreshAsync(
+               c => c.DeleteAsync($"api/v1/admin/patients/{patientId}/attachments/{attachmentId}"));
+
+    // -------------------------------------------------------------------------
     // Appointments / Recent
     // -------------------------------------------------------------------------
 

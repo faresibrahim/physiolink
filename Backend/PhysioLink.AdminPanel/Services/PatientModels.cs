@@ -52,6 +52,29 @@ public class CreatePatientRequest
         public bool IsActive { get; set; }
     }
 
+    // Shape of the API's `{ "message": "..." }` error bodies (BadRequest/Conflict).
+    public class ErrorMessageResponse
+    {
+        [JsonPropertyName("message")]
+        public string? Message { get; set; }
+    }
+
+    public class PatientAttachmentResponse
+    {
+        [JsonPropertyName("patientAttachmentId")]
+        public Guid PatientAttachmentId { get; set; }
+        [JsonPropertyName("fileName")]
+        public string FileName { get; set; } = string.Empty;
+        [JsonPropertyName("contentType")]
+        public string ContentType { get; set; } = string.Empty;
+        [JsonPropertyName("sizeBytes")]
+        public long SizeBytes { get; set; }
+        [JsonPropertyName("uploadedByEmail")]
+        public string? UploadedByEmail { get; set; }
+        [JsonPropertyName("createdAt")]
+        public DateTime CreatedAt { get; set; }
+    }
+
     public class PatientDetailResponse
     {
         [JsonPropertyName("patientId")]

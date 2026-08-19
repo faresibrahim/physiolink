@@ -67,21 +67,25 @@ public class PatientsController : BaseController
     [HttpGet]
     public async Task<IActionResult> Detail(Guid id)
     {
-        var patientTask    = _apiClient.GetPatientByIdAsync(id);
-        var therapistsTask = _apiClient.GetTherapistsAsync(1, 100);
-        var exercisesTask  = _apiClient.GetExercisesAsync();
+        var patientTask     = _apiClient.GetPatientByIdAsync(id);
+        var therapistsTask  = _apiClient.GetTherapistsAsync(1, 100);
+        var exercisesTask   = _apiClient.GetExercisesAsync();
+        var attachmentsTask = _apiClient.GetPatientAttachmentsAsync(id);
 
-        // Allow exercises to fail without taking down the whole page
+        // Allow exercises/attachments to fail without taking down the whole page
         List<ExerciseResponse> exercises;
+        List<PatientAttachmentResponse> attachments;
         try
         {
-            await Task.WhenAll(patientTask, therapistsTask, exercisesTask);
-            exercises = exercisesTask.Result ?? [];
+            await Task.WhenAll(patientTask, therapistsTask, exercisesTask, attachmentsTask);
+            exercises   = exercisesTask.Result ?? [];
+            attachments = attachmentsTask.Result ?? [];
         }
         catch
         {
-            // If exercises threw, grab what we can
-            exercises = exercisesTask.IsCompletedSuccessfully ? exercisesTask.Result ?? [] : [];
+            // If a side list threw, grab what we can
+            exercises   = exercisesTask.IsCompletedSuccessfully ? exercisesTask.Result ?? [] : [];
+            attachments = attachmentsTask.IsCompletedSuccessfully ? attachmentsTask.Result ?? [] : [];
         }
 
         var patient    = patientTask.IsCompletedSuccessfully ? patientTask.Result : null;
@@ -103,10 +107,58 @@ public class PatientsController : BaseController
             Patient            = patient,
             Therapists         = therapists?.Items ?? [],
             Exercises          = exercises,
+            Attachments        = attachments,
             PatientTherapistId = assignedTherapist?.Id
         };
 
         return View(viewModel);
+    }
+
+    // POST /Patients/UploadAttachment
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [RequestSizeLimit(12 * 1024 * 1024)] // headroom over the 10 MB file cap for multipart overhead
+    public async Task<IActionResult> UploadAttachment(Guid patientId, IFormFile? file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            TempData["ErrorMessage"] = "Choose a file to upload.";
+            return RedirectToAction(nameof(Detail), new { id = patientId });
+        }
+
+        var (success, error) = await _apiClient.UploadPatientAttachmentAsync(patientId, file);
+        if (success)
+            TempData["SuccessMessage"] = $"Uploaded \"{file.FileName}\".";
+        else
+            TempData["ErrorMessage"] = error ?? "Upload failed. Please try again.";
+
+        return RedirectToAction(nameof(Detail), new { id = patientId });
+    }
+
+    // GET /Patients/DownloadAttachment?patientId=&attachmentId=
+    [HttpGet]
+    public async Task<IActionResult> DownloadAttachment(Guid patientId, Guid attachmentId)
+    {
+        var result = await _apiClient.DownloadPatientAttachmentAsync(patientId, attachmentId);
+        if (result == null)
+        {
+            TempData["ErrorMessage"] = "That attachment could not be found.";
+            return RedirectToAction(nameof(Detail), new { id = patientId });
+        }
+
+        var (bytes, contentType, fileName) = result.Value;
+        return File(bytes, contentType, fileName);
+    }
+
+    // POST /Patients/DeleteAttachment
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteAttachment(Guid patientId, Guid attachmentId)
+    {
+        var ok = await _apiClient.DeletePatientAttachmentAsync(patientId, attachmentId);
+        TempData[ok ? "SuccessMessage" : "ErrorMessage"] =
+            ok ? "Attachment removed." : "Could not remove the attachment.";
+        return RedirectToAction(nameof(Detail), new { id = patientId });
     }
     // GET /Patients/Edit/{id}
     [HttpGet]
