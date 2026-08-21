@@ -19,7 +19,7 @@ namespace PhysioLink.Infrastructure.Services {
     var claims = new List <Claim>
     {
         new Claim(JwtRegisteredClaimNames.Sub, user.ApplicationUserId.ToString()),
-        new Claim(JwtRegisteredClaimNames.Email, user.Email),
+        new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
         new Claim(JwtRegisteredClaimNames.Name, user.FirstName + " " + user.LastName),
         new Claim(ClaimTypes.Role, user.Role),
         new Claim("ClinicId", user.ClinicId.ToString()),

@@ -100,16 +100,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tagline => 'Your partner in recovery wherever you are';
 
   @override
-  String get emailLabel => 'Email';
+  String get usernameLabel => 'Username';
+
+  @override
+  String get usernameRequired => 'Username is required';
 
   @override
   String get password => 'Password';
 
   @override
   String get passwordHint => 'Enter your password';
-
-  @override
-  String get emailRequired => 'Email is required';
 
   @override
   String get passwordRequired => 'Password is required';
@@ -127,7 +127,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logIn => 'Log In';
 
   @override
-  String get incorrectCredentials => 'Incorrect email or password.';
+  String get incorrectCredentials => 'Incorrect username or password.';
 
   @override
   String get securedByFooter => 'Secured by PhysioLink · v2.4.0';

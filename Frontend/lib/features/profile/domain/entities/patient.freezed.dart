@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Patient {
 
- String get patientId; String get firstName; String get lastName; String get phoneNumber; String get email; String get diagnosis; String? get therapistName; String? get clinicName; DateTime? get createdAt; bool get isActive; List<ExerciseAssignment> get exercises; List<Appointment> get appointments;
+ String get patientId; String get firstName; String get lastName; String get phoneNumber; String? get email; String get diagnosis; String? get therapistName; String? get clinicName; DateTime? get createdAt; bool get isActive; List<ExerciseAssignment> get exercises; List<Appointment> get appointments;
 /// Create a copy of Patient
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $PatientCopyWith<$Res>  {
   factory $PatientCopyWith(Patient value, $Res Function(Patient) _then) = _$PatientCopyWithImpl;
 @useResult
 $Res call({
- String patientId, String firstName, String lastName, String phoneNumber, String email, String diagnosis, String? therapistName, String? clinicName, DateTime? createdAt, bool isActive, List<ExerciseAssignment> exercises, List<Appointment> appointments
+ String patientId, String firstName, String lastName, String phoneNumber, String? email, String diagnosis, String? therapistName, String? clinicName, DateTime? createdAt, bool isActive, List<ExerciseAssignment> exercises, List<Appointment> appointments
 });
 
 
@@ -65,14 +65,14 @@ class _$PatientCopyWithImpl<$Res>
 
 /// Create a copy of Patient
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? patientId = null,Object? firstName = null,Object? lastName = null,Object? phoneNumber = null,Object? email = null,Object? diagnosis = null,Object? therapistName = freezed,Object? clinicName = freezed,Object? createdAt = freezed,Object? isActive = null,Object? exercises = null,Object? appointments = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? patientId = null,Object? firstName = null,Object? lastName = null,Object? phoneNumber = null,Object? email = freezed,Object? diagnosis = null,Object? therapistName = freezed,Object? clinicName = freezed,Object? createdAt = freezed,Object? isActive = null,Object? exercises = null,Object? appointments = null,}) {
   return _then(_self.copyWith(
 patientId: null == patientId ? _self.patientId : patientId // ignore: cast_nullable_to_non_nullable
 as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
 as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
 as String,phoneNumber: null == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
-as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String,diagnosis: null == diagnosis ? _self.diagnosis : diagnosis // ignore: cast_nullable_to_non_nullable
+as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String?,diagnosis: null == diagnosis ? _self.diagnosis : diagnosis // ignore: cast_nullable_to_non_nullable
 as String,therapistName: freezed == therapistName ? _self.therapistName : therapistName // ignore: cast_nullable_to_non_nullable
 as String?,clinicName: freezed == clinicName ? _self.clinicName : clinicName // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
@@ -164,7 +164,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String patientId,  String firstName,  String lastName,  String phoneNumber,  String email,  String diagnosis,  String? therapistName,  String? clinicName,  DateTime? createdAt,  bool isActive,  List<ExerciseAssignment> exercises,  List<Appointment> appointments)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String patientId,  String firstName,  String lastName,  String phoneNumber,  String? email,  String diagnosis,  String? therapistName,  String? clinicName,  DateTime? createdAt,  bool isActive,  List<ExerciseAssignment> exercises,  List<Appointment> appointments)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Patient() when $default != null:
 return $default(_that.patientId,_that.firstName,_that.lastName,_that.phoneNumber,_that.email,_that.diagnosis,_that.therapistName,_that.clinicName,_that.createdAt,_that.isActive,_that.exercises,_that.appointments);case _:
@@ -185,7 +185,7 @@ return $default(_that.patientId,_that.firstName,_that.lastName,_that.phoneNumber
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String patientId,  String firstName,  String lastName,  String phoneNumber,  String email,  String diagnosis,  String? therapistName,  String? clinicName,  DateTime? createdAt,  bool isActive,  List<ExerciseAssignment> exercises,  List<Appointment> appointments)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String patientId,  String firstName,  String lastName,  String phoneNumber,  String? email,  String diagnosis,  String? therapistName,  String? clinicName,  DateTime? createdAt,  bool isActive,  List<ExerciseAssignment> exercises,  List<Appointment> appointments)  $default,) {final _that = this;
 switch (_that) {
 case _Patient():
 return $default(_that.patientId,_that.firstName,_that.lastName,_that.phoneNumber,_that.email,_that.diagnosis,_that.therapistName,_that.clinicName,_that.createdAt,_that.isActive,_that.exercises,_that.appointments);case _:
@@ -205,7 +205,7 @@ return $default(_that.patientId,_that.firstName,_that.lastName,_that.phoneNumber
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String patientId,  String firstName,  String lastName,  String phoneNumber,  String email,  String diagnosis,  String? therapistName,  String? clinicName,  DateTime? createdAt,  bool isActive,  List<ExerciseAssignment> exercises,  List<Appointment> appointments)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String patientId,  String firstName,  String lastName,  String phoneNumber,  String? email,  String diagnosis,  String? therapistName,  String? clinicName,  DateTime? createdAt,  bool isActive,  List<ExerciseAssignment> exercises,  List<Appointment> appointments)?  $default,) {final _that = this;
 switch (_that) {
 case _Patient() when $default != null:
 return $default(_that.patientId,_that.firstName,_that.lastName,_that.phoneNumber,_that.email,_that.diagnosis,_that.therapistName,_that.clinicName,_that.createdAt,_that.isActive,_that.exercises,_that.appointments);case _:
@@ -220,14 +220,14 @@ return $default(_that.patientId,_that.firstName,_that.lastName,_that.phoneNumber
 @JsonSerializable()
 
 class _Patient implements Patient {
-  const _Patient({required this.patientId, required this.firstName, required this.lastName, required this.phoneNumber, required this.email, required this.diagnosis, this.therapistName, this.clinicName, this.createdAt, this.isActive = false, final  List<ExerciseAssignment> exercises = const [], final  List<Appointment> appointments = const []}): _exercises = exercises,_appointments = appointments;
+  const _Patient({required this.patientId, required this.firstName, required this.lastName, required this.phoneNumber, this.email, required this.diagnosis, this.therapistName, this.clinicName, this.createdAt, this.isActive = false, final  List<ExerciseAssignment> exercises = const [], final  List<Appointment> appointments = const []}): _exercises = exercises,_appointments = appointments;
   factory _Patient.fromJson(Map<String, dynamic> json) => _$PatientFromJson(json);
 
 @override final  String patientId;
 @override final  String firstName;
 @override final  String lastName;
 @override final  String phoneNumber;
-@override final  String email;
+@override final  String? email;
 @override final  String diagnosis;
 @override final  String? therapistName;
 @override final  String? clinicName;
@@ -281,7 +281,7 @@ abstract mixin class _$PatientCopyWith<$Res> implements $PatientCopyWith<$Res> {
   factory _$PatientCopyWith(_Patient value, $Res Function(_Patient) _then) = __$PatientCopyWithImpl;
 @override @useResult
 $Res call({
- String patientId, String firstName, String lastName, String phoneNumber, String email, String diagnosis, String? therapistName, String? clinicName, DateTime? createdAt, bool isActive, List<ExerciseAssignment> exercises, List<Appointment> appointments
+ String patientId, String firstName, String lastName, String phoneNumber, String? email, String diagnosis, String? therapistName, String? clinicName, DateTime? createdAt, bool isActive, List<ExerciseAssignment> exercises, List<Appointment> appointments
 });
 
 
@@ -298,14 +298,14 @@ class __$PatientCopyWithImpl<$Res>
 
 /// Create a copy of Patient
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? patientId = null,Object? firstName = null,Object? lastName = null,Object? phoneNumber = null,Object? email = null,Object? diagnosis = null,Object? therapistName = freezed,Object? clinicName = freezed,Object? createdAt = freezed,Object? isActive = null,Object? exercises = null,Object? appointments = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? patientId = null,Object? firstName = null,Object? lastName = null,Object? phoneNumber = null,Object? email = freezed,Object? diagnosis = null,Object? therapistName = freezed,Object? clinicName = freezed,Object? createdAt = freezed,Object? isActive = null,Object? exercises = null,Object? appointments = null,}) {
   return _then(_Patient(
 patientId: null == patientId ? _self.patientId : patientId // ignore: cast_nullable_to_non_nullable
 as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
 as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
 as String,phoneNumber: null == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
-as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String,diagnosis: null == diagnosis ? _self.diagnosis : diagnosis // ignore: cast_nullable_to_non_nullable
+as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String?,diagnosis: null == diagnosis ? _self.diagnosis : diagnosis // ignore: cast_nullable_to_non_nullable
 as String,therapistName: freezed == therapistName ? _self.therapistName : therapistName // ignore: cast_nullable_to_non_nullable
 as String?,clinicName: freezed == clinicName ? _self.clinicName : clinicName // ignore: cast_nullable_to_non_nullable
 as String?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable

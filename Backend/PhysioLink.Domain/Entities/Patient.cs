@@ -15,16 +15,18 @@ public class Patient : ClinicScopedEntity
     public Therapist? Therapist { get; set; }
     public Clinic? Clinic { get; set; }
 
-       public string Email { get; set;}
+       public string? Email { get; set;}
+    public string Username { get; set; }
     public string Diagnosis { get; set;}
 
-    public bool IsActive { get; set; } 
+    public bool IsActive { get; set; }
 
-    public Patient(string firstName, string lastName, string phoneNumber, Guid applicationUserId, string email, string diagnosis)
+    public Patient(string firstName, string lastName, string phoneNumber, Guid applicationUserId, string username, string? email, string diagnosis)
         {
             PatientId = Guid.NewGuid();
             FirstName = firstName;
             LastName = lastName;
+            Username = username;
             Email = email;
             Diagnosis = diagnosis;
             PhoneNumber = phoneNumber;

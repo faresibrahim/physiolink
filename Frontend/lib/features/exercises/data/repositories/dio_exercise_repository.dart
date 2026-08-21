@@ -41,11 +41,18 @@ class DioExerciseRepository implements ExerciseRepository {
 
   AppFailure _mapError(Object ex) {
     if (ex is DioException) {
-      if (ex.type == DioExceptionType.connectionError) {
-        return const NetworkFailure();
+      switch (ex.type) {
+        case DioExceptionType.connectionError:
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          return const NetworkFailure();
+        case DioExceptionType.badResponse:
+          if (ex.response?.statusCode == 401) return const AuthFailure();
+          return ServerFailure(ex.response?.statusCode ?? 500);
+        default:
+          return const ServerFailure(500);
       }
-      if (ex.response?.statusCode == 401) return const AuthFailure();
-      return ServerFailure(ex.response?.statusCode ?? 500);
     }
     return const ServerFailure(500);
   }

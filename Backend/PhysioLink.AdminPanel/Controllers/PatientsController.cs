@@ -214,6 +214,7 @@ public class PatientsController : BaseController
             PatientId   = patient.PatientId,
             FirstName   = patient.FirstName,
             LastName    = patient.LastName,
+            Username    = patient.Username,
             Email       = patient.Email,
             PhoneNumber = patient.PhoneNumber,
             Diagnosis   = patient.Diagnosis,
@@ -249,6 +250,7 @@ public class PatientsController : BaseController
             patientId   = patient.PatientId,
             firstName   = patient.FirstName,
             lastName    = patient.LastName,
+            username    = patient.Username,
             email       = patient.Email,
             phoneNumber = patient.PhoneNumber,
             diagnosis   = patient.Diagnosis,
@@ -275,6 +277,7 @@ public class PatientsController : BaseController
         {
             FirstName   = model.FirstName,
             LastName    = model.LastName,
+            Username    = model.Username,
             Email       = model.Email,
             PhoneNumber = model.PhoneNumber,
             Diagnosis   = model.Diagnosis,
@@ -340,6 +343,7 @@ public class PatientsController : BaseController
             LastName    = model.LastName,
             PhoneNumber = model.PhoneNumber,
             Diagnosis   = model.Diagnosis,
+            Username    = model.Username,
             Email       = model.Email,
             TherapistId = model.TherapistId
         };
@@ -352,7 +356,7 @@ public class PatientsController : BaseController
         }
 
         TempData["PatientCreatedName"]     = $"{result.FirstName} {result.LastName}";
-        TempData["PatientCreatedEmail"]    = result.Email;
+        TempData["PatientCreatedUsername"] = result.Username;
         TempData["PatientCreatedPassword"] = result.TemporaryPassword ?? string.Empty;
         return RedirectToAction(nameof(Index));
     }

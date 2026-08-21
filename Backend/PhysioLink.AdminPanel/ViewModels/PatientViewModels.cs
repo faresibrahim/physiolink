@@ -38,9 +38,12 @@ public class PatientFormViewModel
     [StringLength(100, ErrorMessage = "Last name cannot exceed 100 characters.")]
     public string LastName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Email is required.")]
+    [Required(ErrorMessage = "Username is required.")]
+    [StringLength(50, ErrorMessage = "Username cannot exceed 50 characters.")]
+    public string Username { get; set; } = string.Empty;
+
     [StringLength(100, ErrorMessage = "Email cannot exceed 100 characters.")]
-    public string Email { get; set; } = string.Empty;
+    public string? Email { get; set; }
 
     [Required(ErrorMessage = "Phone number is required.")]
     [StringLength(100, ErrorMessage = "Phone number cannot exceed 100 characters.")]
@@ -60,7 +63,7 @@ public class PatientFormViewModel
 public class CreatePatientResultViewModel
 {
     public string FullName { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
     public string TemporaryPassword { get; set; } = string.Empty;
 }
 

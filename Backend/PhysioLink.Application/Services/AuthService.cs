@@ -26,11 +26,18 @@ namespace PhysioLink.Application.Services
 
         public async Task<AuthResponseDto?> LoginAsync(LoginRequestDto loginRequest)
         {
-            var userEmail = loginRequest.Email;
             var userPassword = loginRequest.Password;
-            
 
-            var user = await _userRepository.GetUserByEmailAsync(userEmail);
+            ApplicationUser? user = null;
+            if (!string.IsNullOrWhiteSpace(loginRequest.Username))
+            {
+                user = await _userRepository.GetUserByUsernameAsync(loginRequest.Username);
+            }
+            else if (!string.IsNullOrWhiteSpace(loginRequest.Email))
+            {
+                user = await _userRepository.GetUserByEmailAsync(loginRequest.Email);
+            }
+
             if(user == null)
             {
                 return null;
@@ -60,14 +67,14 @@ namespace PhysioLink.Application.Services
 
         }
 
-        public async Task<bool> VerifyPasswordAsync(string email, string password)
+        public async Task<bool> VerifyPasswordAsync(Guid userId, string password)
         {
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(password))
             {
                 return false;
             }
 
-            var user = await _userRepository.GetUserByEmailAsync(email);
+            var user = await _userRepository.GetUserByIdAsync(userId);
             if (user == null)
             {
                 return false;
@@ -118,14 +125,14 @@ namespace PhysioLink.Application.Services
             };
         }
 
-        public async Task<AuthResponseDto?> ChangePasswordAsync(string email, string? currentPassword, string newPassword)
+        public async Task<AuthResponseDto?> ChangePasswordAsync(Guid userId, string? currentPassword, string newPassword)
         {
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(newPassword))
+            if (string.IsNullOrWhiteSpace(newPassword))
             {
                 return null;
             }
 
-            var user = await _userRepository.GetUserByEmailAsync(email);
+            var user = await _userRepository.GetUserByIdAsync(userId);
             if (user == null)
             {
                 return null;

@@ -271,7 +271,7 @@ class ProfilePage extends ConsumerWidget {
                 _InfoRow(
                   icon: Icons.mail_outline_rounded,
                   label: l10n.email,
-                  value: patient.email,
+                  value: patient.email ?? '—',
                   showDivider: true,
                 ),
                 _InfoRow(

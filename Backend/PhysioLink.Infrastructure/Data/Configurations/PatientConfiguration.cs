@@ -20,8 +20,11 @@ namespace PhysioLink.Infrastructure.Data.Configurations
             .HasMaxLength(100);
 
             builder.Property(p=>p.Email)
-            .IsRequired()
             .HasMaxLength(200);
+
+            builder.Property(p => p.Username)
+            .IsRequired()
+            .HasMaxLength(50);
 
             builder.Property(p=>p.PhoneNumber)
             .IsRequired()

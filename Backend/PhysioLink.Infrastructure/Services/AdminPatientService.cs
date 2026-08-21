@@ -58,6 +58,7 @@ namespace PhysioLink.Infrastructure.Services
                 PatientId   = p.PatientId,
                 FirstName   = p.FirstName,
                 LastName    = p.LastName,
+                Username    = p.Username,
                 Email       = p.Email,
                 PhoneNumber = p.PhoneNumber,
                 Diagnosis   = p.Diagnosis,
@@ -97,6 +98,7 @@ namespace PhysioLink.Infrastructure.Services
                     PatientId = p.PatientId,
                     FirstName = p.FirstName,
                     LastName = p.LastName,
+                    Username = p.Username,
                     Email = p.Email,
                     PhoneNumber = p.PhoneNumber,
                     Diagnosis = p.Diagnosis,
@@ -147,18 +149,22 @@ namespace PhysioLink.Infrastructure.Services
             var clinicId = _currentClinicService.GetCurrentClinicId()
                 ?? throw new InvalidOperationException("No clinic in context.");
 
-            // Store emails canonically lower-cased so the (case-sensitive) unique
-            // index IX_Users_Email and the login lookup agree with this guard. Without
-            // canonical storage, "Fares@x" and "fares@x" would be distinct to the index
+            // Store usernames canonically lower-cased so the (case-sensitive) unique
+            // index IX_Users_Username and the login lookup agree with this guard. Without
+            // canonical storage, "Sarah" and "sarah" would be distinct to the index
             // but duplicates to this guard.
             // Guard against duplicate active accounts. The global IsDeleted query filter
-            // means this only matches *active* users, so an email freed by a previous
+            // means this only matches *active* users, so a username freed by a previous
             // deactivation can be reused.
-            var email = createPatientDto.Email.Trim().ToLowerInvariant();
-            var emailInUse = await _dbContext.Users
-                .AnyAsync(u => u.Email == email);
-            if (emailInUse)
-                throw new EmailInUseException(email);
+            var username = createPatientDto.Username.Trim().ToLowerInvariant();
+            var usernameInUse = await _dbContext.Users
+                .AnyAsync(u => u.Username == username);
+            if (usernameInUse)
+                throw new UsernameInUseException(username);
+
+            var email = string.IsNullOrWhiteSpace(createPatientDto.Email)
+                ? null
+                : createPatientDto.Email.Trim().ToLowerInvariant();
 
             var temporaryPassword = GeneratePassword();
 
@@ -170,6 +176,7 @@ namespace PhysioLink.Infrastructure.Services
                 role: "Patient",
                 clinicId
             );
+            user.Username = username;
             user.PasswordHash = _passwordHasher.HashPassword(user, temporaryPassword);
             // Force the patient to replace the temporary password on first login.
             user.MustChangePassword = true;
@@ -179,6 +186,7 @@ namespace PhysioLink.Infrastructure.Services
                 createPatientDto.LastName,
                 createPatientDto.PhoneNumber,
                 user.ApplicationUserId,
+                username,
                 email,
                 createPatientDto.Diagnosis
             );
@@ -194,6 +202,7 @@ namespace PhysioLink.Infrastructure.Services
                 PatientId = patient.PatientId,
                 FirstName = patient.FirstName,
                 LastName = patient.LastName,
+                Username = patient.Username,
                 Email = patient.Email,
                 PhoneNumber = patient.PhoneNumber,
                 Diagnosis = patient.Diagnosis,
@@ -209,9 +218,28 @@ namespace PhysioLink.Infrastructure.Services
 
             if (patient == null) return null;
 
+            var username = updatePatientDto.Username.Trim().ToLowerInvariant();
+            var usernameInUse = await _dbContext.Users
+                .AnyAsync(u => u.Username == username && u.ApplicationUserId != patient.ApplicationUserId);
+            if (usernameInUse)
+                throw new UsernameInUseException(username);
+
+            var email = string.IsNullOrWhiteSpace(updatePatientDto.Email)
+                ? null
+                : updatePatientDto.Email.Trim().ToLowerInvariant();
+
+            var user = await _dbContext.Users
+                .SingleOrDefaultAsync(u => u.ApplicationUserId == patient.ApplicationUserId);
+            if (user != null)
+            {
+                user.Username = username;
+                user.Email = email;
+            }
+
             patient.FirstName = updatePatientDto.FirstName;
             patient.LastName = updatePatientDto.LastName;
-            patient.Email = updatePatientDto.Email.Trim().ToLowerInvariant();
+            patient.Username = username;
+            patient.Email = email;
             patient.PhoneNumber = updatePatientDto.PhoneNumber;
             patient.Diagnosis = updatePatientDto.Diagnosis;
             patient.IsActive = updatePatientDto.IsActive;
@@ -224,6 +252,7 @@ namespace PhysioLink.Infrastructure.Services
                 PatientId = patient.PatientId,
                 FirstName = patient.FirstName,
                 LastName = patient.LastName,
+                Username = patient.Username,
                 Email = patient.Email,
                 PhoneNumber = patient.PhoneNumber,
                 Diagnosis = patient.Diagnosis,

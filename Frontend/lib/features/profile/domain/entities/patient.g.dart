@@ -11,7 +11,7 @@ _Patient _$PatientFromJson(Map<String, dynamic> json) => _Patient(
   firstName: json['firstName'] as String,
   lastName: json['lastName'] as String,
   phoneNumber: json['phoneNumber'] as String,
-  email: json['email'] as String,
+  email: json['email'] as String?,
   diagnosis: json['diagnosis'] as String,
   therapistName: json['therapistName'] as String?,
   clinicName: json['clinicName'] as String?,

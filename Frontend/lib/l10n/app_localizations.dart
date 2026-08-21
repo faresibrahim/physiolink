@@ -278,11 +278,17 @@ abstract class AppLocalizations {
   /// **'Your partner in recovery wherever you are'**
   String get tagline;
 
-  /// No description provided for @emailLabel.
+  /// No description provided for @usernameLabel.
   ///
   /// In en, this message translates to:
-  /// **'Email'**
-  String get emailLabel;
+  /// **'Username'**
+  String get usernameLabel;
+
+  /// No description provided for @usernameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Username is required'**
+  String get usernameRequired;
 
   /// No description provided for @password.
   ///
@@ -295,12 +301,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter your password'**
   String get passwordHint;
-
-  /// No description provided for @emailRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Email is required'**
-  String get emailRequired;
 
   /// No description provided for @passwordRequired.
   ///
@@ -335,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @incorrectCredentials.
   ///
   /// In en, this message translates to:
-  /// **'Incorrect email or password.'**
+  /// **'Incorrect username or password.'**
   String get incorrectCredentials;
 
   /// No description provided for @securedByFooter.

@@ -71,11 +71,15 @@
                     View
                 </a>
 
-                <a asp-action="Edit"
-                   asp-route-id="@therapist.Id"
-                   class="btn btn-ghost btn-sm">
+                <button type="button" class="btn btn-ghost btn-sm edit-therapist-btn"
+                        data-id="@therapist.Id"
+                        data-first-name="@therapist.FirstName"
+                        data-last-name="@therapist.LastName"
+                        data-specialty="@therapist.Specialty"
+                        data-phone-number="@therapist.PhoneNumber"
+                        data-email="@therapist.Email">
                     Edit
-                </a>
+                </button>
 
                 <form asp-action="Deactivate"
                       asp-route-id="@therapist.Id"
@@ -194,5 +198,127 @@
 
         window.openTherapistModal  = openTherapistModal;
         window.closeTherapistModal = closeTherapistModal;
+    })();
+</script>
+
+@* ── Edit Therapist Modal ─────────────────────────────────────────────── *@
+<div class="modal-overlay" id="editTherapistModal" aria-modal="true" role="dialog" aria-labelledby="editTherapistModalTitle">
+    <div class="modal">
+
+        <div class="modal-header">
+            <div>
+                <h2 class="modal-title" id="editTherapistModalTitle">Edit Therapist</h2>
+                <p class="modal-subtitle">Update this practitioner's details.</p>
+            </div>
+            <button type="button" class="modal-close" onclick="closeEditTherapistModal()" aria-label="Close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <form method="post" asp-action="Edit" asp-controller="Therapists" class="modal-form" id="editTherapistForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="edit-ther-Id" name="id" value="" />
+            <input type="hidden" name="TherapistId" value="" id="edit-ther-TherapistId" />
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit-ther-FirstName">First Name</label>
+                    <input type="text" id="edit-ther-FirstName" name="FirstName" class="form-input" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-ther-LastName">Last Name</label>
+                    <input type="text" id="edit-ther-LastName" name="LastName" class="form-input" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="edit-ther-Specialty">Specialty</label>
+                <input type="text" id="edit-ther-Specialty" name="Specialty" class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="edit-ther-PhoneNumber">Phone</label>
+                <input type="text" id="edit-ther-PhoneNumber" name="PhoneNumber" class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="edit-ther-Email">Email</label>
+                <input type="email" id="edit-ther-Email" name="Email" class="form-input" />
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" onclick="closeEditTherapistModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    (function () {
+        var editTherapistModal = document.getElementById('editTherapistModal');
+        var editTherapistForm  = document.getElementById('editTherapistForm');
+        if (!editTherapistModal || !editTherapistForm) return;
+
+        function openEditTherapistModal(id, firstName, lastName, specialty, phoneNumber, email) {
+            document.getElementById('edit-ther-Id').value          = id;
+            document.getElementById('edit-ther-TherapistId').value = id;
+            document.getElementById('edit-ther-FirstName').value   = firstName || '';
+            document.getElementById('edit-ther-LastName').value    = lastName || '';
+            document.getElementById('edit-ther-Specialty').value   = specialty || '';
+            document.getElementById('edit-ther-PhoneNumber').value = phoneNumber || '';
+            document.getElementById('edit-ther-Email').value       = email || '';
+
+            editTherapistModal.classList.add('modal-visible');
+        }
+
+        function closeEditTherapistModal() {
+            editTherapistModal.classList.remove('modal-visible');
+        }
+
+        // Event delegation: one listener covers every "Edit" button in the grid,
+        // reading the therapist's data straight from its data-* attributes.
+        document.querySelectorAll('.edit-therapist-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                openEditTherapistModal(
+                    btn.dataset.id,
+                    btn.dataset.firstName,
+                    btn.dataset.lastName,
+                    btn.dataset.specialty,
+                    btn.dataset.phoneNumber,
+                    btn.dataset.email
+                );
+            });
+        });
+
+        // Deliberately no overlay-click-to-close: an admin mid-form shouldn't lose
+        // their entered data from a stray click. Close only via the X or Cancel.
+
+        // Close on Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && editTherapistModal.classList.contains('modal-visible')) {
+                closeEditTherapistModal();
+            }
+        });
+
+        // Client-side validation
+        editTherapistForm.addEventListener('submit', function (e) {
+            var first     = document.getElementById('edit-ther-FirstName').value.trim();
+            var last      = document.getElementById('edit-ther-LastName').value.trim();
+            var specialty = document.getElementById('edit-ther-Specialty').value.trim();
+            var phone     = document.getElementById('edit-ther-PhoneNumber').value.trim();
+            var email     = document.getElementById('edit-ther-Email').value.trim();
+
+            if (!first || !last || !specialty || !phone || !email) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+            }
+        });
+
+        window.closeEditTherapistModal = closeEditTherapistModal;
     })();
 </script>

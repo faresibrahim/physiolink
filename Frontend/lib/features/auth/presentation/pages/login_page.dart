@@ -15,7 +15,7 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _passwordFocusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
@@ -26,7 +26,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     _passwordFocusNode.dispose();
     super.dispose();
@@ -40,7 +40,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     try {
       await ref
           .read(authNotifierProvider)
-          .login(_emailController.text.trim(), _passwordController.text);
+          .login(_usernameController.text.trim(), _passwordController.text);
     } catch (ex) {
       if (!mounted) return;
       setState(
@@ -126,7 +126,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l10n.emailLabel,
+                          l10n.usernameLabel,
                           style: AppTextStyles.footnote.copyWith(
                             color: AppColors.textSecondary,
                             fontWeight: FontWeight.w500,
@@ -134,15 +134,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                         const SizedBox(height: 6),
                         TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
+                          controller: _usernameController,
+                          keyboardType: TextInputType.text,
                           textInputAction: TextInputAction.next,
                           autocorrect: false,
                           onFieldSubmitted: (_) => FocusScope.of(
                             context,
                           ).requestFocus(_passwordFocusNode),
                           validator: (v) => (v == null || v.isEmpty)
-                              ? l10n.emailRequired
+                              ? l10n.usernameRequired
                               : null,
                           decoration: InputDecoration(
                             filled: true,
@@ -151,12 +151,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               horizontal: AppSpacing.md,
                               vertical: 16,
                             ),
-                            hintText: 'you@example.com',
+                            hintText: 'username',
                             hintStyle: AppTextStyles.body.copyWith(
                               color: AppColors.textSecondary,
                             ),
                             prefixIcon: const Icon(
-                              Icons.mail_outline_rounded,
+                              Icons.person_outline_rounded,
                               size: 20,
                               color: AppColors.textSecondary,
                             ),

@@ -32,7 +32,13 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label" asp-for="Email">Email</label>
+            <label class="form-label" asp-for="Username">Username</label>
+            <input asp-for="Username" class="form-input" autocomplete="off" />
+            <span asp-validation-for="Username" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" asp-for="Email">Email <span class="label-optional">(optional)</span></label>
             <input asp-for="Email" class="form-input" />
             <span asp-validation-for="Email" class="field-error"></span>
         </div>

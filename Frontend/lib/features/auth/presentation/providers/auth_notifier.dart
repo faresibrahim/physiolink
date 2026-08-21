@@ -109,11 +109,11 @@ class AuthNotifier extends ChangeNotifier {
     }
   }
 
-  Future<void> login(String email, String password) async {
+  Future<void> login(String username, String password) async {
     try {
       var response = await _dio.post(
         ('/api/v1/auth/login'),
-        data: {'email': email, 'password': password},
+        data: {'username': username, 'password': password},
       );
 
       final receivedPatientId = response.data['patientId'] as String?;

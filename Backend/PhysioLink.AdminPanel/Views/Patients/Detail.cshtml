@@ -59,8 +59,12 @@
                     <p class="info-value">@Model.Patient.PhoneNumber</p>
                 </div>
                 <div class="info-item">
+                    <p class="info-label">Username</p>
+                    <p class="info-value">@Model.Patient.Username</p>
+                </div>
+                <div class="info-item">
                     <p class="info-label">Email</p>
-                    <p class="info-value">@Model.Patient.Email</p>
+                    <p class="info-value">@(string.IsNullOrEmpty(Model.Patient.Email) ? "—" : Model.Patient.Email)</p>
                 </div>
                 <div class="info-item">
                     <p class="info-label">Clinic</p>
@@ -254,6 +258,7 @@
     PatientId   = Model.Patient.PatientId,
     FirstName   = Model.Patient.FirstName,
     LastName    = Model.Patient.LastName,
+    Username    = Model.Patient.Username,
     Email       = Model.Patient.Email,
     PhoneNumber = Model.Patient.PhoneNumber,
     Diagnosis   = Model.Patient.Diagnosis,

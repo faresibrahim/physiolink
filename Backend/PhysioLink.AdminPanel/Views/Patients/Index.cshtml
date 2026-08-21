@@ -6,7 +6,7 @@
 
 
     var createdName     = TempData["PatientCreatedName"]     as string;
-    var createdEmail    = TempData["PatientCreatedEmail"]    as string;
+    var createdUsername = TempData["PatientCreatedUsername"] as string;
     var createdPassword = TempData["PatientCreatedPassword"] as string;
     var showCredentials = !string.IsNullOrEmpty(createdPassword);
 }
@@ -174,7 +174,14 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="edit-Email">Email</label>
+                <label class="form-label" for="edit-Username">Username</label>
+                <input type="text" id="edit-Username" name="Username" class="form-input" autocomplete="off" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="edit-Email">
+                    Email <span class="label-optional">(optional)</span>
+                </label>
                 <input type="email" id="edit-Email" name="Email" class="form-input" />
             </div>
 
@@ -228,6 +235,7 @@
                 document.getElementById('editPatientIsActive').value = data.isActive;
                 document.getElementById('edit-FirstName').value     = data.firstName || '';
                 document.getElementById('edit-LastName').value      = data.lastName  || '';
+                document.getElementById('edit-Username').value      = data.username  || '';
                 document.getElementById('edit-Email').value         = data.email     || '';
                 document.getElementById('edit-PhoneNumber').value   = data.phoneNumber || '';
                 document.getElementById('edit-Diagnosis').value     = data.diagnosis || '';
@@ -256,13 +264,13 @@
 
         // Client-side validation
         editForm.addEventListener('submit', function (e) {
-            var first = document.getElementById('edit-FirstName').value.trim();
-            var last  = document.getElementById('edit-LastName').value.trim();
-            var email = document.getElementById('edit-Email').value.trim();
-            var phone = document.getElementById('edit-PhoneNumber').value.trim();
-            var diag  = document.getElementById('edit-Diagnosis').value.trim();
+            var first    = document.getElementById('edit-FirstName').value.trim();
+            var last     = document.getElementById('edit-LastName').value.trim();
+            var username = document.getElementById('edit-Username').value.trim();
+            var phone    = document.getElementById('edit-PhoneNumber').value.trim();
+            var diag     = document.getElementById('edit-Diagnosis').value.trim();
 
-            if (!first || !last || !email || !phone || !diag) {
+            if (!first || !last || !username || !phone || !diag) {
                 e.preventDefault();
                 alert('Please fill in all required fields.');
             }
@@ -304,8 +312,8 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Email</label>
-                <p class="static-value">@createdEmail</p>
+                <label class="form-label">Username</label>
+                <p class="static-value">@createdUsername</p>
             </div>
 
             <div class="form-group">

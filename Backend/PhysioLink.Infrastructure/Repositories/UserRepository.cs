@@ -25,6 +25,19 @@ namespace PhysioLink.Infrastructure.Repositories
             return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == normalized);
         }
 
+        public async Task<ApplicationUser?> GetUserByUsernameAsync(string username)
+        {
+            // Usernames are stored canonically lower-cased (see AdminPatientService),
+            // same rationale as GetUserByEmailAsync above.
+            var normalized = username.Trim().ToLowerInvariant();
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Username == normalized);
+        }
+
+        public async Task<ApplicationUser?> GetUserByIdAsync(Guid id)
+        {
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.ApplicationUserId == id);
+        }
+
         public async Task<ApplicationUser?> GetUserByTokenAsync(string token)
         {
             // Never match on a blank token: an empty string would match any user whose

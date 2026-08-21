@@ -51,14 +51,25 @@ namespace PhysioLink.API.Controllers.Admin
             {
                 return Conflict(new { message = ex.Message });
             }
+            catch (UsernameInUseException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePatientDto updatePatientDto)
         {
-            var result = await _adminPatientService.UpdateAsync(id, updatePatientDto);
-            if (result == null) return NotFound();
-            return Ok(result);
+            try
+            {
+                var result = await _adminPatientService.UpdateAsync(id, updatePatientDto);
+                if (result == null) return NotFound();
+                return Ok(result);
+            }
+            catch (UsernameInUseException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id:guid}")]

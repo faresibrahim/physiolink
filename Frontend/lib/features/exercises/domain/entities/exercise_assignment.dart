@@ -4,9 +4,12 @@ part 'exercise_assignment.freezed.dart';
 part 'exercise_assignment.g.dart';
 
 enum DifficultyLevel {
-  @JsonValue('Easy') easy,
-  @JsonValue('Moderate') moderate,
-  @JsonValue('Hard') hard,
+  @JsonValue('Easy')
+  easy,
+  @JsonValue('Moderate')
+  moderate,
+  @JsonValue('Hard')
+  hard,
 }
 
 @freezed
@@ -16,6 +19,7 @@ abstract class ExerciseAssignment with _$ExerciseAssignment {
     required String exerciseId,
     required String exerciseName,
     required String description,
+
     /// Arabic translation of [description]. Null when the exercise has no
     /// translation yet — the UI falls back to [description].
     String? descriptionAr,

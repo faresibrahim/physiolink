@@ -36,7 +36,14 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="pat-Email">Email</label>
+                <label class="form-label" for="pat-Username">Username</label>
+                <input type="text" id="pat-Username" name="Username" class="form-input" placeholder="e.g. john.smith" autocomplete="off" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="pat-Email">
+                    Email <span class="label-optional">(optional)</span>
+                </label>
                 <input type="email" id="pat-Email" name="Email" class="form-input" placeholder="patient@example.com" />
             </div>
 
@@ -107,13 +114,13 @@
 
         // Client-side validation
         patientForm.addEventListener('submit', function (e) {
-            var first = document.getElementById('pat-FirstName').value.trim();
-            var last  = document.getElementById('pat-LastName').value.trim();
-            var email = document.getElementById('pat-Email').value.trim();
-            var phone = document.getElementById('pat-PhoneNumber').value.trim();
-            var diag  = document.getElementById('pat-Diagnosis').value.trim();
+            var first    = document.getElementById('pat-FirstName').value.trim();
+            var last     = document.getElementById('pat-LastName').value.trim();
+            var username = document.getElementById('pat-Username').value.trim();
+            var phone    = document.getElementById('pat-PhoneNumber').value.trim();
+            var diag     = document.getElementById('pat-Diagnosis').value.trim();
 
-            if (!first || !last || !email || !phone || !diag) {
+            if (!first || !last || !username || !phone || !diag) {
                 e.preventDefault();
                 alert('Please fill in all required fields.');
             }

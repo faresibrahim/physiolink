@@ -104,7 +104,8 @@ namespace PhysioLink.Infrastructure.Data
                     passwordHash: hashedPassword,
                     role: "Patient",
                     clinicId: Clinic1Id
-                );
+                )
+                { Username = "john.smith" };
                 context.Users.Add(patientUser);
 
                 var patient = new Patient(
@@ -112,6 +113,7 @@ namespace PhysioLink.Infrastructure.Data
                     lastName: "Smith",
                     phoneNumber: "+970599111111",
                     applicationUserId: patientUser.ApplicationUserId,
+                    username: "john.smith",
                     email: "john.smith@example.com",
                     diagnosis: "Knee injury"
                 );
@@ -227,20 +229,20 @@ namespace PhysioLink.Infrastructure.Data
             {
                 var c1Users = new[]
                 {
-                    new ApplicationUser("Alice", "Cooper", "alice.cooper@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id),
-                    new ApplicationUser("Bob", "Williams", "bob.williams@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id),
-                    new ApplicationUser("Carol", "Jones", "carol.jones@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id),
-                    new ApplicationUser("David", "Lee", "david.lee@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id),
+                    new ApplicationUser("Alice", "Cooper", "alice.cooper@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id) { Username = "alice.cooper" },
+                    new ApplicationUser("Bob", "Williams", "bob.williams@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id) { Username = "bob.williams" },
+                    new ApplicationUser("Carol", "Jones", "carol.jones@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id) { Username = "carol.jones" },
+                    new ApplicationUser("David", "Lee", "david.lee@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic1Id) { Username = "david.lee" },
                 };
                 context.Users.AddRange(c1Users);
                 await context.SaveChangesAsync();
 
                 var c1Patients = new[]
                 {
-                    new Patient("Alice", "Cooper", "+970599300001", c1Users[0].ApplicationUserId, "alice.cooper@example.com", "Shoulder impingement") { ClinicId = Clinic1Id, TherapistId = C1T1Id },
-                    new Patient("Bob", "Williams", "+970599300002", c1Users[1].ApplicationUserId, "bob.williams@example.com", "Lower back pain") { ClinicId = Clinic1Id, TherapistId = C1T2Id },
-                    new Patient("Carol", "Jones", "+970599300003", c1Users[2].ApplicationUserId, "carol.jones@example.com", "ACL recovery") { ClinicId = Clinic1Id, TherapistId = C1T3Id },
-                    new Patient("David", "Lee", "+970599300004", c1Users[3].ApplicationUserId, "david.lee@example.com", "Rotator cuff tear") { ClinicId = Clinic1Id, TherapistId = C1T1Id },
+                    new Patient("Alice", "Cooper", "+970599300001", c1Users[0].ApplicationUserId, "alice.cooper", "alice.cooper@example.com", "Shoulder impingement") { ClinicId = Clinic1Id, TherapistId = C1T1Id },
+                    new Patient("Bob", "Williams", "+970599300002", c1Users[1].ApplicationUserId, "bob.williams", "bob.williams@example.com", "Lower back pain") { ClinicId = Clinic1Id, TherapistId = C1T2Id },
+                    new Patient("Carol", "Jones", "+970599300003", c1Users[2].ApplicationUserId, "carol.jones", "carol.jones@example.com", "ACL recovery") { ClinicId = Clinic1Id, TherapistId = C1T3Id },
+                    new Patient("David", "Lee", "+970599300004", c1Users[3].ApplicationUserId, "david.lee", "david.lee@example.com", "Rotator cuff tear") { ClinicId = Clinic1Id, TherapistId = C1T1Id },
                 };
                 context.Patients.AddRange(c1Patients);
                 await context.SaveChangesAsync();
@@ -250,22 +252,22 @@ namespace PhysioLink.Infrastructure.Data
             {
                 var c2Users = new[]
                 {
-                    new ApplicationUser("Emma", "Clark", "emma.clark@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id),
-                    new ApplicationUser("Frank", "Lewis", "frank.lewis@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id),
-                    new ApplicationUser("Grace", "Hall", "grace.hall@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id),
-                    new ApplicationUser("Henry", "Young", "henry.young@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id),
-                    new ApplicationUser("Iris", "King", "iris.king@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id),
+                    new ApplicationUser("Emma", "Clark", "emma.clark@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id) { Username = "emma.clark" },
+                    new ApplicationUser("Frank", "Lewis", "frank.lewis@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id) { Username = "frank.lewis" },
+                    new ApplicationUser("Grace", "Hall", "grace.hall@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id) { Username = "grace.hall" },
+                    new ApplicationUser("Henry", "Young", "henry.young@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id) { Username = "henry.young" },
+                    new ApplicationUser("Iris", "King", "iris.king@example.com", passwordHasher.HashPassword(null!, "patient@123"), "Patient", Clinic2Id) { Username = "iris.king" },
                 };
                 context.Users.AddRange(c2Users);
                 await context.SaveChangesAsync();
 
                 var c2Patients = new[]
                 {
-                    new Patient("Emma", "Clark", "+970599400001", c2Users[0].ApplicationUserId, "emma.clark@example.com", "Hip fracture recovery") { ClinicId = Clinic2Id, TherapistId = C2T1Id },
-                    new Patient("Frank", "Lewis", "+970599400002", c2Users[1].ApplicationUserId, "frank.lewis@example.com", "Cerebral palsy") { ClinicId = Clinic2Id, TherapistId = C2T1Id },
-                    new Patient("Grace", "Hall", "+970599400003", c2Users[2].ApplicationUserId, "grace.hall@example.com", "Chronic back pain") { ClinicId = Clinic2Id, TherapistId = C2T2Id },
-                    new Patient("Henry", "Young", "+970599400004", c2Users[3].ApplicationUserId, "henry.young@example.com", "Post-knee replacement") { ClinicId = Clinic2Id, TherapistId = C2T3Id },
-                    new Patient("Iris", "King", "+970599400005", c2Users[4].ApplicationUserId, "iris.king@example.com", "Ankle sprain") { ClinicId = Clinic2Id, TherapistId = C2T2Id },
+                    new Patient("Emma", "Clark", "+970599400001", c2Users[0].ApplicationUserId, "emma.clark", "emma.clark@example.com", "Hip fracture recovery") { ClinicId = Clinic2Id, TherapistId = C2T1Id },
+                    new Patient("Frank", "Lewis", "+970599400002", c2Users[1].ApplicationUserId, "frank.lewis", "frank.lewis@example.com", "Cerebral palsy") { ClinicId = Clinic2Id, TherapistId = C2T1Id },
+                    new Patient("Grace", "Hall", "+970599400003", c2Users[2].ApplicationUserId, "grace.hall", "grace.hall@example.com", "Chronic back pain") { ClinicId = Clinic2Id, TherapistId = C2T2Id },
+                    new Patient("Henry", "Young", "+970599400004", c2Users[3].ApplicationUserId, "henry.young", "henry.young@example.com", "Post-knee replacement") { ClinicId = Clinic2Id, TherapistId = C2T3Id },
+                    new Patient("Iris", "King", "+970599400005", c2Users[4].ApplicationUserId, "iris.king", "iris.king@example.com", "Ankle sprain") { ClinicId = Clinic2Id, TherapistId = C2T2Id },
                 };
                 context.Patients.AddRange(c2Patients);
                 await context.SaveChangesAsync();

@@ -55,14 +55,14 @@ public class AuthController : ControllerBase
     [HttpPost("verify-password")]
     public async Task<IActionResult> VerifyPassword([FromBody] VerifyPasswordRequestDto request)
     {
-        var email = User.GetEmail();
+        var userId = User.GetApplicationUserId();
 
-        if (string.IsNullOrEmpty(email))
+        if (userId == null)
         {
             return Unauthorized();
         }
 
-        var verified = await _authService.VerifyPasswordAsync(email, request.Password);
+        var verified = await _authService.VerifyPasswordAsync(userId.Value, request.Password);
         if (!verified)
         {
             return BadRequest();
@@ -80,14 +80,14 @@ public class AuthController : ControllerBase
     [HttpPost("change-password")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
     {
-        var email = User.GetEmail();
+        var userId = User.GetApplicationUserId();
 
-        if (string.IsNullOrEmpty(email))
+        if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await _authService.ChangePasswordAsync(email, request.CurrentPassword, request.NewPassword);
+        var result = await _authService.ChangePasswordAsync(userId.Value, request.CurrentPassword, request.NewPassword);
         if (result == null)
         {
             return BadRequest();

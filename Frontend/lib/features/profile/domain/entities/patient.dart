@@ -12,7 +12,7 @@ abstract class Patient with _$Patient {
     required String firstName,
     required String lastName,
     required String phoneNumber,
-    required String email,
+    String? email,
     required String diagnosis,
     String? therapistName,
     String? clinicName,

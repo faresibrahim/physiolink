@@ -20,12 +20,22 @@ namespace PhysioLink.Infrastructure.Data.Configurations
             .HasMaxLength(100);
 
             builder.Property(p=>p.Email)
-            .IsRequired()
             .HasMaxLength(200);
 
             // One active user per email. Filtered so soft-deleted rows don't block
-            // re-creating a patient with the same email after deactivation.
+            // re-creating a patient with the same email after deactivation. Multiple
+            // NULLs (ClinicAdmin rows and any emailless patients) don't collide under
+            // a unique index.
             builder.HasIndex(p => p.Email)
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false");
+
+            builder.Property(p => p.Username)
+            .HasMaxLength(50);
+
+            // One active user per username. Only Patient rows ever get a Username —
+            // ClinicAdmin rows stay null and don't collide (see above).
+            builder.HasIndex(p => p.Username)
                 .IsUnique()
                 .HasFilter("\"IsDeleted\" = false");
 

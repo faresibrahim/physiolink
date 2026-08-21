@@ -99,16 +99,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tagline => 'شريكك في التعافي أينما كنت';
 
   @override
-  String get emailLabel => 'البريد الإلكتروني';
+  String get usernameLabel => 'اسم المستخدم';
+
+  @override
+  String get usernameRequired => 'اسم المستخدم مطلوب';
 
   @override
   String get password => 'كلمة المرور';
 
   @override
   String get passwordHint => 'أدخل كلمة المرور';
-
-  @override
-  String get emailRequired => 'البريد الإلكتروني مطلوب';
 
   @override
   String get passwordRequired => 'كلمة المرور مطلوبة';
@@ -127,8 +127,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logIn => 'تسجيل الدخول';
 
   @override
-  String get incorrectCredentials =>
-      'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+  String get incorrectCredentials => 'اسم المستخدم أو كلمة المرور غير صحيحة.';
 
   @override
   String get securedByFooter => 'محمي بواسطة PhysioLink · v2.4.0';
