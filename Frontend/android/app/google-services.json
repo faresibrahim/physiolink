@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "714037044321",
+    "project_id": "physiolink-e9cb1",
+    "storage_bucket": "physiolink-e9cb1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:714037044321:android:d1551907fc4cca8c2ff620",
+        "android_client_info": {
+          "package_name": "com.physiolink.patient"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAiafcH0_oFFGw3mOcJfdDUlGZGk0UUF0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

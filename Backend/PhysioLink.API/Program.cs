@@ -1,4 +1,6 @@
 using System.Text;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 using Microsoft.AspNetCore.Identity;
@@ -38,6 +40,25 @@ if (string.IsNullOrWhiteSpace(connectionString))
     throw new InvalidOperationException(
         "CONNECTION_STRING is not set. Provide the PostgreSQL connection string via environment variable.");
 }
+
+// Base64 rather than raw JSON: the service account's private_key field has embedded
+// newlines, which get mangled pasting multi-line JSON into a single Railway env var.
+var firebaseCredentialsB64 = Environment.GetEnvironmentVariable("FIREBASE_SERVICE_ACCOUNT_JSON_B64");
+if (string.IsNullOrWhiteSpace(firebaseCredentialsB64))
+{
+    throw new InvalidOperationException(
+        "FIREBASE_SERVICE_ACCOUNT_JSON_B64 is not set. Base64-encode the Firebase service account JSON (Firebase console -> Project settings -> Service accounts -> Generate new private key) and provide it via environment variable.");
+}
+var firebaseCredentialsJson = Encoding.UTF8.GetString(Convert.FromBase64String(firebaseCredentialsB64));
+
+// One-time for the process: FirebaseMessaging.DefaultInstance reads off the
+// FirebaseApp created here, and creating a second one with the same name throws.
+// If integration tests ever spin up WebApplicationFactory more than once per
+// process, this line is what breaks — guard it there, not here.
+FirebaseApp.Create(new AppOptions
+{
+    Credential = GoogleCredential.FromJson(firebaseCredentialsJson)
+});
 
 // Add services to the container.
 //add swagger services
@@ -119,6 +140,7 @@ builder.Services.AddScoped<ISlotExpiryService, SlotExpiryService>();
 builder.Services.AddScoped<IPatientSlotService, PatientSlotService>();
 builder.Services.AddScoped<IAdminExerciseService, AdminExerciseService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+builder.Services.AddSingleton<IPushNotificationSender, FirebasePushNotificationSender>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

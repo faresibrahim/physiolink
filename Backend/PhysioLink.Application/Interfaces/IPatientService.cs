@@ -15,5 +15,7 @@ namespace PhysioLink.Application.Interfaces
         // (JWT 'sub'). Returns null if the user has no patient record. Used to enforce
         // that a patient can only act on their own data.
         Task<Guid?> ResolvePatientIdAsync(Guid applicationUserId);
+
+        Task<bool> RegisterDeviceTokenAsync(Guid patientId, string deviceToken);
     }
 }

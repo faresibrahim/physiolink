@@ -26,6 +26,9 @@ dependencies:
   video_player: ^2.9.3
   youtube_player_iframe: ^6.0.2
   table_calendar: ^3.1.2
+  firebase_core: ^4.13.0
+  firebase_messaging: ^16.5.0
+  flutter_local_notifications: ^22.3.0
 
 
 

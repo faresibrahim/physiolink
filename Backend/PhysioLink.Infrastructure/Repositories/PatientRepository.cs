@@ -102,5 +102,19 @@ namespace PhysioLink.Infrastructure.Repositories
         };
 
     }
+
+    public async Task<bool> UpdateDeviceTokenAsync(Guid patientId, string deviceToken)
+    {
+        var patient = await _dbContext.Patients
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(p => p.PatientId == patientId);
+
+        if (patient is null)
+            return false;
+
+        patient.DeviceToken = deviceToken;
+        await _dbContext.SaveChangesAsync();
+        return true;
+    }
     }
 }

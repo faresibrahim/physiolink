@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,9 +9,13 @@ import 'package:practice/core/theme/app_colors.dart';
 import 'package:practice/core/theme/app_text_styles.dart';
 import 'package:practice/l10n/app_localizations.dart';
 import 'package:practice/router.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
+
   final prefs = await SharedPreferences.getInstance();
   runApp(
     ProviderScope(
@@ -17,6 +23,11 @@ Future<void> main() async {
       child: const MainApp(),
     ),
   ); //runApp takes a widget and inflates it as the root widget of the app
+}
+
+@pragma('vm:entry-point')
+Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
+  // Top-level, separate isolate — no BuildContext, no ref access here
 }
 
 class MainApp extends ConsumerWidget {

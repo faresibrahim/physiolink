@@ -1,4 +1,6 @@
+using FirebaseAdmin.Messaging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using PhysioLink.Application.DTOs;
 using PhysioLink.Application.DTOs.Assignments;
 using PhysioLink.Application.Interfaces;
@@ -10,10 +12,17 @@ namespace PhysioLink.Infrastructure.Services
     public class AdminAssignmentService : IAdminAssignmentService
     {
         private readonly PhysioLinkDbContext _dbContext;
+        private readonly IPushNotificationSender _pushSender;
+        private readonly ILogger<AdminAssignmentService> _logger;
 
-        public AdminAssignmentService(PhysioLinkDbContext dbContext)
+        public AdminAssignmentService(
+            PhysioLinkDbContext dbContext,
+            IPushNotificationSender pushSender,
+            ILogger<AdminAssignmentService> logger)
         {
             _dbContext = dbContext;
+            _pushSender = pushSender;
+            _logger = logger;
         }
 
         public async Task<PagedResult<AssignmentDto>> GetAllByPatientAsync(Guid patientId, int page, int pageSize)
@@ -101,6 +110,8 @@ namespace PhysioLink.Infrastructure.Services
             _dbContext.ExerciseAssignments.Add(assignment);
             await _dbContext.SaveChangesAsync();
 
+            await SendAssignmentPushAsync(patientId, assignment, exerciseName);
+
             return new AssignmentDto
             {
                 ExerciseAssignmentId = assignment.ExerciseAssignmentId,
@@ -118,6 +129,36 @@ namespace PhysioLink.Infrastructure.Services
                 AssignedAt = assignment.AssignedAt,
                 CompletedAt = assignment.CompletedAt
             };
+        }
+
+        // Best-effort — a dead token or FCM outage must never fail the assignment
+        // itself, which already committed above.
+        private async Task SendAssignmentPushAsync(Guid patientId, ExerciseAssignment assignment, string exerciseName)
+        {
+            var patient = await _dbContext.Patients.FirstOrDefaultAsync(p => p.PatientId == patientId);
+            if (string.IsNullOrWhiteSpace(patient?.DeviceToken)) return;
+
+            try
+            {
+                await _pushSender.SendAsync(
+                    patient.DeviceToken,
+                    "New exercise assigned",
+                    exerciseName,
+                    new Dictionary<string, string>
+                    {
+                        ["type"] = "exercise",
+                        ["id"] = assignment.ExerciseAssignmentId.ToString(),
+                    });
+            }
+            catch (FirebaseMessagingException ex) when (ex.MessagingErrorCode == MessagingErrorCode.Unregistered)
+            {
+                patient.DeviceToken = null;
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Push notification failed for patient {PatientId}", patientId);
+            }
         }
 
         public async Task<AssignmentDto?> UpdateAsync(Guid id, UpdateAssignmentDto dto)

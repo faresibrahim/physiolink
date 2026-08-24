@@ -21,6 +21,8 @@ public class Patient : ClinicScopedEntity
 
     public bool IsActive { get; set; }
 
+    public string? DeviceToken { get; set; }
+
     public Patient(string firstName, string lastName, string phoneNumber, Guid applicationUserId, string username, string? email, string diagnosis)
         {
             PatientId = Guid.NewGuid();

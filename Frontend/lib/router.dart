@@ -1,3 +1,5 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:practice/features/appointments/presentation/pages/slot_booking_page.dart';
 import 'package:practice/features/appointments/presentation/pages/appointments_page.dart';
@@ -12,10 +14,49 @@ import 'package:practice/features/exercises/presentation/pages/exercises_page.da
 import 'package:practice/features/homepage/presentation/home_page.dart';
 import 'package:practice/features/homepage/presentation/shell_page.dart';
 import 'package:practice/features/auth/presentation/providers/auth_provider.dart';
+import 'package:practice/core/notifications/notification_providers.dart';
+import 'package:practice/core/notifications/notification_service.dart';
+
+// Reachable outside the widget tree, for navigating from a background/cold-start
+// notification tap where there's no BuildContext yet.
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+
+// Placeholder routing: sends the patient to the relevant tab rather than a
+// specific record, since neither destination currently supports opening by id
+// — ExerciseDetailPage takes a full ExerciseAssignment via `extra` (no
+// fetch-by-id repository call exists) and there's no appointment detail page
+// at all (`/appointment` is the booking flow). Add cases/detail routes as more
+// notification types need a precise destination.
+void _handleNotificationTap(RemoteMessage message) {
+  switch (message.data['type']) {
+    case 'appointment':
+      rootNavigatorKey.currentContext?.go('/appointments');
+    case 'exercise':
+      rootNavigatorKey.currentContext?.go('/exercises');
+    default:
+      rootNavigatorKey.currentContext?.go('/home');
+  }
+}
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authNotifier = ref.read(authNotifierProvider);
+
+  // Firebase can rotate the device token at any time (reinstall, token
+  // expiry). One subscription for the app's lifetime keeps the backend copy
+  // current; a signed-out patient simply gets a 401/403 that we ignore here.
+  final notificationService = ref.read(notificationServiceProvider);
+  notificationService.initialize();
+  notificationService.onTokenRefresh.listen((token) {
+    ref.read(notificationRepositoryProvider).registerDeviceToken(token);
+  });
+
+  FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+  FirebaseMessaging.instance.getInitialMessage().then((initialMessage) {
+    if (initialMessage != null) _handleNotificationTap(initialMessage);
+  });
+
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/splash',
     refreshListenable: authNotifier,
     redirect: (context, state) {

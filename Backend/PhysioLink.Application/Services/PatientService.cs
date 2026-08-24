@@ -35,6 +35,11 @@ namespace PhysioLink.Application.Services
             return patient?.PatientId;
         }
 
-       
+        public async Task<bool> RegisterDeviceTokenAsync(Guid patientId, string deviceToken)
+        {
+            return await _patientRepository.UpdateDeviceTokenAsync(patientId, deviceToken);
+        }
+
+
     }
 }

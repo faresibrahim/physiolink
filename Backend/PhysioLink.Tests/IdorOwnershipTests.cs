@@ -217,6 +217,9 @@ internal class FakePatientService : IPatientService
 
     public Task<PatientProgressDto> GetPatientProgressAsync(Guid patientId) =>
         Task.FromResult(new PatientProgressDto());
+
+    public Task<bool> RegisterDeviceTokenAsync(Guid patientId, string deviceToken) =>
+        Task.FromResult(true);
 }
 
 internal class FakeExerciseService : IExerciseService

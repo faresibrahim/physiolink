@@ -49,6 +49,21 @@ namespace PhysioLink.API.Controllers
             return Ok(result);
         }
 
+        // No {id} route param — the patient is identified purely from the JWT,
+        // same as CallerOwnsPatientAsync resolves it, so there's no GUID here for
+        // an IDOR to swap in the first place.
+        [HttpPatch("patients/me/device-token")]
+        public async Task<IActionResult> RegisterDeviceToken([FromBody] RegisterDeviceTokenDto request)
+        {
+            if (User.GetApplicationUserId() is not { } userId) return Forbid();
+            var patientId = await _patientService.ResolvePatientIdAsync(userId);
+            if (patientId is not { } pid) return Forbid();
+
+            var success = await _patientService.RegisterDeviceTokenAsync(pid, request.DeviceToken);
+            if (!success) return NotFound();
+            return NoContent();
+        }
+
         // Ensures the {id} in the route is the caller's own PatientId. The patient is
         // resolved from the JWT identity — never trusted from the URL — closing the
         // IDOR where any patient could read/edit another's record by swapping the GUID.
