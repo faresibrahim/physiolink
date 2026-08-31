@@ -44,21 +44,33 @@ if (string.IsNullOrWhiteSpace(connectionString))
 // Base64 rather than raw JSON: the service account's private_key field has embedded
 // newlines, which get mangled pasting multi-line JSON into a single Railway env var.
 var firebaseCredentialsB64 = Environment.GetEnvironmentVariable("FIREBASE_SERVICE_ACCOUNT_JSON_B64");
-if (string.IsNullOrWhiteSpace(firebaseCredentialsB64))
+if (!string.IsNullOrWhiteSpace(firebaseCredentialsB64))
 {
+    var firebaseCredentialsJson = Encoding.UTF8.GetString(Convert.FromBase64String(firebaseCredentialsB64));
+
+    // One-time for the process: FirebaseMessaging.DefaultInstance reads off the
+    // FirebaseApp created here, and creating a second one with the same name throws.
+    // If integration tests ever spin up WebApplicationFactory more than once per
+    // process, this line is what breaks — guard it there, not here.
+    FirebaseApp.Create(new AppOptions
+    {
+        Credential = GoogleCredential.FromJson(firebaseCredentialsJson)
+    });
+}
+else if (builder.Environment.IsProduction())
+{
+    // Required in production (Railway). Fail fast rather than discovering a
+    // broken FirebaseMessaging.DefaultInstance on the first push send.
     throw new InvalidOperationException(
         "FIREBASE_SERVICE_ACCOUNT_JSON_B64 is not set. Base64-encode the Firebase service account JSON (Firebase console -> Project settings -> Service accounts -> Generate new private key) and provide it via environment variable.");
 }
-var firebaseCredentialsJson = Encoding.UTF8.GetString(Convert.FromBase64String(firebaseCredentialsB64));
-
-// One-time for the process: FirebaseMessaging.DefaultInstance reads off the
-// FirebaseApp created here, and creating a second one with the same name throws.
-// If integration tests ever spin up WebApplicationFactory more than once per
-// process, this line is what breaks — guard it there, not here.
-FirebaseApp.Create(new AppOptions
+else
 {
-    Credential = GoogleCredential.FromJson(firebaseCredentialsJson)
-});
+    // Local dev without Firebase creds: skip init. Push sends become no-ops that
+    // the assignment/appointment services already swallow, so the rest of the API
+    // still works.
+    Console.WriteLine("[warn] FIREBASE_SERVICE_ACCOUNT_JSON_B64 not set — push notifications disabled for this run.");
+}
 
 // Add services to the container.
 //add swagger services

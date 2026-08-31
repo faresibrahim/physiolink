@@ -435,6 +435,22 @@
                         {
                             <p class="picker-empty">No exercises in the library yet.</p>
                         }
+                        else
+                        {
+                            @* Search — filters exercises by name across every joint while
+                               keeping the same category layout. For when the admin already
+                               knows the exercise and doesn't want to hunt through joints. *@
+                            <div class="picker-search">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                <input type="text" id="exercisePickerSearch" class="picker-search-input"
+                                       placeholder="Search exercises by name" autocomplete="off" />
+                            </div>
+
+                            <p class="picker-empty" id="exercisePickerNoResults" hidden>No exercises match your search.</p>
+                        }
                         @foreach (var grp in pickerGroups)
                         {
                             <div class="picker-group">
@@ -544,11 +560,14 @@
             var pickerPanel   = document.getElementById('exercisePickerPanel');
             var pickerValue   = document.getElementById('exercisePickerValue');
             var exerciseInput = document.getElementById('ExerciseId');
+            var pickerSearch    = document.getElementById('exercisePickerSearch');
+            var pickerNoResults = document.getElementById('exercisePickerNoResults');
 
             function openPicker() {
                 pickerPanel.hidden = false;
                 pickerControl.setAttribute('aria-expanded', 'true');
                 picker.classList.add('picker-open');
+                if (pickerSearch) { pickerSearch.focus(); }
             }
 
             function closePicker() {
@@ -566,6 +585,46 @@
                 });
             }
 
+            // Filters the picker by exercise name while keeping the joint grouping.
+            // Empty query restores the default collapsed accordion; a query auto-
+            // expands every joint that has a match and hides options that don't.
+            function applyPickerFilter(rawQuery) {
+                var q = (rawQuery || '').trim().toLowerCase();
+                var groups = pickerPanel.querySelectorAll('.picker-group');
+
+                if (!q) {
+                    groups.forEach(function (group) {
+                        group.hidden = false;
+                        group.querySelectorAll('.picker-option').forEach(function (opt) {
+                            opt.hidden = false;
+                        });
+                    });
+                    collapseAllGroups();
+                    if (pickerNoResults) { pickerNoResults.hidden = true; }
+                    return;
+                }
+
+                var anyMatch = false;
+                groups.forEach(function (group) {
+                    var header = group.querySelector('.picker-group-header');
+                    var items  = group.querySelector('.picker-group-items');
+                    var groupHasMatch = false;
+
+                    items.querySelectorAll('.picker-option').forEach(function (opt) {
+                        var match = (opt.dataset.name || '').toLowerCase().indexOf(q) !== -1;
+                        opt.hidden = !match;
+                        if (match) { groupHasMatch = true; }
+                    });
+
+                    group.hidden = !groupHasMatch;
+                    header.setAttribute('aria-expanded', groupHasMatch ? 'true' : 'false');
+                    items.hidden = !groupHasMatch;
+                    if (groupHasMatch) { anyMatch = true; }
+                });
+
+                if (pickerNoResults) { pickerNoResults.hidden = anyMatch; }
+            }
+
             function resetPicker() {
                 exerciseInput.value = '';
                 pickerValue.textContent = 'Select an exercise';
@@ -574,7 +633,8 @@
                     opt.classList.remove('is-selected');
                     opt.setAttribute('aria-selected', 'false');
                 });
-                collapseAllGroups();
+                if (pickerSearch) { pickerSearch.value = ''; }
+                applyPickerFilter('');
                 closePicker();
             }
 
@@ -582,6 +642,12 @@
                 pickerControl.addEventListener('click', function () {
                     if (pickerPanel.hidden) { openPicker(); } else { closePicker(); }
                 });
+
+                if (pickerSearch) {
+                    pickerSearch.addEventListener('input', function () {
+                        applyPickerFilter(pickerSearch.value);
+                    });
+                }
 
                 // Accordion: opening one joint closes the others, so the panel stays
                 // short enough to scan instead of unrolling the whole library.
@@ -630,6 +696,12 @@
                 document.addEventListener('keydown', function (e) {
                     if (e.key === 'Escape' && !pickerPanel.hidden) {
                         e.stopPropagation();
+                        // First Escape clears an active search; a second one closes the panel.
+                        if (pickerSearch && pickerSearch.value) {
+                            pickerSearch.value = '';
+                            applyPickerFilter('');
+                            return;
+                        }
                         closePicker();
                         pickerControl.focus();
                     }

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
@@ -43,16 +43,16 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
       };
 
   Color get _difficultyColor => switch (assignment.difficulty) {
-        DifficultyLevel.easy => AppColors.secondary,
-        DifficultyLevel.moderate => const Color(0xFFF59E0B),
-        DifficultyLevel.hard => AppColors.destructive,
-      };
+    DifficultyLevel.easy => AppColors.secondary,
+    DifficultyLevel.moderate => const Color(0xFFF59E0B),
+    DifficultyLevel.hard => AppColors.destructive,
+  };
 
   Color get _difficultyBg => switch (assignment.difficulty) {
-        DifficultyLevel.easy => AppColors.secondaryLight,
-        DifficultyLevel.moderate => const Color(0xFFFFF8E6),
-        DifficultyLevel.hard => const Color(0xFFFFEEEE),
-      };
+    DifficultyLevel.easy => AppColors.secondaryLight,
+    DifficultyLevel.moderate => const Color(0xFFFFF8E6),
+    DifficultyLevel.hard => const Color(0xFFFFEEEE),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -237,8 +237,11 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
                 borderRadius: BorderRadius.circular(AppRadius.pill),
                 boxShadow: [
                   BoxShadow(
-                    color: (_feedback == null ? AppColors.secondary : AppColors.primary)
-                        .withValues(alpha: 0.30),
+                    color:
+                        (_feedback == null
+                                ? AppColors.secondary
+                                : AppColors.primary)
+                            .withValues(alpha: 0.30),
                     blurRadius: 14,
                     offset: const Offset(0, 5),
                   ),
@@ -276,7 +279,8 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
     // Arabic steps when the app is in Arabic and a translation exists,
     // otherwise the English description.
     final arabic = assignment.descriptionAr;
-    final useArabic = Localizations.localeOf(context).languageCode == 'ar' &&
+    final useArabic =
+        Localizations.localeOf(context).languageCode == 'ar' &&
         arabic != null &&
         arabic.trim().isNotEmpty;
     final description = useArabic ? arabic : assignment.description;
@@ -399,7 +403,9 @@ class _ExerciseDetailPageState extends ConsumerState<ExerciseDetailPage> {
                                   _feedback = selected;
                                   _completedAt = DateTime.now();
                                 });
-                                final repo = ref.read(exerciseRepositoryProvider);
+                                final repo = ref.read(
+                                  exerciseRepositoryProvider,
+                                );
                                 await repo.submitFeedback(
                                   assignment.exerciseAssignmentId,
                                   selected!,
@@ -435,8 +441,18 @@ class _FeedbackCard extends StatelessWidget {
   final VoidCallback onTap;
 
   static const _months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   static String _formatDate(AppLocalizations l10n, DateTime date) {
@@ -615,9 +631,9 @@ class _IntensityBar extends StatelessWidget {
             child: Container(
               height: 4,
               decoration: BoxDecoration(
-                color: FeedbackChips.colorFor(i).withValues(
-                  alpha: i <= rating ? 1.0 : 0.18,
-                ),
+                color: FeedbackChips.colorFor(
+                  i,
+                ).withValues(alpha: i <= rating ? 1.0 : 0.18),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -674,14 +690,14 @@ class _YoutubeVideoHeroState extends State<_YoutubeVideoHero> {
   // the title. Tap-to-play/pause below replaces the native controls instead.
   late final YoutubePlayerController _controller =
       YoutubePlayerController.fromVideoId(
-    videoId: widget.videoId,
-    autoPlay: false,
-    params: const YoutubePlayerParams(
-      showControls: false,
-      showFullscreenButton: false,
-      strictRelatedVideos: true,
-    ),
-  );
+        videoId: widget.videoId,
+        autoPlay: false,
+        params: const YoutubePlayerParams(
+          showControls: false,
+          showFullscreenButton: false,
+          strictRelatedVideos: true,
+        ),
+      );
 
   @override
   void dispose() {
@@ -811,11 +827,14 @@ class _DirectVideoHeroState extends State<_DirectVideoHero> {
   void initState() {
     super.initState();
     _controller = _buildController();
-    _controller.initialize().then((_) {
-      if (mounted) setState(() => _initialized = true);
-    }).catchError((e) {
-      if (mounted) setState(() => _error = e.toString());
-    });
+    _controller
+        .initialize()
+        .then((_) {
+          if (mounted) setState(() => _initialized = true);
+        })
+        .catchError((e) {
+          if (mounted) setState(() => _error = e.toString());
+        });
   }
 
   VideoPlayerController _buildController() {
@@ -856,29 +875,34 @@ class _DirectVideoHeroState extends State<_DirectVideoHero> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.movie_outlined,
-                            color: Colors.white24, size: 48),
+                        const Icon(
+                          Icons.movie_outlined,
+                          color: Colors.white24,
+                          size: 48,
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           AppLocalizations.of(context)!.videoPreviewUnavailable,
                           style: const TextStyle(
-                              color: Colors.white54, fontSize: 12),
+                            color: Colors.white54,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
                   )
                 : _initialized
-                    ? FittedBox(
-                        fit: BoxFit.cover,
-                        child: SizedBox(
-                          width: _controller.value.size.width,
-                          height: _controller.value.size.height,
-                          child: VideoPlayer(_controller),
-                        ),
-                      )
-                    : const Center(
-                        child: CircularProgressIndicator(color: Colors.white38),
-                      ),
+                ? FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: _controller.value.size.width,
+                      height: _controller.value.size.height,
+                      child: VideoPlayer(_controller),
+                    ),
+                  )
+                : const Center(
+                    child: CircularProgressIndicator(color: Colors.white38),
+                  ),
           ),
 
           // Tap to play / pause
@@ -934,8 +958,10 @@ class _DirectVideoHeroState extends State<_DirectVideoHero> {
                     ? _controller.value.duration
                     : Duration.zero;
                 return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(6),
@@ -982,12 +1008,12 @@ class _DirectVideoHeroState extends State<_DirectVideoHero> {
             child: GestureDetector(
               onTap: _initialized
                   ? () => Navigator.of(context, rootNavigator: true).push(
-                        MaterialPageRoute(
-                          fullscreenDialog: true,
-                          builder: (_) =>
-                              _FullscreenDirectVideoPage(controller: _controller),
-                        ),
-                      )
+                      MaterialPageRoute(
+                        fullscreenDialog: true,
+                        builder: (_) =>
+                            _FullscreenDirectVideoPage(controller: _controller),
+                      ),
+                    )
                   : null,
               child: Container(
                 width: 44,
@@ -1020,8 +1046,13 @@ class _FullscreenDirectVideoPage extends StatefulWidget {
       _FullscreenDirectVideoPageState();
 }
 
-class _FullscreenDirectVideoPageState
-    extends State<_FullscreenDirectVideoPage> with WidgetsBindingObserver {
+class _FullscreenDirectVideoPageState extends State<_FullscreenDirectVideoPage>
+    with WidgetsBindingObserver {
+  // Guards against didChangeMetrics re-hiding the system bars once we've
+  // started exiting (restoring them below is itself a metrics change), and
+  // against double-firing exit from a fast double-tap/back-gesture combo.
+  bool _exiting = false;
+
   @override
   void initState() {
     super.initState();
@@ -1037,15 +1068,34 @@ class _FullscreenDirectVideoPageState
   // Android versions, which silently brings the system bars back — re-hide
   // them on every such change for as long as this page is on screen.
   @override
-  void didChangeMetrics() => _hideSystemBars();
+  void didChangeMetrics() {
+    if (!_exiting) _hideSystemBars();
+  }
 
   void _hideSystemBars() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
+  // Restoring portrait + the system bars is what actually makes the device
+  // rotate back. Doing that in dispose() (the old approach) meant the
+  // rotation and the route's pop transition ran at the same time and visibly
+  // fought each other. Doing it here first, and giving the rotation a beat to
+  // settle before the pop transition even starts, makes the pop animate a
+  // stable already-portrait frame instead of a mid-rotation one.
+  Future<void> _exitFullscreen() async {
+    if (_exiting) return;
+    _exiting = true;
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (mounted) Navigator.of(context).pop();
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    // Safety net in case this page is ever popped some other way without
+    // going through _exitFullscreen first.
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
@@ -1054,81 +1104,87 @@ class _FullscreenDirectVideoPageState
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Center(
-            child: AspectRatio(
-              aspectRatio: controller.value.aspectRatio,
-              child: VideoPlayer(controller),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _exitFullscreen();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            Center(
+              child: AspectRatio(
+                aspectRatio: controller.value.aspectRatio,
+                child: VideoPlayer(controller),
+              ),
             ),
-          ),
 
-          // Tap to play / pause
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              setState(() {
-                controller.value.isPlaying
-                    ? controller.pause()
-                    : controller.play();
-              });
-            },
-            child: AnimatedBuilder(
-              animation: controller,
-              builder: (_, _) {
-                final playing = controller.value.isPlaying;
-                return Center(
-                  child: AnimatedOpacity(
-                    opacity: playing ? 0.0 : 1.0,
-                    duration: const Duration(milliseconds: 200),
-                    child: Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.4),
-                          width: 1.5,
+            // Tap to play / pause
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                setState(() {
+                  controller.value.isPlaying
+                      ? controller.pause()
+                      : controller.play();
+                });
+              },
+              child: AnimatedBuilder(
+                animation: controller,
+                builder: (_, _) {
+                  final playing = controller.value.isPlaying;
+                  return Center(
+                    child: AnimatedOpacity(
+                      opacity: playing ? 0.0 : 1.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.4),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow_rounded,
+                          color: Colors.white,
+                          size: 36,
                         ),
                       ),
-                      child: const Icon(
-                        Icons.play_arrow_rounded,
-                        color: Colors.white,
-                        size: 36,
-                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
 
-          // Exit fullscreen
-          Positioned(
-            top: 16,
-            left: 16,
-            child: GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.fullscreen_exit_rounded,
-                  color: Colors.white,
-                  size: 22,
+            // Exit fullscreen
+            Positioned(
+              top: 16,
+              left: 16,
+              child: GestureDetector(
+                onTap: _exitFullscreen,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.fullscreen_exit_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
