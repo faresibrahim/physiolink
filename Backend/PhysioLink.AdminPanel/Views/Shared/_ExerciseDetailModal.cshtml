@@ -165,6 +165,7 @@
         videoFile.style.display = 'none';
         iframe.style.display    = 'none';
         modal.classList.add('modal-visible');
+        window.plModal.opened(modal);
 
         try {
             // Goes through the panel's own controller — same origin, HttpOnly auth cookie
@@ -221,6 +222,7 @@
 
     function closeExerciseModal() {
         modal.classList.remove('modal-visible');
+        window.plModal.closed(modal);
         iframe.src = ''; // stops YouTube audio
         videoFile.pause(); // stops local file playback
     }

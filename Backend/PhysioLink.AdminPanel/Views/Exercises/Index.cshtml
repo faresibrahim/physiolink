@@ -1,4 +1,4 @@
-﻿@model PhysioLink.AdminPanel.ViewModels.ExerciseListViewModel
+@model PhysioLink.AdminPanel.ViewModels.ExerciseListViewModel
 @{
     ViewData["Title"] = "Exercises";
 }
@@ -24,12 +24,13 @@
 }
 
 @* =========================================================================
-   PAGE HEADER — title + subtitle (stat line)
-   Create CTA is intentionally hidden — exercises are curated centrally.
+   PAGE HEADER — shares .page-header with every other listing.
+   Create CTA is intentionally absent — exercises are curated centrally.
    ========================================================================= *@
-<div class="library-header">
+<div class="page-header">
     <div>
-        <h1 class="library-title">Exercise Library</h1>
+        <h1 class="page-title">Exercise library</h1>
+        <p class="page-sub">@Model.TotalCount @(Model.TotalCount == 1 ? "exercise" : "exercises") available to assign</p>
     </div>
 </div>
 
@@ -61,15 +62,12 @@
         </div>
 
         <div class="select-field">
-            <select name="difficulty" class="filter-select" onchange="this.form.submit()">
+            <select name="difficulty" class="filter-select" aria-label="Filter by difficulty" onchange="this.form.submit()">
                 <option value="" selected="@allSelected">All difficulties</option>
                 <option value="Easy" selected="@easySelected">Easy</option>
                 <option value="Moderate" selected="@moderateSelected">Moderate</option>
                 <option value="Hard" selected="@hardSelected">Hard</option>
             </select>
-            <svg class="select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
         </div>
     </form>
 </section>
@@ -83,7 +81,7 @@
     var categories = new[] { "Shoulder", "Elbow", "Wrist", "Spine", "Core", "Hip", "Knee", "Ankle" };
     bool allActive = string.IsNullOrEmpty(Model.CategoryFilter);
 }
-<div class="chip-row">
+<nav class="chip-row" aria-label="Filter by body region">
     <a asp-action="Index"
        asp-route-search="@Model.SearchQuery"
        asp-route-difficulty="@Model.DifficultyFilter"
@@ -101,16 +99,19 @@
             @cat
         </a>
     }
-</div>
+</nav>
 
 @* =========================================================================
    GRID
    ========================================================================= *@
 @if (Model.Exercises.Count == 0)
 {
-    <div class="empty-state card">
-        <h3 class="empty-state-title">No exercises found</h3>
-        <p class="empty-state-subtitle">Try adjusting your search or filter.</p>
+    <div class="card empty-state">
+        <h2 class="empty-state-title">No exercises match these filters</h2>
+        <p class="empty-state-subtitle">Try a different search term, region or difficulty.</p>
+        <div class="empty-state-action">
+            <a asp-action="Index" class="btn btn-ghost btn-sm">Clear filters</a>
+        </div>
     </div>
 }
 else
@@ -128,11 +129,12 @@ else
             string? thumbnailUrl = GetYouTubeThumbnail(exercise.VideoUrl);
 
             <article class="exercise-card" onclick="openExerciseModal('@exercise.ExerciseId')" tabindex="0" role="button"
+                     aria-label="@exercise.Name — open details"
                      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openExerciseModal('@exercise.ExerciseId');}">
-                @* Top visual — YouTube thumbnail when a video exists, otherwise hatched background *@
+                @* Top visual — YouTube thumbnail when a video exists, otherwise a plain sunken surface *@
                 <div class="exercise-visual@(thumbnailUrl != null ? " has-thumbnail" : "")"
                      style="@(thumbnailUrl != null ? $"background-image:url('{thumbnailUrl}')" : "")">
-                    <span class="region-tag">@exercise.Category.ToUpper()</span>
+                    <span class="region-tag">@exercise.Category</span>
 
                     <div class="exercise-icon-disc">
                         @if (thumbnailUrl != null)
@@ -156,7 +158,7 @@ else
                         <h3 class="exercise-name">@exercise.Name</h3>
                         <span class="difficulty-pill @difficultyClass">
                             <span class="difficulty-dot"></span>
-                            @exercise.Difficulty?.ToUpper()
+                            @exercise.Difficulty
                         </span>
                     </div>
 

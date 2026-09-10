@@ -14,14 +14,16 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/physiolink.css" asp-append-version="true" />
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js" defer></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <div class="app">
 
         <aside class="sidebar">
             <div class="brand">
-                <img class="brand-mark" src="~/images/physiolink_logo_white.svg" alt="PhysioLink" width="64" height="64" />
+                <img class="brand-mark" src="~/images/physiolink_logo_white.svg" alt="" width="64" height="64" />
                 <div>
                     <div class="brand-name">PhysioLink</div>
                     <div class="brand-sub">Admin Panel</div>
@@ -31,27 +33,32 @@
             <nav class="nav">
                 <div class="nav-label">Workspace</div>
                 <a asp-action="Index" asp-controller="Dashboard"
-                   class="nav-item @(currentController == "Dashboard" ? "active" : "")">
+                   class="nav-item @(currentController == "Dashboard" ? "active" : "")"
+                   aria-current="@(currentController == "Dashboard" ? "page" : null)">
                     <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="9" rx="1.5" /><rect x="14" y="3" width="7" height="5" rx="1.5" /><rect x="14" y="12" width="7" height="9" rx="1.5" /><rect x="3" y="16" width="7" height="5" rx="1.5" /></svg>
                     Dashboard
                 </a>
                 <a asp-action="Index" asp-controller="Patients"
-                   class="nav-item @(currentController == "Patients" ? "active" : "")">
+                   class="nav-item @(currentController == "Patients" ? "active" : "")"
+                   aria-current="@(currentController == "Patients" ? "page" : null)">
                     <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
                     Patients
                 </a>
                 <a asp-action="Index" asp-controller="Therapists"
-                   class="nav-item @(currentController == "Therapists" ? "active" : "")">
+                   class="nav-item @(currentController == "Therapists" ? "active" : "")"
+                   aria-current="@(currentController == "Therapists" ? "page" : null)">
                     <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M11 2v2" /><path d="M5 2v2" /><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1" /><path d="M8 15a6 6 0 0 0 12 0v-3" /><circle cx="20" cy="10" r="2" /></svg>
                     Therapists
                 </a>
                 <a asp-action="Index" asp-controller="Exercises"
-                   class="nav-item @(currentController == "Exercises" ? "active" : "")">
+                   class="nav-item @(currentController == "Exercises" ? "active" : "")"
+                   aria-current="@(currentController == "Exercises" ? "page" : null)">
                     <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14.4 14.4 9.6 9.6" /><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.768 1.768a2 2 0 1 1-2.828-2.829l6.364-6.364a2 2 0 1 1 2.829 2.828l1.767-1.767a2 2 0 1 1 2.829 2.829z" /></svg>
                     Exercises
                 </a>
                 <a asp-action="Index" asp-controller="Appointments"
-                   class="nav-item @(currentController == "Appointments" && currentAction != "Requests" ? "active" : "")">
+                   class="nav-item @(currentController == "Appointments" && currentAction != "Requests" ? "active" : "")"
+                   aria-current="@(currentController == "Appointments" && currentAction != "Requests" ? "page" : null)">
                     <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" /></svg>
                     Appointments
                 </a>
@@ -76,15 +83,17 @@
             </div>
         </aside>
 
-        <main class="main">
+        <main class="main" id="main-content">
             @* Every page renders its own in-content header (title + subtitle +
                CTA), so the layout adds no chrome above the content. *@
             <div class="screens">
+                @* Success fades on its own; an error waits to be dismissed, so the
+                   admin can still read what failed after looking away. *@
                 @if (TempData["SuccessMessage"] is string success)
                 {
                     <div id="pl-toast-success" class="alert alert-success" role="status">
                         <div class="alert-icon">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M20 6 9 17l-5-5" /></svg>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
                         </div>
                         @success
                     </div>
@@ -92,32 +101,18 @@
                 @if (TempData["ErrorMessage"] is string error)
                 {
                     <div id="pl-toast-error" class="alert alert-error" role="alert">
+                        <div class="alert-icon">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                        </div>
                         @error
+                        <button type="button" class="alert-dismiss" aria-label="Dismiss">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                        </button>
                     </div>
                 }
 
                 @RenderBody()
-
-<script>
-(function () {
-    function dismissToasts() {
-        ['pl-toast-success', 'pl-toast-error'].forEach(function (id) {
-            var el = document.getElementById(id);
-            if (!el) return;
-            el.style.opacity = '0';
-            setTimeout(function () { el.style.display = 'none'; }, 400);
-        });
-    }
-
-    // Auto-dismiss after 4 seconds
-    setTimeout(dismissToasts, 4000);
-
-    // Hide immediately when page is restored from back/forward cache
-    window.addEventListener('pageshow', function (e) {
-        if (e.persisted) dismissToasts();
-    });
-})();
-</script>
+                @await RenderSectionAsync("Scripts", required: false)
             </div>
         </main>
 

@@ -68,49 +68,51 @@
 
 @* ── History table ───────────────────────────────────────────────────────── *@
 <div class="card card-flush">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Date &amp; Time</th>
-                <th>Patient</th>
-                <th>Therapist</th>
-                <th>Title</th>
-                <th>Outcome</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (!Model.Appointments.Any())
-            {
+    <div class="table-scroll">
+        <table class="data-table data-table-wide">
+            <thead>
                 <tr>
-                    <td colspan="6" class="empty-row">No finished appointments match these filters yet.</td>
+                    <th>Date &amp; Time</th>
+                    <th>Patient</th>
+                    <th>Therapist</th>
+                    <th>Title</th>
+                    <th>Outcome</th>
+                    <th>Actions</th>
                 </tr>
-            }
-            @foreach (var appt in Model.Appointments)
-            {
-                var therapist = string.IsNullOrEmpty(appt.TherapistName) ? "—" : appt.TherapistName;
-                <tr>
-                    <td>
-                        <span class="appt-date">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("MMM d, yyyy")</span>
-                        <span class="appt-time">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("HH:mm")</span>
-                    </td>
-                    <td class="primary-cell">@appt.PatientName</td>
-                    <td class="muted-cell">@therapist</td>
-                    <td class="primary-cell">@appt.Title</td>
-                    <td>
-                        @await Html.PartialAsync("_StatusBadge", appt.Status)
-                    </td>
-                    <td>
-                        <div class="row-actions">
-                            <a asp-controller="Patients" asp-action="Detail"
-                               asp-route-id="@appt.PatientId"
-                               class="btn btn-ghost btn-xs">View Patient</a>
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @if (!Model.Appointments.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="empty-row">No finished appointments match these filters yet.</td>
+                    </tr>
+                }
+                @foreach (var appt in Model.Appointments)
+                {
+                    var therapist = string.IsNullOrEmpty(appt.TherapistName) ? "—" : appt.TherapistName;
+                    <tr>
+                        <td>
+                            <span class="appt-date">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("MMM d, yyyy")</span>
+                            <span class="appt-time">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("HH:mm")</span>
+                        </td>
+                        <td class="primary-cell">@appt.PatientName</td>
+                        <td class="muted-cell">@therapist</td>
+                        <td class="primary-cell">@appt.Title</td>
+                        <td>
+                            @await Html.PartialAsync("_StatusBadge", appt.Status)
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                <a asp-controller="Patients" asp-action="Detail"
+                                   asp-route-id="@appt.PatientId"
+                                   class="btn btn-ghost btn-sm">View Patient</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @* ── Pagination ──────────────────────────────────────────────────────────── *@

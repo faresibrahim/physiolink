@@ -9,18 +9,21 @@
     var createdUsername = TempData["PatientCreatedUsername"] as string;
     var createdPassword = TempData["PatientCreatedPassword"] as string;
     var showCredentials = !string.IsNullOrEmpty(createdPassword);
+
+    var isFiltered = !string.IsNullOrWhiteSpace(Model.SearchQuery) || Model.SelectedTherapistId != null;
 }
 
 <div class="page-header">
     <div>
         <h1 class="page-title">Patients</h1>
         <p class="page-sub">
-            @Model.TotalCount patients
+            @Model.TotalCount @(Model.TotalCount == 1 ? "patient" : "patients")
         </p>
     </div>
     <button type="button" onclick="openPatientModal()"
             class="btn btn-primary">
-        + New Patient
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
+        New patient
     </button>
 </div>
 
@@ -64,23 +67,44 @@
 
 @* Patients table *@
 <div class="card card-flush">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Patient</th>
-                <th>Therapist</th>
-                <th>Phone</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Therapist</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
 
+            @* An empty list means two different things: nothing matched the
+               filters, or the clinic has no patients yet. Each needs its own
+               way out. *@
             @if (Model.Patients.Count == 0)
             {
                 <tr>
                     <td colspan="5" class="empty-row">
-                        No patients found.
+                        <div class="empty-state">
+                            @if (isFiltered)
+                            {
+                                <h2 class="empty-state-title">No patients match these filters</h2>
+                                <p class="empty-state-subtitle">Try a different name, or clear the filters to see everyone.</p>
+                                <div class="empty-state-action">
+                                    <a asp-action="Index" class="btn btn-ghost btn-sm">Clear filters</a>
+                                </div>
+                            }
+                            else
+                            {
+                                <h2 class="empty-state-title">No patients yet</h2>
+                                <p class="empty-state-subtitle">Add your first patient to start assigning exercises.</p>
+                                <div class="empty-state-action">
+                                    <button type="button" onclick="openPatientModal()" class="btn btn-primary btn-sm">New patient</button>
+                                </div>
+                            }
+                        </div>
                     </td>
                 </tr>
             }
@@ -100,7 +124,14 @@
                         </div>
                     </td>
                     <td class="muted-cell">
-                        @(patient.TherapistName ?? "Unassigned")
+                        @if (string.IsNullOrWhiteSpace(patient.TherapistName))
+                        {
+                            <span class="unassigned-text">Unassigned</span>
+                        }
+                        else
+                        {
+                            @patient.TherapistName
+                        }
                     </td>
                     <td class="muted-cell">
                         @patient.PhoneNumber
@@ -123,8 +154,9 @@
                 </tr>
             }
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @await Html.PartialAsync("_Pagination", Model.Pagination)
@@ -156,8 +188,9 @@
             </button>
         </div>
 
-        <form method="post" asp-action="Edit" asp-controller="Patients" class="modal-form" id="editPatientForm">
+        <form method="post" asp-action="Edit" asp-controller="Patients" class="modal-form" id="editPatientForm" novalidate>
             @Html.AntiForgeryToken()
+            <div class="alert alert-error form-error-banner" role="alert" hidden></div>
             <input type="hidden" id="editPatientRouteId" name="id" value="" />
             <input type="hidden" id="editPatientId" name="PatientId" value="" />
             <input type="hidden" id="editPatientIsActive" name="IsActive" value="true" />
@@ -223,12 +256,19 @@
         var editForm  = document.getElementById('editPatientForm');
         if (!editModal || !editForm) return;
 
+        function reportLoadFailure() {
+            window.plForm.showFormError(editModal, 'Could not load this patient. Check your connection and try again.');
+            editModal.classList.add('modal-visible');
+            window.plModal.opened(editModal);
+        }
+
         async function openEditPatientModal(patientId) {
+            window.plForm.clearErrors(editModal);
             try {
                 var response = await fetch('/Patients/GetById/' + encodeURIComponent(patientId));
-                if (!response.ok) { alert('Could not load patient.'); return; }
+                if (!response.ok) { reportLoadFailure(); return; }
                 var data = await response.json();
-                if (data.error) { alert('Could not load patient.'); return; }
+                if (data.error) { reportLoadFailure(); return; }
 
                 document.getElementById('editPatientRouteId').value = data.patientId;
                 document.getElementById('editPatientId').value      = data.patientId;
@@ -242,14 +282,16 @@
                 document.getElementById('edit-TherapistId').value   = data.therapistId || '';
 
                 editModal.classList.add('modal-visible');
+                window.plModal.opened(editModal);
             } catch (err) {
                 console.error('[edit-patient]', err);
-                alert('Could not load patient.');
+                reportLoadFailure();
             }
         }
 
         function closeEditPatientModal() {
             editModal.classList.remove('modal-visible');
+            window.plModal.closed(editModal);
         }
 
         // Deliberately no overlay-click-to-close: an admin mid-form shouldn't lose
@@ -262,18 +304,17 @@
             }
         });
 
-        // Client-side validation
+        // Client-side validation — each missing field says so under itself,
+        // and focus lands on the first one that needs fixing.
         editForm.addEventListener('submit', function (e) {
-            var first    = document.getElementById('edit-FirstName').value.trim();
-            var last     = document.getElementById('edit-LastName').value.trim();
-            var username = document.getElementById('edit-Username').value.trim();
-            var phone    = document.getElementById('edit-PhoneNumber').value.trim();
-            var diag     = document.getElementById('edit-Diagnosis').value.trim();
-
-            if (!first || !last || !username || !phone || !diag) {
-                e.preventDefault();
-                alert('Please fill in all required fields.');
-            }
+            var ok = window.plForm.requireFields(editForm, [
+                ['edit-FirstName', 'First name'],
+                ['edit-LastName', 'Last name'],
+                ['edit-Username', 'Username'],
+                ['edit-PhoneNumber', 'Phone'],
+                ['edit-Diagnosis', 'Diagnosis']
+            ]);
+            if (!ok) e.preventDefault();
         });
 
         window.openEditPatientModal  = openEditPatientModal;
@@ -341,6 +382,11 @@
 
         function closeCredentialsModal() {
             credentialsModal.classList.remove('modal-visible');
+            window.plModal.closed(credentialsModal);
+        }
+
+        if (credentialsModal.classList.contains('modal-visible')) {
+            window.plModal.opened(credentialsModal);
         }
 
         // Deliberately no overlay-click-to-close: closing should be an explicit

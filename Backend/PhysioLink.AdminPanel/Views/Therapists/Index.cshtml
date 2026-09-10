@@ -9,12 +9,13 @@
     <div>
         <h1 class="page-title">Therapists</h1>
         <p class="page-sub">
-            @Model.TotalCount active practitioners.
+            @Model.TotalCount active @(Model.TotalCount == 1 ? "practitioner" : "practitioners")
         </p>
     </div>
 
     <button type="button" onclick="openTherapistModal()" class="btn btn-primary">
-        + Add Therapist
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
+        Add therapist
     </button>
 </div>
 
@@ -23,8 +24,11 @@
     @if (Model.Therapists.Count == 0)
     {
         <div class="card empty-state grid-span-all">
-            <h3 class="empty-state-title">No therapists yet</h3>
+            <h2 class="empty-state-title">No therapists yet</h2>
             <p class="empty-state-subtitle">Add your first practitioner to get started.</p>
+            <div class="empty-state-action">
+                <button type="button" onclick="openTherapistModal()" class="btn btn-primary btn-sm">Add therapist</button>
+            </div>
         </div>
     }
 
@@ -81,9 +85,11 @@
                     Edit
                 </button>
 
+                @* Deactivating revokes a practitioner's access, so it asks first. *@
                 <form asp-action="Deactivate"
                       asp-route-id="@therapist.Id"
-                      method="post">
+                      method="post"
+                      onsubmit="return confirm('Deactivate @(therapist.FirstName) @(therapist.LastName)? They will lose access until you reactivate them.');">
 
                     @Html.AntiForgeryToken()
 
@@ -119,8 +125,9 @@
             </button>
         </div>
 
-        <form method="post" asp-action="Create" asp-controller="Therapists" class="modal-form" id="therapistForm">
+        <form method="post" asp-action="Create" asp-controller="Therapists" class="modal-form" id="therapistForm" novalidate>
             @Html.AntiForgeryToken()
+            <div class="alert alert-error form-error-banner" role="alert" hidden></div>
 
             <div class="form-row">
                 <div class="form-group">
@@ -164,12 +171,15 @@
         if (!therapistModal || !therapistForm) return;
 
         function openTherapistModal() {
+            window.plForm.clearErrors(therapistModal);
             therapistModal.classList.add('modal-visible');
+            window.plModal.opened(therapistModal);
         }
 
         function closeTherapistModal() {
             therapistModal.classList.remove('modal-visible');
             therapistForm.reset();
+            window.plModal.closed(therapistModal);
         }
 
         // Deliberately no overlay-click-to-close: an admin mid-form shouldn't lose
@@ -182,18 +192,16 @@
             }
         });
 
-        // Client-side validation
+        // Client-side validation — the message goes under the field it belongs to.
         therapistForm.addEventListener('submit', function (e) {
-            var first     = document.getElementById('ther-FirstName').value.trim();
-            var last      = document.getElementById('ther-LastName').value.trim();
-            var specialty = document.getElementById('ther-Specialty').value.trim();
-            var phone     = document.getElementById('ther-PhoneNumber').value.trim();
-            var email     = document.getElementById('ther-Email').value.trim();
-
-            if (!first || !last || !specialty || !phone || !email) {
-                e.preventDefault();
-                alert('Please fill in all required fields.');
-            }
+            var ok = window.plForm.requireFields(therapistForm, [
+                ['ther-FirstName', 'First name'],
+                ['ther-LastName', 'Last name'],
+                ['ther-Specialty', 'Specialty'],
+                ['ther-PhoneNumber', 'Phone'],
+                ['ther-Email', 'Email']
+            ]);
+            if (!ok) e.preventDefault();
         });
 
         window.openTherapistModal  = openTherapistModal;
@@ -218,8 +226,9 @@
             </button>
         </div>
 
-        <form method="post" asp-action="Edit" asp-controller="Therapists" class="modal-form" id="editTherapistForm">
+        <form method="post" asp-action="Edit" asp-controller="Therapists" class="modal-form" id="editTherapistForm" novalidate>
             @Html.AntiForgeryToken()
+            <div class="alert alert-error form-error-banner" role="alert" hidden></div>
             <input type="hidden" id="edit-ther-Id" name="id" value="" />
             <input type="hidden" name="TherapistId" value="" id="edit-ther-TherapistId" />
 
@@ -265,6 +274,7 @@
         if (!editTherapistModal || !editTherapistForm) return;
 
         function openEditTherapistModal(id, firstName, lastName, specialty, phoneNumber, email) {
+            window.plForm.clearErrors(editTherapistModal);
             document.getElementById('edit-ther-Id').value          = id;
             document.getElementById('edit-ther-TherapistId').value = id;
             document.getElementById('edit-ther-FirstName').value   = firstName || '';
@@ -274,10 +284,12 @@
             document.getElementById('edit-ther-Email').value       = email || '';
 
             editTherapistModal.classList.add('modal-visible');
+            window.plModal.opened(editTherapistModal);
         }
 
         function closeEditTherapistModal() {
             editTherapistModal.classList.remove('modal-visible');
+            window.plModal.closed(editTherapistModal);
         }
 
         // Event delegation: one listener covers every "Edit" button in the grid,
@@ -305,18 +317,16 @@
             }
         });
 
-        // Client-side validation
+        // Client-side validation — the message goes under the field it belongs to.
         editTherapistForm.addEventListener('submit', function (e) {
-            var first     = document.getElementById('edit-ther-FirstName').value.trim();
-            var last      = document.getElementById('edit-ther-LastName').value.trim();
-            var specialty = document.getElementById('edit-ther-Specialty').value.trim();
-            var phone     = document.getElementById('edit-ther-PhoneNumber').value.trim();
-            var email     = document.getElementById('edit-ther-Email').value.trim();
-
-            if (!first || !last || !specialty || !phone || !email) {
-                e.preventDefault();
-                alert('Please fill in all required fields.');
-            }
+            var ok = window.plForm.requireFields(editTherapistForm, [
+                ['edit-ther-FirstName', 'First name'],
+                ['edit-ther-LastName', 'Last name'],
+                ['edit-ther-Specialty', 'Specialty'],
+                ['edit-ther-PhoneNumber', 'Phone'],
+                ['edit-ther-Email', 'Email']
+            ]);
+            if (!ok) e.preventDefault();
         });
 
         window.closeEditTherapistModal = closeEditTherapistModal;

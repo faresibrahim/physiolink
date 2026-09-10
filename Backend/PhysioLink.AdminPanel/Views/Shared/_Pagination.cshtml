@@ -23,18 +23,19 @@
         @if (Model.CurrentPage > 1)
         {
             <a href="@PageUrl(Model.CurrentPage - 1)" class="page-btn page-btn-nav" aria-label="Previous page">
-                <span aria-hidden="true">←</span><span>Prev</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg><span>Prev</span>
             </a>
         }
         else
         {
             <span class="page-btn page-btn-nav page-btn-disabled" aria-disabled="true">
-                <span aria-hidden="true">←</span><span>Prev</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg><span>Prev</span>
             </span>
         }
 
         @* ── First page ── *@
-        <a href="@PageUrl(1)" class="page-btn @(1 == Model.CurrentPage ? "page-btn-active" : "")">1</a>
+        <a href="@PageUrl(1)" class="page-btn @(1 == Model.CurrentPage ? "page-btn-active" : "")"
+           aria-current="@(1 == Model.CurrentPage ? "page" : null)">1</a>
 
         @if (start > 2)
         {
@@ -44,7 +45,8 @@
         @* ── Middle pages ── *@
         @for (int i = start; i <= end; i++)
         {
-            <a href="@PageUrl(i)" class="page-btn @(i == Model.CurrentPage ? "page-btn-active" : "")">@i</a>
+            <a href="@PageUrl(i)" class="page-btn @(i == Model.CurrentPage ? "page-btn-active" : "")"
+               aria-current="@(i == Model.CurrentPage ? "page" : null)">@i</a>
         }
 
         @if (end < Model.TotalPages - 1)
@@ -54,19 +56,20 @@
 
         @* ── Last page (only when TotalPages > 1, already guarded above) ── *@
         <a href="@PageUrl(Model.TotalPages)"
-           class="page-btn @(Model.TotalPages == Model.CurrentPage ? "page-btn-active" : "")">@Model.TotalPages</a>
+           class="page-btn @(Model.TotalPages == Model.CurrentPage ? "page-btn-active" : "")"
+           aria-current="@(Model.TotalPages == Model.CurrentPage ? "page" : null)">@Model.TotalPages</a>
 
         @* ── Next ── *@
         @if (Model.CurrentPage < Model.TotalPages)
         {
             <a href="@PageUrl(Model.CurrentPage + 1)" class="page-btn page-btn-nav" aria-label="Next page">
-                <span>Next</span><span aria-hidden="true">→</span>
+                <span>Next</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
             </a>
         }
         else
         {
             <span class="page-btn page-btn-nav page-btn-disabled" aria-disabled="true">
-                <span>Next</span><span aria-hidden="true">→</span>
+                <span>Next</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
             </span>
         }
     </nav>

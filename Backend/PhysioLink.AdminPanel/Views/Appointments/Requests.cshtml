@@ -26,20 +26,15 @@
 @* =========================================================================
    THERAPIST FILTER — dropdown list, auto-submits on change
    ========================================================================= *@
-<form method="get" asp-action="Requests" style="display:inline-block;">
-    <div class="select-field">
-        <select name="therapistFilter" class="filter-select" onchange="this.form.submit()">
-            <option value="" selected="@(Model.TherapistFilter == null)">All therapists</option>
-            @foreach (var t in Model.Therapists)
-            {
-                bool active = Model.TherapistFilter == t.Id;
-                <option value="@t.Id" selected="@active">@t.FirstName @t.LastName</option>
-            }
-        </select>
-        <svg class="select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-    </div>
+<form method="get" asp-action="Requests" class="toolbar">
+    <select name="therapistFilter" class="filter-select" aria-label="Filter by therapist" onchange="this.form.submit()">
+        <option value="" selected="@(Model.TherapistFilter == null)">All therapists</option>
+        @foreach (var t in Model.Therapists)
+        {
+            bool active = Model.TherapistFilter == t.Id;
+            <option value="@t.Id" selected="@active">@t.FirstName @t.LastName</option>
+        }
+    </select>
 </form>
 
 @* =========================================================================
@@ -48,7 +43,7 @@
 @if (count == 0)
 {
     <div class="card empty-state">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success); margin-bottom:var(--space-2);">
+        <svg class="empty-state-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M9 11l3 3L22 4" />
             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
         </svg>
@@ -93,7 +88,7 @@ else
                         <p class="request-notes">&ldquo;@r.Notes&rdquo;</p>
                     }
 
-                    <p class="request-requested-meta">Requested @r.RequestedAt.ToString("MMM d, HH:mm")</p>
+                    <p class="request-requested-meta">Requested @ClinicTime.ToLocal(r.RequestedAt).ToString("MMM d, HH:mm")</p>
                 </div>
 
                 <div class="request-actions">

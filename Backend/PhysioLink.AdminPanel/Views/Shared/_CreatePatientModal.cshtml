@@ -21,7 +21,8 @@
             </button>
         </div>
 
-        <form method="post" asp-action="Create" asp-controller="Patients" class="modal-form" id="patientForm">
+        <form method="post" asp-action="Create" asp-controller="Patients" class="modal-form" id="patientForm" novalidate>
+            <div class="alert alert-error form-error-banner" role="alert" hidden></div>
             @Html.AntiForgeryToken()
 
             <div class="form-row">
@@ -94,12 +95,15 @@
         if (!patientModal || !patientForm) return;
 
         function openPatientModal() {
+            window.plForm.clearErrors(patientModal);
             patientModal.classList.add('modal-visible');
+            window.plModal.opened(patientModal);
         }
 
         function closePatientModal() {
             patientModal.classList.remove('modal-visible');
             patientForm.reset();
+            window.plModal.closed(patientModal);
         }
 
         // Deliberately no overlay-click-to-close: an admin mid-form shouldn't lose
@@ -112,18 +116,16 @@
             }
         });
 
-        // Client-side validation
+        // Client-side validation — the message goes under the field it belongs to.
         patientForm.addEventListener('submit', function (e) {
-            var first    = document.getElementById('pat-FirstName').value.trim();
-            var last     = document.getElementById('pat-LastName').value.trim();
-            var username = document.getElementById('pat-Username').value.trim();
-            var phone    = document.getElementById('pat-PhoneNumber').value.trim();
-            var diag     = document.getElementById('pat-Diagnosis').value.trim();
-
-            if (!first || !last || !username || !phone || !diag) {
-                e.preventDefault();
-                alert('Please fill in all required fields.');
-            }
+            var ok = window.plForm.requireFields(patientForm, [
+                ['pat-FirstName', 'First name'],
+                ['pat-LastName', 'Last name'],
+                ['pat-Username', 'Username'],
+                ['pat-PhoneNumber', 'Phone'],
+                ['pat-Diagnosis', 'Diagnosis']
+            ]);
+            if (!ok) e.preventDefault();
         });
 
         window.openPatientModal  = openPatientModal;

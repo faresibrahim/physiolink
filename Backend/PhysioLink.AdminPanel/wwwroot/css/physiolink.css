@@ -27,7 +27,8 @@
 
     /* ---- Status (fill = brand tone, text = AA-contrast tone) ---- */
     --success: #4CAF82;
-    --success-text: #2E7D52;
+    --success-text: #2C7A4F;          /* AA on --success-soft (4.7:1) and on white */
+    --success-strong: #2C7A4F;        /* solid success fills w/ white text (AA) */
     --success-soft: #E7F5EE;
     --warning: #F59E0B;
     --warning-text: #92650A;
@@ -46,7 +47,7 @@
     --divider-soft: #F0F1F4;
     --text-primary: #22262C;          /* near-black, never #000 */
     --text-secondary: #636A74;        /* AA on white */
-    --text-tertiary: #8B919B;         /* placeholders / disabled only */
+    --text-tertiary: #6E7681;         /* quiet text — still AA (4.6:1) on white */
 
     /* ---- Sidebar (dark navy rail derived from brand blue) ---- */
     --rail-bg: #0A1C38;
@@ -152,8 +153,79 @@ textarea:focus-visible,
 [tabindex]:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px var(--primary-ring);
-    border-radius: var(--radius-sm);
 }
+
+/* Browser surfaces the design system still owns: selection, caret, scrollbars */
+::selection {
+    background: var(--primary-soft-hover);
+    color: var(--text-primary);
+}
+
+input,
+textarea,
+select,
+[contenteditable] {
+    caret-color: var(--primary);
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #C7CCD4 transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    border-radius: var(--radius-full);
+    background-color: #C7CCD4;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-tertiary);
+}
+
+/* Available to screen readers, absent from the visual layout */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Keyboard-only shortcut past the rail, visible only when focused */
+.skip-link {
+    position: absolute;
+    left: var(--space-2);
+    top: var(--space-2);
+    z-index: 300;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--primary);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    box-shadow: var(--shadow-pop);
+    transform: translateY(-200%);
+    transition: transform 150ms;
+}
+
+    .skip-link:focus-visible {
+        transform: translateY(0);
+    }
 
 /* =============================================================================
    APP SHELL
@@ -226,7 +298,6 @@ textarea:focus-visible,
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--rail-text);
-    opacity: 0.7;
     padding: var(--space-1) var(--space-2) var(--space-2);
     font-weight: 600;
 }
@@ -293,12 +364,12 @@ textarea:focus-visible,
         align-items: center;
         justify-content: center;
         border-radius: var(--radius-full);
-        background: var(--success);
+        background: var(--success-strong);
         color: #fff;
         font-size: var(--font-size-xs);
         font-weight: 700;
         line-height: 1;
-        box-shadow: 0 1px 4px rgba(76, 175, 130, 0.45);
+        box-shadow: 0 1px 4px rgba(44, 122, 79, 0.45);
     }
 
 .sidebar-footer {
@@ -376,6 +447,9 @@ textarea:focus-visible,
 }
 
 .screens {
+    /* A flex item's default min-width is its content, which would let a wide
+       table push the whole page sideways instead of scrolling inside its card. */
+    min-width: 0;
     padding: var(--space-4) var(--space-5);
     animation: screenIn 240ms ease-out both;
 }
@@ -632,13 +706,6 @@ textarea:focus-visible,
     pointer-events: none;
 }
 
-/* Legacy alias kept for markup compatibility */
-.btn-xs {
-    height: var(--control-h-sm);
-    padding: 0 var(--btn-pad-x-sm);
-    font-size: var(--font-size-xs);
-}
-
 /* Square icon-only button (has aria-label in markup) — borderless, tint on hover */
 .icon-btn {
     width: var(--control-h-sm);
@@ -716,6 +783,13 @@ textarea:focus-visible,
         color: var(--text-tertiary);
     }
 
+    .input[aria-invalid="true"],
+    .form-input[aria-invalid="true"],
+    .select[aria-invalid="true"] {
+        border-color: var(--danger-strong);
+        background: var(--danger-soft);
+    }
+
     .input:focus,
     .form-input:focus,
     .select:focus,
@@ -754,9 +828,17 @@ textarea.input {
 }
 
 .field-error {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
     font-size: var(--font-size-xs);
+    font-weight: 500;
     color: var(--danger-text);
 }
+
+    .field-error svg {
+        flex-shrink: 0;
+    }
 
 .form-row {
     display: grid;
@@ -827,14 +909,8 @@ textarea.input {
     transition: border-color 150ms, box-shadow 150ms;
 }
 
-/* Select with custom chevron overlay */
 .select-field {
-    position: relative;
     min-width: 180px;
-}
-
-.select-chevron {
-    display: none; /* the select paints its own chevron */
 }
 
 /* =============================================================================
@@ -1024,6 +1100,23 @@ textarea.input {
    TABLES — dense 40px rows, quiet uppercase header
    ============================================================================= */
 
+/* Wide tables scroll inside their own card instead of crushing their columns.
+   .card-flush clips its corners, so the scroll lives on this inner wrapper. */
+.table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+    /* Below this the columns start crushing their content, so the card
+       scrolls sideways instead. Wider tables opt into a larger floor. */
+    .table-scroll .data-table {
+        min-width: 720px;
+    }
+
+    .table-scroll .data-table-wide {
+        min-width: 880px;
+    }
+
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -1033,7 +1126,7 @@ textarea.input {
     .data-table thead th {
         text-align: left;
         padding: var(--space-2) var(--space-3);
-        color: var(--text-tertiary);
+        color: var(--text-secondary);
         font-weight: 600;
         font-size: var(--font-size-xs);
         text-transform: uppercase;
@@ -1222,6 +1315,7 @@ textarea.input {
     font-size: var(--font-size-xs);
     font-weight: 700;
     letter-spacing: 0.06em;
+    text-transform: uppercase;
     flex-shrink: 0;
     white-space: nowrap;
 }
@@ -1349,8 +1443,11 @@ textarea.input {
 }
 
     .alert-success .alert-icon {
-        background: var(--success);
         color: #fff;
+    }
+
+    .alert-success .alert-icon {
+        background: var(--success-strong);
     }
 
 .alert-error {
@@ -1358,6 +1455,31 @@ textarea.input {
     border-color: rgba(255, 59, 48, 0.3);
     color: var(--danger-text);
 }
+
+    .alert-error .alert-icon {
+        background: var(--danger-strong);
+        color: #fff;
+    }
+
+/* Errors stay until dismissed; only the success toast times out */
+.alert-dismiss {
+    margin-left: auto;
+    width: var(--icon-md);
+    height: var(--icon-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    color: currentColor;
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+    .alert-dismiss:hover {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.06);
+    }
 
 /* =============================================================================
    MODALS — one system: .modal-overlay > .modal
@@ -1821,9 +1943,8 @@ textarea.input {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin: 0 0 var(--space-1);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: var(--line-height-tight);
+    overflow-wrap: anywhere;
 }
 
 .stat-value {
@@ -2095,7 +2216,7 @@ textarea.input {
 }
 
 .appt-month {
-    font-size: 10px;
+    font-size: var(--font-size-xs);
     font-weight: 700;
     color: var(--primary);
     text-transform: uppercase;
@@ -2253,29 +2374,6 @@ textarea.input {
    EXERCISE LIBRARY
    ============================================================================= */
 
-.library-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-3);
-    margin-bottom: var(--space-3);
-}
-
-.library-title {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-    letter-spacing: -0.02em;
-    line-height: var(--line-height-tight);
-}
-
-.library-subtitle {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
-    margin: var(--space-1) 0 0;
-}
-
 .library-filters {
     margin-bottom: var(--space-3);
 }
@@ -2306,8 +2404,8 @@ textarea.input {
 .exercise-visual {
     position: relative;
     height: 120px;
-    background-color: var(--bg);
-    background-image: repeating-linear-gradient(135deg, transparent 0, transparent 9px, rgba(0, 74, 173, 0.04) 9px, rgba(0, 74, 173, 0.04) 10px);
+    background-color: var(--surface-sunken);
+    border-bottom: 1px solid var(--divider-soft);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2340,9 +2438,10 @@ textarea.input {
     padding: var(--space-1) var(--space-2);
     background: var(--surface);
     border-radius: var(--radius-full);
-    font-size: 10px;
+    font-size: var(--font-size-xs);
     font-weight: 700;
     letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--text-primary);
     border: 1px solid var(--divider-soft);
 }
@@ -2391,40 +2490,6 @@ textarea.input {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-}
-
-.exercise-meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-    margin-top: auto;
-}
-
-.meta-item {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-}
-
-.exercise-card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-2) var(--space-3);
-    border-top: 1px solid var(--divider-soft);
-    background: var(--surface-sunken);
-}
-
-.assigned-count {
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-}
-
-.card-actions {
-    display: flex;
-    gap: var(--space-1);
 }
 
 /* =============================================================================
@@ -2605,8 +2670,8 @@ textarea.input {
 
 .request-notes {
     margin: var(--space-2) 0 0;
-    padding-left: var(--space-2);
-    border-left: 2px solid var(--divider);
+    padding-left: var(--space-3);
+    border-left: 1px solid var(--divider);
     font-size: var(--font-size-sm);
     font-style: italic;
     color: var(--text-secondary);
@@ -2631,6 +2696,165 @@ textarea.input {
     }
 
 /* =============================================================================
+   WEEKLY SCHEDULE GRID (therapist availability)
+   Every cell is one of three states — free to open, open, or locked — and each
+   reads from the status palette the rest of the app already uses.
+   ============================================================================= */
+
+.schedule-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.schedule-grid {
+    width: 100%;
+    min-width: 720px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: var(--font-size-sm);
+}
+
+    .schedule-grid th {
+        padding: var(--space-2);
+        border-bottom: 1px solid var(--divider);
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .schedule-grid thead th:first-child {
+        text-align: left;
+    }
+
+    .schedule-grid th:first-child,
+    .schedule-grid td:first-child {
+        width: 72px;
+    }
+
+    .schedule-grid td {
+        padding: var(--space-1);
+        border-bottom: 1px solid var(--divider-soft);
+        vertical-align: middle;
+    }
+
+.schedule-day {
+    font-weight: 600;
+    line-height: var(--line-height-tight);
+}
+
+.schedule-date {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.schedule-hour {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.schedule-grid form {
+    margin: 0;
+}
+
+.schedule-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0 0 var(--space-3);
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+}
+
+.schedule-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.schedule-legend-swatch {
+    width: var(--space-3);
+    height: var(--space-3);
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    flex-shrink: 0;
+}
+
+/* One cell body — the three states differ only in fill, border and label */
+.slot-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    width: 100%;
+    min-height: var(--space-6);
+    padding: var(--space-2);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    line-height: 1;
+    transition: background 150ms, border-color 150ms, color 150ms;
+}
+
+    .slot-cell svg {
+        flex-shrink: 0;
+    }
+
+/* Free — a quiet dashed target that only announces itself on hover */
+.slot-empty {
+    border-style: dashed;
+    border-color: var(--divider);
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+}
+
+    .slot-empty:hover {
+        border-style: solid;
+        border-color: var(--primary);
+        background: var(--primary-soft);
+        color: var(--primary);
+    }
+
+/* Open — offered to patients, and clickable to withdraw */
+.slot-available {
+    border-color: rgba(76, 175, 130, 0.45);
+    background: var(--success-soft);
+    color: var(--success-text);
+    cursor: pointer;
+}
+
+    .slot-available:hover {
+        border-color: var(--danger-strong);
+        background: var(--danger-soft);
+        color: var(--danger-text);
+    }
+
+/* Locked — decided elsewhere, so it is text, not a control */
+.slot-locked {
+    cursor: default;
+}
+
+.slot-booked {
+    border-color: rgba(0, 74, 173, 0.35);
+    background: var(--primary-soft);
+    color: var(--primary);
+}
+
+.slot-requested {
+    border-color: rgba(245, 158, 11, 0.45);
+    background: var(--warning-soft);
+    color: var(--warning-text);
+}
+
+/* =============================================================================
    EMPTY STATES
    ============================================================================= */
 
@@ -2650,6 +2874,20 @@ textarea.input {
     font-size: var(--font-size-sm);
     color: var(--text-secondary);
     margin: 0;
+}
+
+.empty-state-action {
+    margin-top: var(--space-3);
+}
+
+.empty-state-icon {
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-2);
+}
+
+/* The same treatment inside a table body, where the shell is already a card */
+.empty-row .empty-state {
+    padding: 0;
 }
 
 /* =============================================================================
@@ -3286,12 +3524,18 @@ textarea.input {
         padding: var(--space-3);
     }
 
+    /* A swipeable strip, not a scroll region — no bar, no reserved gutter */
     .nav {
         flex-direction: row;
         overflow-x: auto;
+        scrollbar-width: none;
         gap: var(--space-1);
         padding-top: var(--space-2);
     }
+
+        .nav::-webkit-scrollbar {
+            display: none;
+        }
 
     .nav-label {
         display: none;
@@ -3326,8 +3570,7 @@ textarea.input {
         grid-template-columns: 1fr;
     }
 
-    .page-header,
-    .library-header {
+    .page-header {
         flex-direction: column;
         align-items: stretch;
     }
@@ -3340,7 +3583,6 @@ textarea.input {
     /* Fingertip targets on touch screens */
     .btn,
     .btn-sm,
-    .btn-xs,
     .input,
     .form-input,
     .select,

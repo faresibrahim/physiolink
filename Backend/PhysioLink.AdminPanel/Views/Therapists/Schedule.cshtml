@@ -11,41 +11,67 @@
 }
 
 <a asp-action="Detail" asp-route-id="@Model.TherapistId" class="back-link">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
     Back to @Model.TherapistName
 </a>
 
 <div class="card">
-    <div class="profile-header" style="align-items:center;">
+    <div class="profile-header">
         <div>
-            <h2 class="profile-name">@Model.TherapistName — Weekly Schedule</h2>
+            <h1 class="profile-name">@Model.TherapistName — weekly schedule</h1>
             <p class="profile-meta">
                 Week of @Model.WeekStart.ToString("MMM d, yyyy") ·
-                Operating hours @Model.OpenHour:00–@Model.CloseHour:00 (UTC)
+                operating hours @Model.OpenHour:00–@Model.CloseHour:00 (UTC)
             </p>
         </div>
         <div class="profile-actions">
-            <a asp-action="Schedule" asp-route-id="@Model.TherapistId" asp-route-weekStart="@prevWeek" class="btn btn-ghost btn-sm">&larr; Prev week</a>
-            <a asp-action="Schedule" asp-route-id="@Model.TherapistId" asp-route-weekStart="@nextWeek" class="btn btn-ghost btn-sm">Next week &rarr;</a>
+            <a asp-action="Schedule" asp-route-id="@Model.TherapistId" asp-route-weekStart="@prevWeek" class="btn btn-ghost btn-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+                Previous week
+            </a>
+            <a asp-action="Schedule" asp-route-id="@Model.TherapistId" asp-route-weekStart="@nextWeek" class="btn btn-ghost btn-sm">
+                Next week
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+            </a>
         </div>
     </div>
 
-    <p class="profile-meta" style="margin:8px 0 16px;">
-        Click an empty cell to open a slot. Click an open (green) cell to remove it.
-        Requested / booked cells are locked — decide or cancel them from the
-        <a asp-action="Requests" asp-controller="Appointments">requests queue</a> first.
+    <div class="profile-divider"></div>
+
+    <p class="form-hint">
+        Click an empty cell to open a slot, or an open cell to withdraw it.
+        Requested and booked cells are locked — decide or cancel them from the
+        <a asp-action="Requests" asp-controller="Appointments" class="card-link">requests queue</a> first.
     </p>
 
-    <div style="overflow-x:auto;">
-        <table class="schedule-grid" style="width:100%; border-collapse:collapse; text-align:center;">
+    @* Legend — the fills carry meaning, so name them once rather than
+       relying on colour alone. *@
+    <div class="schedule-legend">
+        <span class="schedule-legend-item">
+            <span class="schedule-legend-swatch slot-empty"></span> Free to open
+        </span>
+        <span class="schedule-legend-item">
+            <span class="schedule-legend-swatch slot-available"></span> Open to patients
+        </span>
+        <span class="schedule-legend-item">
+            <span class="schedule-legend-swatch slot-requested"></span> Requested
+        </span>
+        <span class="schedule-legend-item">
+            <span class="schedule-legend-swatch slot-booked"></span> Booked
+        </span>
+    </div>
+
+    <div class="schedule-scroll">
+        <table class="schedule-grid">
+            <caption class="visually-hidden">Weekly availability for @Model.TherapistName</caption>
             <thead>
                 <tr>
-                    <th style="padding:8px; border-bottom:1px solid #e5e7eb; text-align:left;">Time</th>
+                    <th scope="col">Time</th>
                     @for (var d = 0; d < 7; d++)
                     {
-                        <th style="padding:8px; border-bottom:1px solid #e5e7eb;">
-                            <div style="font-weight:600;">@dayNames[d]</div>
-                            <div class="profile-meta" style="font-size:12px;">@Model.DateForColumn(d).ToString("MMM d")</div>
+                        <th scope="col">
+                            <div class="schedule-day">@dayNames[d]</div>
+                            <div class="schedule-date">@Model.DateForColumn(d).ToString("MMM d")</div>
                         </th>
                     }
                 </tr>
@@ -54,52 +80,49 @@
                 @foreach (var hour in Model.Hours)
                 {
                     <tr>
-                        <td style="padding:8px; border-bottom:1px solid #f1f5f9; text-align:left; font-weight:500;">
-                            @hour.ToString("00"):00
-                        </td>
+                        <th scope="row" class="schedule-hour">@hour.ToString("00"):00</th>
                         @for (var d = 0; d < 7; d++)
                         {
                             var cell = Model.CellAt(d, hour);
                             var scheduledAt = cell?.ScheduledAt ?? Model.WeekStart.AddDays(d).AddHours(hour);
                             var scheduledStr = scheduledAt.ToString("yyyy-MM-ddTHH:mm:ss");
                             var state = cell?.State ?? "Empty";
-                            <td style="padding:4px; border-bottom:1px solid #f1f5f9;">
+                            var slotLabel = $"{dayNames[d]} {hour:00}:00";
+                            <td>
                                 @if (state == "Empty")
                                 {
-                                    <form asp-action="AddSlot" method="post" style="margin:0;">
+                                    <form asp-action="AddSlot" method="post">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="therapistId" value="@Model.TherapistId" />
                                         <input type="hidden" name="scheduledAt" value="@scheduledStr" />
                                         <input type="hidden" name="weekStart" value="@weekStartStr" />
-                                        <button type="submit" class="slot-cell slot-empty" title="Open this slot"
-                                                style="width:100%; padding:8px; border:1px dashed #cbd5e1; background:transparent; color:#94a3b8; border-radius:8px; cursor:pointer;">
-                                            +
+                                        <button type="submit" class="slot-cell slot-empty" aria-label="Open a slot on @slotLabel">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
                                         </button>
                                     </form>
                                 }
                                 else if (state == "Available")
                                 {
-                                    <form asp-action="RemoveSlot" method="post" style="margin:0;"
-                                          onsubmit="return confirm('Remove this open slot?');">
+                                    <form asp-action="RemoveSlot" method="post"
+                                          onsubmit="return confirm('Withdraw the open slot on @slotLabel?');">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="therapistId" value="@Model.TherapistId" />
                                         <input type="hidden" name="scheduledAt" value="@scheduledStr" />
                                         <input type="hidden" name="weekStart" value="@weekStartStr" />
-                                        <button type="submit" class="slot-cell slot-available" title="Open — click to remove"
-                                                style="width:100%; padding:8px; border:1px solid #34C759; background:#ecfdf3; color:#15803d; border-radius:8px; cursor:pointer; font-weight:600;">
+                                        <button type="submit" class="slot-cell slot-available" aria-label="Withdraw the open slot on @slotLabel">
                                             Open
                                         </button>
                                     </form>
                                 }
                                 else
                                 {
-                                    var locked = state == "Booked";
-                                    var bg = locked ? "#eff6ff" : "#fff7ed";
-                                    var fg = locked ? "#1d4ed8" : "#c2410c";
-                                    var bd = locked ? "#3b82f6" : "#f97316";
-                                    <div class="slot-cell slot-locked" title="Locked — @state"
-                                         style="width:100%; padding:8px; border:1px solid @bd; background:@bg; color:@fg; border-radius:8px; font-weight:600;">
-                                        @state 🔒
+                                    var stateClass = state == "Booked" ? "slot-booked" : "slot-requested";
+                                    <div class="slot-cell slot-locked @stateClass" title="Locked — decide this from the requests queue">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" />
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                        </svg>
+                                        @state
                                     </div>
                                 }
                             </td>

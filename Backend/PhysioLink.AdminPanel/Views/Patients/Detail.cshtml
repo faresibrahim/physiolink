@@ -145,11 +145,11 @@
                                 @await Html.PartialAsync("_StatusBadge", exercise.Status)
                             </td>
                             <td>
-                                <button type="button" class="btn btn-ghost btn-xs"
+                                <button type="button" class="btn btn-ghost btn-sm"
                                         onclick="openEditModal('@exercise.ExerciseAssignmentId')">
                                     Edit
                                 </button>
-                                <button type="button" class="btn btn-danger-outline btn-xs"
+                                <button type="button" class="btn btn-danger-outline btn-sm"
                                         onclick="confirmUnassign('@exercise.ExerciseAssignmentId', '@exercise.ExerciseName.Replace("\\", "\\\\").Replace("'", "\\'")')">
                                     Unassign
                                 </button>
@@ -328,11 +328,13 @@
 
         function openDeactivateModal() {
             deactivateModal.classList.add('modal-visible');
+            window.plModal.opened(deactivateModal);
             passwordInput.focus();
         }
 
         function closeDeactivateModal() {
             deactivateModal.classList.remove('modal-visible');
+            window.plModal.closed(deactivateModal);
             // Never leave the password sitting in the DOM after the dialog closes
             passwordInput.value = '';
             passwordError.style.display = 'none';
@@ -730,18 +732,19 @@
                 resetPicker();
                 setModalMode('create');
                 modalEl.classList.add('modal-visible');
+                window.plModal.opened(modalEl);
             }
 
             async function openEditModal(assignmentId) {
                 try {
                     var response = await fetch('/Assignment/GetById/' + encodeURIComponent(assignmentId));
                     if (!response.ok) {
-                        alert('Could not load assignment.');
+                        window.plForm.showFormError(modalEl, 'Could not load this assignment. Check your connection and try again.');
                         return;
                     }
                     var data = await response.json();
                     if (data.error) {
-                        alert('Could not load assignment.');
+                        window.plForm.showFormError(modalEl, 'Could not load this assignment. Check your connection and try again.');
                         return;
                     }
 
@@ -756,14 +759,16 @@
 
                     setModalMode('edit');
                     modalEl.classList.add('modal-visible');
+                    window.plModal.opened(modalEl);
                 } catch (err) {
                     console.error('[assign] failed to load assignment:', err);
-                    alert('Could not load assignment.');
+                    window.plForm.showFormError(modalEl, 'Could not load this assignment. Check your connection and try again.');
                 }
             }
 
             function closeAssignModal() {
                 modalEl.classList.remove('modal-visible');
+                window.plModal.closed(modalEl);
                 formEl.reset();
                 resetPicker();
                 setModalMode('create');
@@ -782,7 +787,7 @@
                 var isEdit = formEl.action.indexOf('Edit') !== -1;
                 if (!isEdit && exerciseInput && !exerciseInput.value) {
                     e.preventDefault();
-                    alert('Please select an exercise.');
+                    window.plForm.showFormError(modalEl, 'Choose an exercise before saving.');
                 }
             });
         }

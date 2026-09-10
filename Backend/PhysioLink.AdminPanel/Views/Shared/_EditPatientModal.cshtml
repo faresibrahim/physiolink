@@ -87,11 +87,14 @@
         if (!editPatientModal || !editPatientForm) return;
 
         function openEditPatientModal() {
+            window.plForm.clearErrors(editPatientModal);
             editPatientModal.classList.add('modal-visible');
+            window.plModal.opened(editPatientModal);
         }
 
         function closeEditPatientModal() {
             editPatientModal.classList.remove('modal-visible');
+            window.plModal.closed(editPatientModal);
         }
 
         // Deliberately no overlay-click-to-close: an admin mid-form shouldn't lose
@@ -104,18 +107,16 @@
             }
         });
 
-        // Client-side validation
+        // Client-side validation — the message goes under the field it belongs to.
         editPatientForm.addEventListener('submit', function (e) {
-            var first    = document.getElementById('FirstName').value.trim();
-            var last     = document.getElementById('LastName').value.trim();
-            var username = document.getElementById('Username').value.trim();
-            var phone    = document.getElementById('PhoneNumber').value.trim();
-            var diag     = document.getElementById('Diagnosis').value.trim();
-
-            if (!first || !last || !username || !phone || !diag) {
-                e.preventDefault();
-                alert('Please fill in all required fields.');
-            }
+            var ok = window.plForm.requireFields(editPatientForm, [
+                ['FirstName', 'First name'],
+                ['LastName', 'Last name'],
+                ['Username', 'Username'],
+                ['PhoneNumber', 'Phone'],
+                ['Diagnosis', 'Diagnosis']
+            ]);
+            if (!ok) e.preventDefault();
         });
 
         window.openEditPatientModal  = openEditPatientModal;

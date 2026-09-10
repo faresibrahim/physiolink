@@ -108,28 +108,35 @@
     </a>
 
     <button type="button" onclick="openAppointmentModal()" class="btn btn-primary">
-        + New Appointment
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
+        New appointment
     </button>
 </form>
 
 @* ── Appointments table ───────────────────────────────────────────────────── *@
 <div class="card card-flush">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Date &amp; Time</th>
-                <th>Patient</th>
-                <th>Therapist</th>
-                <th>Title</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="table-scroll">
+        <table class="data-table data-table-wide">
+            <thead>
+                <tr>
+                    <th>Date &amp; Time</th>
+                    <th>Patient</th>
+                    <th>Therapist</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
             @if (!Model.Appointments.Any())
             {
                 <tr>
-                    <td colspan="6" class="empty-row">No appointments found for this week.</td>
+                    <td colspan="6" class="empty-row">
+                        <div class="empty-state">
+                            <h2 class="empty-state-title">Nothing booked this week</h2>
+                            <p class="empty-state-subtitle">Use the week arrows to look around, or book an appointment.</p>
+                        </div>
+                    </td>
                 </tr>
             }
             @foreach (var appt in Model.Appointments)
@@ -149,7 +156,7 @@
                     <td>
                         <div class="row-actions">
                             @* Edit is the priority action on this page — full-size text button, first. *@
-                            <button type="button" class="btn btn-ghost btn-xs" aria-label="Edit appointment"
+                            <button type="button" class="btn btn-ghost btn-sm" aria-label="Edit appointment"
                                     onclick="openEditAppointmentModal('@appt.AppointmentId')">
                                 Edit
                             </button>
@@ -166,8 +173,9 @@
                     </td>
                 </tr>
             }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @* ── Pagination ───────────────────────────────────────────────────────────── *@
@@ -724,6 +732,16 @@
                 clearFormError();
                 setModalMode('create');
                 modalEl.classList.add('modal-visible');
+                window.plModal.opened(modalEl);
+            }
+
+            // A failed load still opens the dialog — with the reason in it —
+            // so the click has a visible result instead of doing nothing.
+            function reportLoadFailure() {
+                setModalMode('edit');
+                modalEl.classList.add('modal-visible');
+                window.plModal.opened(modalEl);
+                showFormError('Could not load this appointment. Check your connection and try again.');
             }
 
             // --- Open edit mode ------------------------------------------
@@ -731,9 +749,9 @@
                 clearFormError();
                 try {
                     var response = await fetch('/Appointments/GetById/' + encodeURIComponent(appointmentId));
-                    if (!response.ok) { alert('Could not load appointment.'); return; }
+                    if (!response.ok) { reportLoadFailure(); return; }
                     var data = await response.json();
-                    if (data.error) { alert('Could not load appointment.'); return; }
+                    if (data.error) { reportLoadFailure(); return; }
 
                     document.getElementById('AppointmentId').value        = data.appointmentId;
                     document.getElementById('EditPatientName').textContent = data.patientName;
@@ -751,15 +769,17 @@
 
                     setModalMode('edit');
                     modalEl.classList.add('modal-visible');
+                    window.plModal.opened(modalEl);
                 } catch (err) {
                     console.error('[appt] failed to load appointment:', err);
-                    alert('Could not load appointment.');
+                    reportLoadFailure();
                 }
             }
 
             // --- Close ---------------------------------------------------
             function closeAppointmentModal() {
                 modalEl.classList.remove('modal-visible');
+                window.plModal.closed(modalEl);
                 formEl.reset();
                 if (patientTomSelect) patientTomSelect.clear();
                 document.getElementById('ApptTherapistName').value = '';
