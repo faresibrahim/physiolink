@@ -121,6 +121,13 @@ html, body {
     padding: 0;
 }
 
+/* The hidden attribute is how this app toggles visibility (form-error banners,
+   toasts, the exercise picker). A component's own `display` (flex, grid) would
+   otherwise outrank the UA `[hidden]` rule and leave an empty box behind. */
+[hidden] {
+    display: none !important;
+}
+
 body {
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
@@ -3249,12 +3256,6 @@ textarea.input {
     width: 100%;
     min-height: 44px;
 }
-
-    /* Class selector outranks the [hidden] UA rule — restore it so the name
-       search can hide non-matching options. */
-    .picker-option[hidden] {
-        display: none;
-    }
 
     .picker-option:hover,
     .picker-option.is-selected {
