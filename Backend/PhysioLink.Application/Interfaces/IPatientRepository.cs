@@ -15,5 +15,7 @@ namespace PhysioLink.Application.Interfaces
         public Task<PatientProgressDto> GetPatientProgressAsync(Guid patientId);
 
         public Task<bool> UpdateDeviceTokenAsync(Guid patientId, string deviceToken);
+
+        public Task ClearDeviceTokenAsync(Guid applicationUserId);
     }
 }

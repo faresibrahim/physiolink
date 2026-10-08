@@ -436,7 +436,7 @@
             // Only open slots for the selected therapist are pickable; the field
             // stays hidden until a therapist is chosen. Mirrors the Flutter booking
             // page: pick a day on the calendar, then a time chip (green when picked).
-            var slotsByDate = {};             // 'yyyy-MM-dd' -> [{slotId, utc, timeLabel, dayLabel}]
+            var slotsByDate = {};             // 'yyyy-MM-dd' -> [{slotId, local, timeLabel, dayLabel}]
             var calYear = 0, calMonth = 0;    // displayed month (calMonth is 1-12)
             var minKey = null, maxKey = null; // first / last available day (yyyy-MM-dd)
             var selectedDate = null;
@@ -465,9 +465,9 @@
                 return ymd(n.getFullYear(), n.getMonth() + 1, n.getDate());
             }
 
-            function pickSlot(chip, slotId, utc) {
+            function pickSlot(chip, slotId, local) {
                 document.getElementById('SelectedSlotId').value = slotId;
-                document.getElementById('AppointmentTime').value = utc;
+                document.getElementById('AppointmentTime').value = local;
                 var chips = document.querySelectorAll('#slotDayBody .slot-chip');
                 for (var i = 0; i < chips.length; i++) chips[i].classList.remove('selected');
                 chip.classList.add('selected');
@@ -493,7 +493,7 @@
                     chip.type = 'button';
                     chip.className = 'slot-chip';
                     chip.textContent = s.timeLabel;
-                    chip.addEventListener('click', function () { pickSlot(chip, s.slotId, s.utc); });
+                    chip.addEventListener('click', function () { pickSlot(chip, s.slotId, s.local); });
                     body.appendChild(chip);
                 });
             }

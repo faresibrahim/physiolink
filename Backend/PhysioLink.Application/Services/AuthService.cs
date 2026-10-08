@@ -92,8 +92,12 @@ namespace PhysioLink.Application.Services
             if(user != null){
             user.RefreshToken = null;
             user.RefreshTokenExpiry = null;
-            
+
             await _userRepository.UpdateAsync(user);
+
+            // Stop pushing to this phone once the patient signs out of it — the next
+            // person to use the device must not receive this patient's notifications.
+            await _patientRepository.ClearDeviceTokenAsync(user.ApplicationUserId);
             return true;
             }
 

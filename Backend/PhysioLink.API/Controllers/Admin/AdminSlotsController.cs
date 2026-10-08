@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PhysioLink.Application.Common;
 using PhysioLink.Application.DTOs.Slots;
 using PhysioLink.Application.Interfaces;
 
@@ -22,7 +23,7 @@ namespace PhysioLink.API.Controllers.Admin
         public async Task<IActionResult> GetWeek(Guid therapistId, [FromQuery] DateTime? weekStart)
         {
             // Default to the current week (Monday-anchored) if none supplied.
-            var start = weekStart?.Date ?? StartOfWeek(DateTime.UtcNow.Date);
+            var start = weekStart?.Date ?? StartOfWeek(ClinicTime.Today);
             var grid = await _adminSlotService.GetWeekGridAsync(therapistId, start);
             if (grid == null) return NotFound();
             return Ok(grid);

@@ -45,7 +45,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       await ref
           .read(authNotifierProvider)
           .login(_usernameController.text.trim(), _passwordController.text);
-      unawaited(_registerDeviceToken());
+      unawaited(
+        registerDeviceToken(
+          ref.read(notificationServiceProvider),
+          ref.read(notificationRepositoryProvider),
+        ),
+      );
     } catch (ex) {
       if (!mounted) return;
       setState(
@@ -55,19 +60,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  // Best-effort — a patient who declines the OS permission prompt, or whose
-  // token registration call fails, should still be able to use the app.
-  Future<void> _registerDeviceToken() async {
-    final notificationService = ref.read(notificationServiceProvider);
-    final granted = await notificationService.requestPermission();
-    if (!granted) return;
-
-    final token = await notificationService.getToken();
-    if (token == null) return;
-
-    await ref.read(notificationRepositoryProvider).registerDeviceToken(token);
   }
 
   @override

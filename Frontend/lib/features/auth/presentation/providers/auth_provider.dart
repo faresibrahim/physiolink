@@ -10,5 +10,6 @@ final authNotifierProvider = ChangeNotifierProvider<AuthNotifier>((ref) {
   dioClient.refreshTokenGetter = () => notifier.refreshToken;
   dioClient.tokenUpdater = (accessToken, refreshToken) =>
       notifier.updateTokens(accessToken, refreshToken);
+  dioClient.onSessionExpired = () => notifier.clearSession();
   return notifier;
 });

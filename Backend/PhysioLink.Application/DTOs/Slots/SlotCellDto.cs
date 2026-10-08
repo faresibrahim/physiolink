@@ -7,7 +7,7 @@ namespace PhysioLink.Application.DTOs.Slots
     {
         public DateTime ScheduledAt { get; set; }   // UTC start of the hour block
         public int DayIndex { get; set; }           // 0..6 offset from the week start
-        public int Hour { get; set; }               // hour of day (matches ScheduledAt)
+        public int Hour { get; set; }               // clinic-local hour of day
         public string State { get; set; } = "Empty";
         public Guid? SlotId { get; set; }
     }

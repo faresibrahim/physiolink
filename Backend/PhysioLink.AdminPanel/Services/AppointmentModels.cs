@@ -18,7 +18,7 @@ public class UpdateAppointmentRequest
     public required string Title { get; set; }
     public string? Notes { get; set; }
     public string? TherapistName { get; set; }
-    public DateTime AppointmentTime { get; set; }
+    public DateTime? AppointmentTime { get; set; }   // null = unchanged
     public string Status { get; set; } = string.Empty;
 }
 

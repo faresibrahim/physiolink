@@ -170,7 +170,24 @@ class AuthNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Revokes the refresh token server-side (which also unlinks this phone's push
+  // token from the patient) before dropping the local session. Best-effort: an
+  // offline logout must still sign the patient out locally.
   Future<void> logout() async {
+    final refreshToken = _refreshToken;
+    if (refreshToken != null) {
+      try {
+        await _dio.post(
+          '/api/v1/auth/logout',
+          data: {'refreshToken': refreshToken},
+        );
+      } catch (_) {}
+    }
+    await clearSession();
+  }
+
+  // Local-only sign-out, for when the server has already rejected the session.
+  Future<void> clearSession() async {
     await _secureStorage.delete(key: 'access_token');
     await _secureStorage.delete(key: 'refresh_token');
     await _secureStorage.delete(key: 'patient_id');

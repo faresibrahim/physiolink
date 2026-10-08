@@ -1,6 +1,7 @@
 using FirebaseAdmin.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PhysioLink.Application.Common;
 using PhysioLink.Application.DTOs;
 using PhysioLink.Application.DTOs.Appointments;
 using PhysioLink.Application.Exceptions;
@@ -99,7 +100,7 @@ namespace PhysioLink.Infrastructure.Services
             // History = every appointment whose due date is in the past. Using the same
             // date boundary the board uses keeps the two views complementary: an
             // appointment shows on the board OR in History, never both.
-            var todayUtc = DateTime.UtcNow.Date;
+            var todayUtc = ClinicTime.TodayStartUtc;
 
             var baseQuery = _dbContext.Appointments.AsNoTracking()
                 .Where(a => a.ClinicId == clinicId && a.AppointmentTime < todayUtc);
@@ -301,8 +302,10 @@ namespace PhysioLink.Infrastructure.Services
 
             appointment.Title = dto.Title;
             appointment.Notes = dto.Notes;
-            appointment.TherapistName = dto.TherapistName ?? string.Empty;
-            appointment.AppointmentTime = DateTime.SpecifyKind(dto.AppointmentTime, DateTimeKind.Utc);
+            if (dto.TherapistName != null)
+                appointment.TherapistName = dto.TherapistName;
+            if (dto.AppointmentTime is DateTime appointmentTime)
+                appointment.AppointmentTime = DateTime.SpecifyKind(appointmentTime, DateTimeKind.Utc);
             appointment.Status = dto.Status;
 
             await _dbContext.SaveChangesAsync();
@@ -445,7 +448,7 @@ namespace PhysioLink.Infrastructure.Services
                 await _pushSender.SendAsync(
                     deviceToken,
                     "Appointment confirmed",
-                    $"Your appointment on {appointment.AppointmentTime:MMM d 'at' h:mm tt} has been confirmed.",
+                    $"Your appointment on {ClinicTime.ToLocal(appointment.AppointmentTime):MMM d 'at' h:mm tt} has been confirmed.",
                     new Dictionary<string, string>
                     {
                         ["type"] = "appointment",

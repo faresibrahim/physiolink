@@ -171,8 +171,8 @@ class _CalendarBookingViewState extends State<_CalendarBookingView> {
   DateTime? _selectedDay;
   DateTime? _focusedDay;
 
-  // Slot times are UTC; the app treats the raw wall clock of scheduledAt as the
-  // clinic's operating-hours time, so day matching uses the raw y/m/d too.
+  // Slot times arrive already converted to local time (DioSlotRepository); this
+  // keys a calendar day by its y/m/d, matching table_calendar's UTC-midnight days.
   DateTime _dateOnly(DateTime dt) => DateTime.utc(dt.year, dt.month, dt.day);
 
   bool _hasSlots(DateTime day) =>

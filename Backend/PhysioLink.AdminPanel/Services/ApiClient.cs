@@ -330,7 +330,9 @@ public class ApiClient
         // Cutoff is "now", not start-of-today — a past-today appointment (its time
         // already gone by) must not show up here, even though it still counts toward
         // the separate "Today's Appointments" stat, which totals the whole day.
-        var from = Uri.EscapeDataString(DateTime.UtcNow.ToString("o"));
+        // Bare UTC wall clock (no "Z"): the API model binder would otherwise convert an
+        // offset-bearing value into the API server's local zone.
+        var from = Uri.EscapeDataString(DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"));
         // Dashboard "Upcoming Appointments" — confirmed only, so a pending request
         // or a rejected/cancelled/expired one doesn't show as if it were happening.
         return ExecuteWithRefreshAsync<PagedResult<AppointmentSummaryResponse>>(
@@ -439,8 +441,8 @@ public class ApiClient
             };
             if (patientId.HasValue)          qs.Add($"patientId={patientId.Value}");
             if (!string.IsNullOrEmpty(status)) qs.Add($"status={Uri.EscapeDataString(status)}");
-            if (from.HasValue)               qs.Add($"from={Uri.EscapeDataString(from.Value.ToString("o"))}");
-            if (to.HasValue)                 qs.Add($"to={Uri.EscapeDataString(to.Value.ToString("o"))}");
+            if (from.HasValue)               qs.Add($"from={Uri.EscapeDataString(from.Value.ToString("yyyy-MM-ddTHH:mm:ss"))}");
+            if (to.HasValue)                 qs.Add($"to={Uri.EscapeDataString(to.Value.ToString("yyyy-MM-ddTHH:mm:ss"))}");
 
             var response = await client.GetAsync($"api/v1/admin/appointments?{string.Join("&", qs)}");
             if (!response.IsSuccessStatusCode) return null;

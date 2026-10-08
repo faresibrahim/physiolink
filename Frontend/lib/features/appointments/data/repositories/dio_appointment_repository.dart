@@ -15,6 +15,8 @@ class DioAppointmentRepository implements AppointmentsRepository {
       // The /me endpoint returns a bare JSON array of PatientAppointmentDto.
       final appointments = (response.data as List)
           .map((item) => Appointment.fromJson(_normalize(item)))
+          // The API sends UTC instants; the UI works in the phone's local time.
+          .map((a) => a.copyWith(appointmentTime: a.appointmentTime?.toLocal()))
           .toList();
       return Right(appointments);
     } catch (ex) {

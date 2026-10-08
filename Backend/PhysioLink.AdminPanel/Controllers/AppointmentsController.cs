@@ -26,7 +26,8 @@ public class AppointmentsController : BaseController
         string? therapistFilter = null,
         string viewMode = "list")
     {
-        var today = DateTime.UtcNow.Date;
+        // Weeks and "today" are clinic calendar dates; the API filter takes UTC instants.
+        var today = ClinicTime.Today;
         var daysFromMonday = ((int)today.DayOfWeek + 6) % 7;
         var computedWeekStart = weekStart ?? today.AddDays(-daysFromMonday);
 
@@ -37,7 +38,8 @@ public class AppointmentsController : BaseController
         var from = computedWeekStart < today ? today : computedWeekStart;
         var to = computedWeekStart.AddDays(7);
 
-        var appointmentsTask = _apiClient.GetAppointmentsAsync(page, 50, status: status, from: from, to: to);
+        var appointmentsTask = _apiClient.GetAppointmentsAsync(
+            page, 50, status: status, from: ClinicTime.ToUtc(from), to: ClinicTime.ToUtc(to));
         var therapistsTask = _apiClient.GetTherapistsAsync(1, 100);
         var patientsTask = _apiClient.GetPatientsAsync(1, 200, null);
 
@@ -100,7 +102,8 @@ public class AppointmentsController : BaseController
             TherapistName = model.TherapistName,
             Title = model.Title,
             Notes = model.Notes,
-            AppointmentTime = model.AppointmentTime,
+            // The modal's datetime-local field is clinic time.
+            AppointmentTime = ClinicTime.ToUtc(model.AppointmentTime),
             SlotId = model.SlotId,
         };
 
@@ -131,7 +134,8 @@ public class AppointmentsController : BaseController
             TherapistName = model.TherapistName,
             Title = model.Title,
             Notes = model.Notes,
-            AppointmentTime = model.AppointmentTime,
+            // The modal's datetime-local field is clinic time.
+            AppointmentTime = model.AppointmentTime is DateTime local ? ClinicTime.ToUtc(local) : null,
             Status = model.Status,
         };
 
@@ -151,12 +155,13 @@ public class AppointmentsController : BaseController
     {
         var appointment = await _apiClient.GetAppointmentByIdAsync(id);
         if (appointment == null) return Json(new { error = "Not found" });
+        // The edit modal's datetime-local field shows and submits clinic time.
+        appointment.AppointmentTime = ClinicTime.ToLocal(appointment.AppointmentTime);
         return Json(appointment);
     }
 
     // GET /Appointments/TherapistSlots?therapistId=  — JSON for the modal's slot
-    // picker. Returns the therapist's open slots, each with the raw UTC value (for
-    // the hidden field) and clinic-local labels (for display).
+    // picker. Returns the therapist's open slots with clinic-local values and labels.
     [HttpGet]
     public async Task<IActionResult> TherapistSlots(Guid therapistId)
     {
@@ -168,9 +173,9 @@ public class AppointmentsController : BaseController
         var options = slots.Select(s => new
         {
             slotId    = s.SlotId,
-            // Raw UTC wall clock for the hidden datetime field (the modal round-trips
-            // appointment times as UTC, matching the edit flow).
-            utc       = s.ScheduledAt.ToString("yyyy-MM-ddTHH:mm:ss"),
+            // Clinic wall clock for the datetime field (the modal works in clinic time;
+            // the server books against slotId and ignores this value).
+            local     = ClinicTime.ToLocal(s.ScheduledAt).ToString("yyyy-MM-ddTHH:mm"),
             // Clinic-local calendar day (buckets the slot onto the calendar) and labels.
             date      = ClinicTime.ToLocal(s.ScheduledAt).ToString("yyyy-MM-dd"),
             dayLabel  = ClinicTime.ToLocal(s.ScheduledAt).ToString("dddd, MMM d"),

@@ -212,7 +212,7 @@
                                asp-route-attachmentId="@att.PatientAttachmentId"
                                target="_blank" rel="noopener"
                                title="View @att.FileName">@att.FileName</a>
-                            <span class="attachment-meta">@FormatBytes(att.SizeBytes) · @att.CreatedAt.ToLocalTime().ToString("MMM d, yyyy")</span>
+                            <span class="attachment-meta">@FormatBytes(att.SizeBytes) · @PhysioLink.AdminPanel.Helpers.ClinicTime.ToLocal(att.CreatedAt).ToString("MMM d, yyyy")</span>
                         </div>
                         <div class="attachment-actions">
                             <a class="icon-btn"

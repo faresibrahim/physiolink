@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PhysioLink.Application.Common;
 using PhysioLink.Application.Interfaces;
 using PhysioLink.Domain.Enums;
 using PhysioLink.Infrastructure.Data;
@@ -17,7 +18,8 @@ namespace PhysioLink.Infrastructure.Services
         public async Task<int> SweepAsync(CancellationToken ct = default)
         {
             var now = DateTime.UtcNow;
-            var todayUtc = now.Date;
+            // Start of the clinic's current day, as a UTC instant.
+            var todayUtc = ClinicTime.TodayStartUtc;
 
             // A Requested appointment is expired when now >= min(CreatedAt + 48h,
             // slot start). The min is expressed as "either condition frees it"

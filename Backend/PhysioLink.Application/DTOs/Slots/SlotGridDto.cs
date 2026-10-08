@@ -6,7 +6,7 @@ namespace PhysioLink.Application.DTOs.Slots
     public class SlotGridDto
     {
         public Guid TherapistId { get; set; }
-        public DateTime WeekStart { get; set; }  // UTC midnight of the first day
+        public DateTime WeekStart { get; set; }  // clinic-local date of the first day
         public int OpenHour { get; set; }
         public int CloseHour { get; set; }
         public List<SlotCellDto> Cells { get; set; } = [];

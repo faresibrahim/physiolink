@@ -7,7 +7,7 @@ public class TherapistScheduleViewModel
 {
     public Guid TherapistId { get; set; }
     public string TherapistName { get; set; } = string.Empty;
-    public DateTime WeekStart { get; set; }   // UTC midnight of the first (Monday) column
+    public DateTime WeekStart { get; set; }   // clinic-local date of the first (Monday) column
     public int OpenHour { get; set; }
     public int CloseHour { get; set; }
     public List<SlotCellResponse> Cells { get; set; } = [];

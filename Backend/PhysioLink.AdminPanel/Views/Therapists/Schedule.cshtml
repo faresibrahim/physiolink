@@ -1,4 +1,5 @@
 @model PhysioLink.AdminPanel.ViewModels.TherapistScheduleViewModel
+@using PhysioLink.AdminPanel.Helpers
 
 @{
     ViewData["Title"] = "Therapist Schedule";
@@ -21,7 +22,7 @@
             <h1 class="profile-name">@Model.TherapistName — weekly schedule</h1>
             <p class="profile-meta">
                 Week of @Model.WeekStart.ToString("MMM d, yyyy") ·
-                operating hours @Model.OpenHour:00–@Model.CloseHour:00 (UTC)
+                operating hours @Model.OpenHour:00–@Model.CloseHour:00
             </p>
         </div>
         <div class="profile-actions">
@@ -84,7 +85,8 @@
                         @for (var d = 0; d < 7; d++)
                         {
                             var cell = Model.CellAt(d, hour);
-                            var scheduledAt = cell?.ScheduledAt ?? Model.WeekStart.AddDays(d).AddHours(hour);
+                            // Rows are clinic hours; the posted value is the cell's UTC instant.
+                            var scheduledAt = cell?.ScheduledAt ?? ClinicTime.ToUtc(Model.WeekStart.AddDays(d).AddHours(hour));
                             var scheduledStr = scheduledAt.ToString("yyyy-MM-ddTHH:mm:ss");
                             var state = cell?.State ?? "Empty";
                             var slotLabel = $"{dayNames[d]} {hour:00}:00";

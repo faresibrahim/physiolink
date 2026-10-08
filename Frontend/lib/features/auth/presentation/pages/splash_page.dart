@@ -2,6 +2,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:practice/core/notifications/notification_providers.dart';
+import 'package:practice/core/notifications/notification_service.dart';
 import 'package:practice/core/theme/app_colors.dart';
 import 'package:practice/core/theme/app_text_styles.dart';
 import 'package:practice/features/auth/presentation/providers/auth_provider.dart';
@@ -44,7 +46,17 @@ class _SplashPageState extends ConsumerState<SplashPage>
     // Run session restore in parallel with the animation.
     // By the time the 2400ms delay completes, the token check
     // (or silent refresh) will already have finished.
-    ref.read(authNotifierProvider).tryRestoreSession();
+    // A restored session never passes through the login page, so register the
+    // push token here too — otherwise patients who were already signed in
+    // before an update (or whose token was cleared) never receive pushes.
+    final auth = ref.read(authNotifierProvider);
+    final notificationService = ref.read(notificationServiceProvider);
+    final notificationRepository = ref.read(notificationRepositoryProvider);
+    auth.tryRestoreSession().then((_) {
+      if (auth.isLoggedIn) {
+        registerDeviceToken(notificationService, notificationRepository);
+      }
+    });
 
     Future.delayed(const Duration(milliseconds: 2400), () {
       if (!mounted) return;

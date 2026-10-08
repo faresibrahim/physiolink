@@ -14,6 +14,8 @@ class DioSlotRepository implements SlotRepository {
       final response = await _dio.get('/api/v1/patients/me/slots');
       final slots = (response.data as List)
           .map((item) => AppointmentSlot.fromJson(item as Map<String, dynamic>))
+          // The API sends UTC instants; the UI works in the phone's local time.
+          .map((s) => s.copyWith(scheduledAt: s.scheduledAt.toLocal()))
           .toList();
       return Right(slots);
     } catch (ex) {

@@ -112,9 +112,34 @@ namespace PhysioLink.Infrastructure.Repositories
         if (patient is null)
             return false;
 
+        // An FCM token identifies a device install, not a person. If another patient
+        // logged in on this phone earlier, their record still holds the same token and
+        // would keep receiving pushes meant for them on someone else's phone — so a
+        // token belongs to exactly one patient (across all clinics). One SaveChanges
+        // keeps the hand-over atomic.
+        var previousHolders = await _dbContext.Patients
+            .IgnoreQueryFilters()
+            .Where(p => p.DeviceToken == deviceToken && p.PatientId != patientId)
+            .ToListAsync();
+        foreach (var holder in previousHolders)
+            holder.DeviceToken = null;
+
         patient.DeviceToken = deviceToken;
         await _dbContext.SaveChangesAsync();
         return true;
+    }
+
+    public async Task ClearDeviceTokenAsync(Guid applicationUserId)
+    {
+        var patient = await _dbContext.Patients
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(p => p.ApplicationUserId == applicationUserId);
+
+        if (patient?.DeviceToken is null)
+            return;
+
+        patient.DeviceToken = null;
+        await _dbContext.SaveChangesAsync();
     }
     }
 }

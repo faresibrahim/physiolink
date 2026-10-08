@@ -45,10 +45,12 @@ namespace PhysioLink.AdminPanel.ViewModels
         // PatientId intentionally omitted - the hidden patient picker submits as ""
         // which fails Guid binding and makes ModelState invalid. The API's update
         // endpoint doesn't need it - the appointment is keyed by AppointmentId.
+        // Both arrive null when the modal has locked (disabled) them — a disabled
+        // input isn't submitted — and null tells the API to leave them unchanged.
         public string? TherapistName { get; set; }
         public required string Title { get; set; }
         public string? Notes { get; set; }
-        public DateTime AppointmentTime { get; set; }
+        public DateTime? AppointmentTime { get; set; }
         public string Status { get; set; } = "Pending";
     }
 }

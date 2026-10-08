@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PhysioLink.Application.Common;
 using PhysioLink.Application.DTOs.Slots;
 using PhysioLink.Application.Interfaces;
 using PhysioLink.Domain.Entities;
@@ -34,8 +35,11 @@ namespace PhysioLink.Infrastructure.Services
 
             var (openHour, closeHour) = await GetOperatingHoursAsync(clinicId);
 
-            var weekStartUtc = DateTime.SpecifyKind(weekStart.Date, DateTimeKind.Utc);
-            var weekEndUtc = weekStartUtc.AddDays(7);
+            // weekStart is a clinic-local calendar date; rows are clinic-local hours.
+            // Each cell carries its true UTC instant.
+            var weekStartLocal = DateTime.SpecifyKind(weekStart.Date, DateTimeKind.Unspecified);
+            var weekStartUtc = ClinicTime.ToUtc(weekStartLocal);
+            var weekEndUtc = ClinicTime.ToUtc(weekStartLocal.AddDays(7));
 
             // One round-trip for the whole week; index (TherapistId, ScheduledAt).
             var slots = await _dbContext.AppointmentSlots.AsNoTracking()
@@ -51,7 +55,7 @@ namespace PhysioLink.Infrastructure.Services
             {
                 for (var hour = openHour; hour < closeHour; hour++)
                 {
-                    var cellStart = weekStartUtc.AddDays(day).AddHours(hour);
+                    var cellStart = ClinicTime.ToUtc(weekStartLocal.AddDays(day).AddHours(hour));
                     var state = slotByStart.TryGetValue(cellStart, out var slot)
                         ? slot.Status.ToString()
                         : "Empty";
@@ -70,7 +74,7 @@ namespace PhysioLink.Infrastructure.Services
             return new SlotGridDto
             {
                 TherapistId = therapistId,
-                WeekStart = weekStartUtc,
+                WeekStart = weekStartLocal,
                 OpenHour = openHour,
                 CloseHour = closeHour,
                 Cells = cells
@@ -119,9 +123,11 @@ namespace PhysioLink.Infrastructure.Services
                 .AnyAsync(t => t.TherapistId == therapistId);
             if (!therapistExists) return SlotWriteOutcome.TherapistNotFound;
 
-            // 3. Within the clinic's operating window [OpenHour, CloseHour).
+            // 3. Within the clinic's operating window [OpenHour, CloseHour), which is
+            // in clinic-local hours.
             var (openHour, closeHour) = await GetOperatingHoursAsync(clinicId);
-            if (scheduledAtUtc.Hour < openHour || scheduledAtUtc.Hour >= closeHour)
+            var localHour = ClinicTime.ToLocal(scheduledAtUtc).Hour;
+            if (localHour < openHour || localHour >= closeHour)
                 return SlotWriteOutcome.OutsideOperatingWindow;
 
             // 4. Idempotent create. The filtered unique index only blocks live rows,

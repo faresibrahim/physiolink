@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using PhysioLink.Application.Common;
 using PhysioLink.Application.DTOs;
 using PhysioLink.Application.Interfaces;
 using PhysioLink.Domain.Enums;
@@ -45,9 +46,9 @@ namespace PhysioLink.Infrastructure.Services
 
         private async Task<DashboardDto> BuildDashboardAsync()
         {
-            var now = DateTime.UtcNow;
-            var todayStart = now.Date;
-            var todayEnd = todayStart.AddDays(1);
+            // The clinic's calendar day, as UTC instants.
+            var todayStart = ClinicTime.TodayStartUtc;
+            var todayEnd = ClinicTime.ToUtc(ClinicTime.Today.AddDays(1));
 
             // Sequential awaits — EF Core DbContext does not support concurrent operations
             var patientCount = await _dbContext.Patients

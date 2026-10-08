@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PhysioLink.AdminPanel.Helpers;
 using PhysioLink.AdminPanel.Services;
 using PhysioLink.AdminPanel.ViewModels;
 using PhysioLink.AdminPanel.ViewModels.Shared;
@@ -198,7 +199,7 @@ public class TherapistsController : BaseController
             return RedirectToAction(nameof(Index));
         }
 
-        var start = (weekStart ?? StartOfWeek(DateTime.UtcNow.Date)).Date;
+        var start = (weekStart ?? StartOfWeek(ClinicTime.Today)).Date;
         var grid = await _apiClient.GetTherapistScheduleAsync(id, start);
         if (grid == null)
         {
