@@ -10,8 +10,9 @@
 }
 
 <div class="hero">
+    <div class="light-rays" data-light-rays data-rays-color="var(--rail-accent)" data-rays-origin="top-right" data-rays-spread="1.4" data-rays-length="1.2" aria-hidden="true"></div>
     <div>
-        <h1 class="hero-title">@greeting@(string.IsNullOrWhiteSpace(clinicName) ? "" : $", {clinicName}")</h1>
+        <h1 class="hero-title" data-blur-text data-blur-start="0.15">@greeting@(string.IsNullOrWhiteSpace(clinicName) ? "" : $", {clinicName}")</h1>
         <p class="hero-sub">Here's what's happening at your clinic today.</p>
     </div>
     <span class="hero-date">
@@ -30,7 +31,7 @@
         </div>
         <div class="stat-body">
             <p class="stat-label">Total Patients</p>
-            <div class="stat-value">@Model.PatientCount</div>
+            <div class="stat-value" data-count-up>@Model.PatientCount</div>
         </div>
     </div>
     <div class="card stat-card">
@@ -41,7 +42,7 @@
         </div>
         <div class="stat-body">
             <p class="stat-label">Active Assignments</p>
-            <div class="stat-value">@Model.ActiveAssignment</div>
+            <div class="stat-value" data-count-up>@Model.ActiveAssignment</div>
         </div>
     </div>
     <div class="card stat-card">
@@ -53,7 +54,7 @@
         </div>
         <div class="stat-body">
             <p class="stat-label">Today's Appointments</p>
-            <div class="stat-value">@Model.TodayAppointments</div>
+            <div class="stat-value" data-count-up>@Model.TodayAppointments</div>
         </div>
     </div>
     <div class="card stat-card">
@@ -65,7 +66,7 @@
         </div>
         <div class="stat-body">
             <p class="stat-label">Total Therapists</p>
-            <div class="stat-value">@Model.TherapistCount</div>
+            <div class="stat-value" data-count-up>@Model.TherapistCount</div>
         </div>
     </div>
 </div>

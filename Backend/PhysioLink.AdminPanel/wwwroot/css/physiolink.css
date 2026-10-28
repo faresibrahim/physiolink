@@ -5,14 +5,17 @@
    · Spacing on the 8pt grid (4px half-step used sparingly)
    · Type sizes in multiples of 2: 12 / 14 / 16 / 18 / 20 / 24
    · Text is near-black (#22262C), never pure #000
-   · Flat-plus surfaces: 1px borders + a 1px ambient shadow; real elevation
-     (modal, dropdown, hover-lift) only where it means something
+   · Flat surfaces: 1px borders do the separating; elevation only for what
+     floats above the page (modal, dropdown, popover)
+   · Labels are sentence case — one label style per role, no tracked caps
    · One button system: pad-x = 2 × pad-y, ≥44px tap targets on mobile
    · Brand colors are identity — #004AAD blue, #4CAF82 green. Text-on-tint
      variants are darkened for WCAG AA contrast; fills stay on-brand.
    · Primary CTA is the only solid-blue action per screen (Von Restorff);
      secondary actions are tonal fills, neutral actions are quiet outlines.
-   · 12-column content grid across breakpoints
+   · 12-column content grid across breakpoints, 24px gutters
+   · Motion is calm and lives in js/motion.js + js/bits/; all of it honours
+     prefers-reduced-motion
    ============================================================================= */
 
 :root {
@@ -22,6 +25,7 @@
     --primary-soft: #EAF1FB;          /* tinted fills behind brand-blue content */
     --primary-soft-hover: #DCE8F8;
     --primary-ring: rgba(0, 74, 173, 0.16);
+    --border-hover: #C7CCD4;          /* a hovered card's outline */
     --secondary: #4CAF82;
     --secondary-soft: #E7F5EE;
 
@@ -91,7 +95,7 @@
     --radius-full: 999px;
 
     /* ---- Elevation (ambient 1px + real elevation used sparingly) ---- */
-    --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+    --shadow-xs: none;                /* flat by default — borders separate surfaces */
     --shadow-pop: 0 8px 24px rgba(15, 23, 42, 0.08);
     --shadow-modal: 0 24px 64px rgba(15, 23, 42, 0.18);
 
@@ -282,7 +286,7 @@ select,
 .brand-sub {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    margin-top: 2px;
+    margin-top: var(--space-1);
 }
 
 .sidebar .brand-name {
@@ -302,11 +306,9 @@ select,
 
 .nav-label {
     font-size: var(--font-size-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
     color: var(--rail-text);
     padding: var(--space-1) var(--space-2) var(--space-2);
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .nav-item {
@@ -336,24 +338,12 @@ select,
         color: var(--rail-text-strong);
     }
 
-    /* Active = soft-white pill + accent bar; the location is always visible */
+    /* Active = one soft-white pill; the location is always visible */
     .nav-item.active {
         background: var(--rail-active);
         color: var(--rail-text-strong);
         font-weight: 600;
     }
-
-        .nav-item.active::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3px;
-            height: var(--space-3);
-            border-radius: var(--radius-full);
-            background: var(--rail-accent);
-        }
 
     /* Pending appointment requests: green label + a modern count pill. The
        :not(.active) keeps the active-page styling winning when you're on the
@@ -376,7 +366,6 @@ select,
         font-size: var(--font-size-xs);
         font-weight: 700;
         line-height: 1;
-        box-shadow: 0 1px 4px rgba(44, 122, 79, 0.45);
     }
 
 .sidebar-footer {
@@ -457,13 +446,9 @@ select,
     /* A flex item's default min-width is its content, which would let a wide
        table push the whole page sideways instead of scrolling inside its card. */
     min-width: 0;
-    padding: var(--space-4) var(--space-5);
-    animation: screenIn 240ms ease-out both;
-}
-
-@keyframes screenIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+    width: 100%;
+    max-width: 1440px;
+    padding: var(--space-5) var(--space-6) var(--space-7);
 }
 
 /* =============================================================================
@@ -475,11 +460,11 @@ select,
     justify-content: space-between;
     align-items: flex-start;
     gap: var(--space-3);
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
 }
 
 .page-title {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: var(--line-height-tight);
@@ -541,11 +526,18 @@ select,
 .exercise-grid {
     display: grid;
     grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
-    gap: var(--space-3);
+    gap: var(--space-4);
 }
 
+/* KPI strip — one surface split by hairlines. The 1px gap shows the divider
+   colour behind the cells, so the rules stay right at every column count. */
 .stats-row {
-    margin-bottom: var(--space-3);
+    gap: 1px;
+    margin-bottom: var(--space-4);
+    background: var(--divider);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-md);
+    overflow: hidden;
 }
 
     .stats-row > * {
@@ -562,7 +554,6 @@ select,
 
 .detail-grid {
     align-items: start;
-    gap: var(--space-4) var(--space-3);
 }
 
     .detail-grid > .detail-main {
@@ -577,7 +568,7 @@ select,
 .detail-sidebar {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-4);
     min-width: 0;
 }
 
@@ -888,8 +879,8 @@ textarea.input {
 .search-field {
     position: relative;
     flex: 1;
-    max-width: 340px;
-    min-width: 220px;
+    max-width: 336px;
+    min-width: 224px;
 }
 
 .search-icon {
@@ -917,7 +908,7 @@ textarea.input {
 }
 
 .select-field {
-    min-width: 180px;
+    min-width: 176px;
 }
 
 /* =============================================================================
@@ -966,7 +957,7 @@ textarea.input {
 .card-subtitle {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    margin: 2px 0 0;
+    margin: var(--space-1) 0 0;
 }
 
 .card-link {
@@ -990,7 +981,7 @@ textarea.input {
 }
 
 /* =============================================================================
-   ROW LISTS (dashboard cards) — dense 40px rows
+   ROW LISTS (dashboard cards) — 48px rows
    ============================================================================= */
 
 .row-list {
@@ -1006,7 +997,7 @@ textarea.input {
     gap: var(--space-2);
     padding: var(--space-2) 0;
     border-bottom: 1px solid var(--divider-soft);
-    min-height: var(--space-6);
+    min-height: var(--space-7);
 }
 
     .row-item:last-child {
@@ -1034,7 +1025,7 @@ textarea.input {
 .row-meta {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    margin: 2px 0 0;
+    margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1104,7 +1095,7 @@ textarea.input {
 }
 
 /* =============================================================================
-   TABLES — dense 40px rows, quiet uppercase header
+   TABLES — 48px rows, quiet sentence-case header
    ============================================================================= */
 
 /* Wide tables scroll inside their own card instead of crushing their columns.
@@ -1134,10 +1125,8 @@ textarea.input {
         text-align: left;
         padding: var(--space-2) var(--space-3);
         color: var(--text-secondary);
-        font-weight: 600;
+        font-weight: 500;
         font-size: var(--font-size-xs);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
         border-bottom: 1px solid var(--divider);
         background: var(--surface-sunken);
         white-space: nowrap;
@@ -1145,7 +1134,7 @@ textarea.input {
 
     .data-table tbody td {
         padding: var(--space-2) var(--space-3);
-        height: var(--space-6);
+        height: var(--space-7);
         vertical-align: middle;
         border-bottom: 1px solid var(--divider-soft);
     }
@@ -1190,7 +1179,7 @@ textarea.input {
 .status-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--space-2);
     padding: var(--space-1) var(--space-2);
     border-radius: var(--radius-full);
     font-size: var(--font-size-xs);
@@ -1273,7 +1262,7 @@ textarea.input {
 .chip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--space-2);
     height: var(--control-h-sm);
     padding: 0 var(--space-3);
     border-radius: var(--radius-full);
@@ -1318,11 +1307,9 @@ textarea.input {
 .difficulty-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--space-2);
     font-size: var(--font-size-xs);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-weight: 600;
     flex-shrink: 0;
     white-space: nowrap;
 }
@@ -1562,10 +1549,7 @@ textarea.input {
 }
 
 .modal-lg .modal-subtitle {
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-weight: 500;
 }
 
 .modal-close {
@@ -1625,9 +1609,7 @@ textarea.input {
 
 .modal-status-label {
     font-size: var(--font-size-xs);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-weight: 500;
     color: var(--text-tertiary);
 }
 
@@ -1828,28 +1810,31 @@ textarea.input {
    DASHBOARD — greeting hero + stat cards (icon tile left, KPI right)
    ============================================================================= */
 
-/* Navy hero band — the one intentionally rich surface on the page; it echoes
-   the rail so the dashboard reads as the app's "home" */
+/* Navy hero band — the one intentionally rich surface in the app; it echoes
+   the rail so the dashboard reads as home. The light comes from the Light Rays
+   canvas, which sits under the text. */
 .hero {
     position: relative;
     overflow: hidden;
+    isolation: isolate;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     gap: var(--space-3);
-    padding: var(--space-4);
-    margin-bottom: var(--space-3);
+    padding: var(--space-5);
+    margin-bottom: var(--space-4);
     border-radius: var(--radius-lg);
     color: #fff;
-    background:
-        radial-gradient(560px 280px at 88% -40%, rgba(110, 168, 255, 0.35), transparent 70%),
-        radial-gradient(420px 240px at 8% 130%, rgba(76, 175, 130, 0.18), transparent 70%),
-        linear-gradient(135deg, #0A1C38 0%, #10305F 100%);
-    box-shadow: var(--shadow-xs);
+    background: linear-gradient(135deg, #0A1C38 0%, #10305F 100%);
 }
 
+    .hero > :not(.light-rays) {
+        position: relative;
+        z-index: 1;
+    }
+
 .hero-title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-3xl);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: var(--line-height-tight);
@@ -1857,22 +1842,18 @@ textarea.input {
 }
 
 .hero-sub {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     color: rgba(255, 255, 255, 0.72);
-    margin: var(--space-1) 0 0;
+    margin: var(--space-2) 0 0;
 }
 
 .hero-date {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.10);
-    border: 1px solid rgba(255, 255, 255, 0.16);
     font-size: var(--font-size-sm);
     font-weight: 500;
-    color: #fff;
+    color: rgba(255, 255, 255, 0.72);
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -1899,23 +1880,29 @@ textarea.input {
     font-variant-numeric: tabular-nums;
 }
 
+/* A cell of the KPI strip: label with a quiet glyph on the first line, the
+   figure under it. .stat-body steps aside so all three share one grid. */
 .stat-card {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "label icon"
+        "value value";
     align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3);
+    gap: var(--space-3) var(--space-2);
+    padding: var(--space-4);
+    border: none;
+    border-radius: 0;
+}
+
+.stat-body {
+    display: contents;
 }
 
 .stat-icon {
-    width: var(--space-6);
-    height: var(--space-6);
-    border-radius: var(--radius-sm);
-    background: var(--primary-soft);
-    color: var(--primary);
+    grid-area: icon;
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    color: var(--text-tertiary);
 }
 
     .stat-icon svg {
@@ -1923,38 +1910,18 @@ textarea.input {
         height: var(--icon-md);
     }
 
-/* Tint rotation keeps the KPI row lively without leaving the palette */
-.stats-row > *:nth-child(2) .stat-icon {
-    background: var(--secondary-soft);
-    color: var(--success-text);
-}
-
-.stats-row > *:nth-child(3) .stat-icon {
-    background: var(--warning-soft);
-    color: var(--warning-text);
-}
-
-.stats-row > *:nth-child(4) .stat-icon {
-    background: var(--rail-bg);
-    color: #FFFFFF;
-}
-
-.stat-body {
-    min-width: 0;
-}
-
 .stat-label {
-    font-size: var(--font-size-xs);
+    grid-area: label;
+    font-size: var(--font-size-sm);
     color: var(--text-secondary);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 0 0 var(--space-1);
+    font-weight: 500;
+    margin: 0;
     line-height: var(--line-height-tight);
     overflow-wrap: anywhere;
 }
 
 .stat-value {
+    grid-area: value;
     font-size: var(--font-size-3xl);
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -2005,13 +1972,13 @@ textarea.input {
 .profile-divider {
     height: 1px;
     background: var(--divider-soft);
-    margin: var(--space-3) 0;
+    margin: var(--space-4) 0;
 }
 
 .profile-info-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-3);
+    gap: var(--space-4) var(--space-3);
 }
 
 .info-item {
@@ -2022,8 +1989,6 @@ textarea.input {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
     margin: 0 0 var(--space-1);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
 }
 
 .info-value {
@@ -2288,7 +2253,7 @@ textarea.input {
     margin: 0 0 var(--space-1);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--space-2);
 }
 
 .danger-text {
@@ -2306,7 +2271,6 @@ textarea.input {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
-    padding: var(--space-3);
 }
 
 .therapist-card-top {
@@ -2334,7 +2298,7 @@ textarea.input {
 .therapist-specialty {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    margin: 2px 0 0;
+    margin: var(--space-1) 0 0;
 }
 
 .therapist-contact {
@@ -2394,14 +2358,16 @@ textarea.input {
     display: flex;
     flex-direction: column;
     cursor: pointer;
-    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    transition: border-color 150ms;
 }
 
     .exercise-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-pop);
-        border-color: #D5D9E0;
+        border-color: var(--border-hover);
     }
+
+        .exercise-card:hover .exercise-name {
+            color: var(--primary);
+        }
 
     .exercise-card:focus-visible {
         outline: none;
@@ -2446,16 +2412,14 @@ textarea.input {
     background: var(--surface);
     border-radius: var(--radius-full);
     font-size: var(--font-size-xs);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-weight: 600;
     color: var(--text-primary);
     border: 1px solid var(--divider-soft);
 }
 
 .exercise-icon-disc {
-    width: 52px;
-    height: 52px;
+    width: var(--space-7);
+    height: var(--space-7);
     border-radius: var(--radius-md);
     background: var(--surface);
     color: var(--primary);
@@ -2486,6 +2450,7 @@ textarea.input {
     color: var(--text-primary);
     margin: 0;
     line-height: 1.3;
+    transition: color 150ms;
 }
 
 .exercise-description {
@@ -2606,19 +2571,12 @@ textarea.input {
     border: 1px solid var(--divider);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-xs);
-    padding: var(--space-3);
-    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    padding: var(--space-4);
 }
 
-    .request-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-pop);
-        border-color: #D5D9E0;
-    }
-
 .request-date-block {
-    width: 52px;
-    height: 52px;
+    width: var(--space-7);
+    height: var(--space-7);
     border-radius: var(--radius-md);
 }
 
@@ -2645,8 +2603,8 @@ textarea.input {
 .request-meta {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin: 2px 0 0;
+    gap: var(--space-2);
+    margin: var(--space-1) 0 0;
     font-size: var(--font-size-sm);
     color: var(--text-secondary);
     flex-wrap: wrap;
@@ -2699,7 +2657,7 @@ textarea.input {
 }
 
     .request-actions .btn {
-        width: 108px;
+        width: 112px;
     }
 
 /* =============================================================================
@@ -2902,10 +2860,11 @@ textarea.input {
    ============================================================================= */
 
 .auth-page {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
     min-height: 100vh;
-    background:
-        radial-gradient(900px 480px at 50% -10%, rgba(0, 74, 173, 0.45), transparent 70%),
-        var(--rail-bg);
+    background: var(--rail-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2913,6 +2872,8 @@ textarea.input {
 }
 
 .auth-card {
+    position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 400px;
     padding: var(--space-6);
@@ -2938,7 +2899,7 @@ textarea.input {
     .auth-card .brand-sub {
         font-size: var(--font-size-sm);
         text-align: center;
-        margin-top: 3px;
+        margin-top: var(--space-1);
     }
 
 .auth-title {
@@ -3052,7 +3013,7 @@ textarea.input {
 }
 
     .ts-dropdown .ts-dropdown-content {
-        max-height: 220px;
+        max-height: 224px;
     }
 
     .ts-dropdown .option {
@@ -3423,8 +3384,8 @@ textarea.input {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: var(--space-5);
+    height: var(--space-5);
     color: var(--text-secondary);
 }
 
@@ -3481,6 +3442,105 @@ textarea.input {
         }
 
 /* =============================================================================
+   MOTION — GSAP + ScrollTrigger + Lenis (js/motion.js) and the React Bits ports
+   in js/bits/. Calm by rule: short offsets, ease-outs, no bounce, and nothing
+   here runs under prefers-reduced-motion.
+   ============================================================================= */
+
+/* Lenis keeps the page at its natural height. Its stock iframe rule is left out
+   on purpose: it would make the exercise video player unclickable. */
+html.lenis,
+html.lenis body {
+    height: auto;
+}
+
+.lenis.lenis-stopped {
+    overflow: clip;
+}
+
+/* Content waits, unseen, for motion.js to set its starting states, so blocks
+   rise in instead of flashing at rest first (see Views/Shared/_Motion.cshtml) */
+.motion:not(.motion-ready) .screens,
+.motion:not(.motion-ready) .auth-card {
+    opacity: 0;
+}
+
+/* A block mid-rise: a hover transition on transform would smear every frame */
+.is-revealing {
+    transition: none !important;
+}
+
+/* Light Rays — the canvas fills its positioned parent, under the content */
+.light-rays {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Blur Text — each word moves on its own */
+.blur-seg {
+    display: inline-block;
+}
+
+/* Star Border — two lights sweep along the button's edge. The ring sits over
+   the 1px border and is masked to its own outline, so the lights never cross
+   the label; the button keeps its fill. */
+[data-star-border] {
+    position: relative;
+    isolation: isolate;
+}
+
+.star-border {
+    position: absolute;
+    inset: -1px;
+    padding: 2px;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+.star-border-star {
+    position: absolute;
+    width: 300%;
+    height: 50%;
+    border-radius: 50%;
+    opacity: 0.7;
+    background: radial-gradient(circle, var(--rail-accent), transparent 10%);
+    animation: star-bottom 6s linear infinite alternate;
+}
+
+.star-border-bottom {
+    bottom: -12px;
+    right: -250%;
+}
+
+.star-border-top {
+    top: -12px;
+    left: -250%;
+    animation-name: star-top;
+}
+
+@keyframes star-bottom {
+    from { transform: translate(0, 0); opacity: 1; }
+    to   { transform: translate(-100%, 0); opacity: 0; }
+}
+
+@keyframes star-top {
+    from { transform: translate(0, 0); opacity: 1; }
+    to   { transform: translate(100%, 0); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .star-border {
+        display: none;
+    }
+}
+
+/* =============================================================================
    RESPONSIVE — desktop → tablet → phone, 12 columns throughout
    ============================================================================= */
 
@@ -3496,6 +3556,10 @@ textarea.input {
 }
 
 @media (max-width: 1024px) {
+    .screens {
+        padding: var(--space-4) var(--space-4) var(--space-6);
+    }
+
     .dashboard-grid > *:first-child,
     .dashboard-grid > *:last-child {
         grid-column: span 12;
@@ -3512,9 +3576,11 @@ textarea.input {
 }
 
 @media (max-width: 768px) {
-    /* Shell collapses: the navy rail becomes a top bar */
+    /* Shell collapses: the navy rail becomes a top bar. minmax(0, …) lets the
+       column shrink below the nav strip's width, so the strip scrolls inside
+       itself instead of stretching the page past the screen. */
     .app {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .sidebar {
@@ -3546,8 +3612,11 @@ textarea.input {
         flex-shrink: 0;
     }
 
-        .nav-item.active::before {
-            display: none;
+        /* 24px glyphs on touch screens */
+        .nav-item .icon,
+        .logout .icon {
+            width: var(--icon-lg);
+            height: var(--icon-lg);
         }
 
     .sidebar-footer {
@@ -3558,10 +3627,14 @@ textarea.input {
     }
 
     .screens {
-        padding: var(--space-3);
+        padding: var(--space-3) var(--space-3) var(--space-5);
     }
 
-    .stats-row > *,
+    /* The KPI strip stays two-up: four short figures read faster as a square */
+    .stats-row > * {
+        grid-column: span 6;
+    }
+
     .therapist-grid > *,
     .exercise-grid > * {
         grid-column: span 12;
@@ -3579,6 +3652,15 @@ textarea.input {
     .hero {
         flex-direction: column;
         align-items: flex-start;
+        padding: var(--space-4);
+    }
+
+    .hero-title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .stat-card {
+        padding: var(--space-3);
     }
 
     /* Fingertip targets on touch screens */

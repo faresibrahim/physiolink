@@ -1,0 +1,22 @@
+@* Motion stack, shared by _Layout and the standalone login page.
+   GSAP + ScrollTrigger drive every tween, Lenis smooths the scroll and is stepped by GSAP's
+   ticker (wwwroot/js/motion.js), and js/bits/ holds the React Bits ports that plug into it.
+   Every script is deferred, so they run in this order once the page is parsed. *@
+<script>
+    // Hides the content for the moment before motion.js sets its starting states, so blocks
+    // rise in instead of flashing at rest first. If motion.js never runs, the timeout shows
+    // the page anyway. Reduced motion skips all of it.
+    (function (root) {
+        if (!window.matchMedia || !matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+        root.classList.add('motion');
+        setTimeout(function () { root.classList.add('motion-ready'); }, 3000);
+    })(document.documentElement);
+</script>
+<script src="~/lib/gsap/dist/gsap.min.js" asp-append-version="true" defer></script>
+<script src="~/lib/gsap/dist/ScrollTrigger.min.js" asp-append-version="true" defer></script>
+<script src="~/lib/lenis/dist/lenis.min.js" asp-append-version="true" defer></script>
+<script src="~/js/motion.js" asp-append-version="true" defer></script>
+<script src="~/js/bits/blur-text.js" asp-append-version="true" defer></script>
+<script src="~/js/bits/count-up.js" asp-append-version="true" defer></script>
+<script src="~/js/bits/light-rays.js" asp-append-version="true" defer></script>
+<script src="~/js/bits/star-border.js" asp-append-version="true" defer></script>
