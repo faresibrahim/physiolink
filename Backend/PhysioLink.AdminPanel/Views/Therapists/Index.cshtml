@@ -82,20 +82,6 @@
                     Edit
                 </button>
 
-                @* Deactivating revokes a practitioner's access, so it asks first. *@
-                <form asp-action="Deactivate"
-                      asp-route-id="@therapist.Id"
-                      method="post"
-                      onsubmit="return confirm('Deactivate @(therapist.FirstName) @(therapist.LastName)? They will lose access until you reactivate them.');">
-
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit" class="btn btn-danger-outline btn-sm btn-block">
-                        Deactivate
-                    </button>
-
-                </form>
-
             </div>
 
         </div>
