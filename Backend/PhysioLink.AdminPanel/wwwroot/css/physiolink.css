@@ -1039,37 +1039,6 @@ textarea.input {
     border-radius: var(--radius-sm);
 }
 
-/* =============================================================================
-   AVATARS
-   ============================================================================= */
-
-.avatar {
-    width: var(--space-6);
-    height: var(--space-6);
-    border-radius: 50%;
-    background: var(--primary-soft);
-    color: var(--primary);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: var(--font-size-sm);
-    flex-shrink: 0;
-    letter-spacing: 0.02em;
-}
-
-.avatar-sm {
-    width: var(--space-5);
-    height: var(--space-5);
-    font-size: var(--font-size-xs);
-}
-
-.avatar-lg {
-    width: 56px;
-    height: 56px;
-    font-size: var(--font-size-lg);
-}
-
 .cell-person {
     display: flex;
     align-items: center;

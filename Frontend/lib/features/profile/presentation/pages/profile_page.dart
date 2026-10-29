@@ -15,10 +15,6 @@ import 'package:practice/l10n/app_localizations.dart';
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
-  String _initials(Patient p) {
-    return '${p.firstName[0]}${p.lastName[0]}'.toUpperCase();
-  }
-
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
@@ -196,26 +192,6 @@ class ProfilePage extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                // Avatar
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      _initials(patient),
-                      style: AppTextStyles.headline.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
