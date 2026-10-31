@@ -166,6 +166,11 @@ namespace PhysioLink.Infrastructure.Services
                 ? null
                 : createPatientDto.Email.Trim().ToLowerInvariant();
 
+            // Email is optional, but when given it must still be unique among active
+            // users — IX_Users_Email would otherwise reject the insert as a 500.
+            if (email != null && await _dbContext.Users.AnyAsync(u => u.Email == email))
+                throw new EmailInUseException(email);
+
             var temporaryPassword = GeneratePassword();
 
             var user = new ApplicationUser(
@@ -227,6 +232,10 @@ namespace PhysioLink.Infrastructure.Services
             var email = string.IsNullOrWhiteSpace(updatePatientDto.Email)
                 ? null
                 : updatePatientDto.Email.Trim().ToLowerInvariant();
+
+            if (email != null && await _dbContext.Users
+                    .AnyAsync(u => u.Email == email && u.ApplicationUserId != patient.ApplicationUserId))
+                throw new EmailInUseException(email);
 
             var user = await _dbContext.Users
                 .SingleOrDefaultAsync(u => u.ApplicationUserId == patient.ApplicationUserId);

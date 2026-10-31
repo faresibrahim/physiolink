@@ -285,10 +285,10 @@ public class PatientsController : BaseController
             TherapistId = model.TherapistId
         };
 
-        var success = await _apiClient.UpdatePatientAsync(id, request);
+        var (success, error) = await _apiClient.UpdatePatientAsync(id, request);
         if (!success)
         {
-            TempData["ErrorMessage"] = "Failed to update patient. Please try again.";
+            TempData["ErrorMessage"] = error ?? "Failed to update patient. Please try again.";
             return RedirectToAction(nameof(Detail), new { id });
         }
 
@@ -348,10 +348,10 @@ public class PatientsController : BaseController
             TherapistId = model.TherapistId
         };
 
-        var result = await _apiClient.CreatePatientAsync(patient);
+        var (result, error) = await _apiClient.CreatePatientAsync(patient);
         if (result == null)
         {
-            TempData["ErrorMessage"] = "Failed to create patient. Please try again.";
+            TempData["ErrorMessage"] = error ?? "Failed to create patient. Please try again.";
             return RedirectToAction(nameof(Index));
         }
 

@@ -66,6 +66,10 @@ namespace PhysioLink.API.Controllers.Admin
                 if (result == null) return NotFound();
                 return Ok(result);
             }
+            catch (EmailInUseException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
             catch (UsernameInUseException ex)
             {
                 return Conflict(new { message = ex.Message });

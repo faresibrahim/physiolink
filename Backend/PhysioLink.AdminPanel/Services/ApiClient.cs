@@ -244,13 +244,38 @@ public class ApiClient
         => ExecuteWithRefreshAsync<PatientDetailResponse>(
                c => c.GetAsync($"api/v1/admin/patients/{id}"));
 
-    public Task<PatientResponse?> CreatePatientAsync(CreatePatientRequest request)
-        => ExecuteWithRefreshAsync<PatientResponse>(
-               c => c.PostAsJsonAsync("api/v1/admin/patients", request));
+    // Both return the API's message on failure (e.g. "An active account already exists
+    // for 'sara'.") so the panel can say why, instead of a generic error.
+    public async Task<(PatientResponse? Patient, string? Error)> CreatePatientAsync(CreatePatientRequest request)
+    {
+        var response = await ExecuteRawWithRefreshAsync(
+            c => c.PostAsJsonAsync("api/v1/admin/patients", request));
+        if (response.IsSuccessStatusCode)
+            return (await response.Content.ReadFromJsonAsync<PatientResponse>(), null);
 
-    public Task<bool> UpdatePatientAsync(Guid id, UpdatePatientRequest request)
-        => ExecuteWithRefreshAsync(
-               c => c.PutAsJsonAsync($"api/v1/admin/patients/{id}", request));
+        return (null, await ReadErrorMessageAsync(response));
+    }
+
+    public async Task<(bool Success, string? Error)> UpdatePatientAsync(Guid id, UpdatePatientRequest request)
+    {
+        var response = await ExecuteRawWithRefreshAsync(
+            c => c.PutAsJsonAsync($"api/v1/admin/patients/{id}", request));
+        if (response.IsSuccessStatusCode) return (true, null);
+
+        return (false, await ReadErrorMessageAsync(response));
+    }
+
+    // Only 4xx bodies carry a message meant for the user; a 5xx body is a stack trace.
+    private static async Task<string?> ReadErrorMessageAsync(HttpResponseMessage response)
+    {
+        if ((int)response.StatusCode >= 500) return null;
+        try
+        {
+            var problem = await response.Content.ReadFromJsonAsync<ErrorMessageResponse>();
+            return problem?.Message;
+        }
+        catch { return null; /* non-JSON body */ }
+    }
 
     public Task<bool> DeactivatePatientAsync(Guid id)
         => ExecuteWithRefreshAsync(
