@@ -381,13 +381,18 @@
             window.plModal.closed(credentialsModal);
         }
 
-        if (credentialsModal.classList.contains('modal-visible')) {
-            window.plModal.opened(credentialsModal);
-        }
-
         // Deliberately no overlay-click-to-close: closing should be an explicit
         // choice (Done), not a stray click while the credentials are still visible.
 
         window.closeCredentialsModal = closeCredentialsModal;
+
+        // This modal is open from first paint, but this inline script runs while the
+        // page is still parsing — before the deferred site.js defines plModal.
+        // Calling it here threw and left Done / × unwired, so wait until it exists.
+        if (credentialsModal.classList.contains('modal-visible')) {
+            document.addEventListener('DOMContentLoaded', function () {
+                window.plModal.opened(credentialsModal);
+            });
+        }
     })();
 </script>
