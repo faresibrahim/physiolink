@@ -139,7 +139,7 @@
         if (success) {
             window.setTimeout(function () {
                 success.style.opacity = '0';
-                window.setTimeout(function () { success.hidden = true; }, 400);
+                window.setTimeout(function () { success.hidden = true; }, 200);
             }, 4000);
         }
 

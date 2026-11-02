@@ -1200,7 +1200,11 @@ textarea.input {
     color: var(--danger-text);
 }
 
-.status-completed,
+.status-completed {
+    background: var(--success-soft);
+    color: var(--success-text);
+}
+
 .status-paused {
     background: var(--divider-soft);
     color: var(--text-secondary);
@@ -1391,7 +1395,7 @@ textarea.input {
     font-weight: 500;
     margin-bottom: var(--space-3);
     border: 1px solid transparent;
-    transition: opacity 400ms ease;
+    transition: opacity 200ms ease-out;
 }
 
 .alert-icon {
@@ -1975,8 +1979,8 @@ textarea.input {
 /* Completion ring */
 .ring-wrapper {
     position: relative;
-    width: 140px;
-    height: 140px;
+    width: 144px;
+    height: 144px;
     margin: 0 auto var(--space-3);
 }
 
@@ -2032,7 +2036,7 @@ textarea.input {
 .stat-label-sm {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    margin: 2px 0 0;
+    margin: var(--space-1) 0 0;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -2040,7 +2044,7 @@ textarea.input {
 /* Feedback breakdown bars */
 .feedback-row {
     display: grid;
-    grid-template-columns: 90px 1fr 30px;
+    grid-template-columns: 88px 1fr 32px;
     align-items: center;
     gap: var(--space-2);
     margin-bottom: var(--space-2);
@@ -2054,7 +2058,7 @@ textarea.input {
 .feedback-label {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--space-2);
     color: var(--text-primary);
 }
 
@@ -2185,7 +2189,7 @@ textarea.input {
 .appt-entry-meta {
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
-    margin: 2px 0 0;
+    margin: var(--space-1) 0 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2478,7 +2482,7 @@ textarea.input {
 
 .filter-select {
     width: auto;
-    min-width: 150px;
+    min-width: 152px;
 }
 
 /* Date is the secondary label; time is the value admins actually scan for,
@@ -2494,7 +2498,7 @@ textarea.input {
 
 .appt-time {
     display: block;
-    margin-top: 2px;
+    margin-top: var(--space-1);
     font-size: var(--font-size-sm);
     font-weight: 700;
     color: var(--text-primary);
@@ -2828,7 +2832,7 @@ textarea.input {
     font-size: var(--font-size-xs);
     font-weight: 500;
     color: var(--text-secondary);
-    margin-top: 2px;
+    margin-top: var(--space-1);
 }
 
 .schedule-hour {
@@ -3009,7 +3013,6 @@ textarea.input {
     }
 
     .auth-card .brand-name {
-        font-size: var(--font-size-2xl);
         text-align: center;
     }
 
@@ -3020,7 +3023,7 @@ textarea.input {
     }
 
 .auth-title {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--text-primary);
@@ -3511,7 +3514,7 @@ textarea.input {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: var(--space-1);
 }
 
 .attachment-name {
@@ -3538,7 +3541,7 @@ textarea.input {
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: var(--space-1);
 }
 
 /* Let a delete form sit inline without adding layout box */
