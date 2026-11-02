@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PhysioLink.AdminPanel.Helpers;
 using PhysioLink.AdminPanel.Services;
 using PhysioLink.AdminPanel.ViewModels;
 using PhysioLink.AdminPanel.ViewModels.Shared;
@@ -53,6 +54,7 @@ namespace PhysioLink.AdminPanel.Controllers
                 SearchQuery = search,
                 DifficultyFilter = difficulty,
                 CategoryFilter = category,
+                MediaBaseUrl = MediaBaseUrl,
                 Pagination = new PaginationViewModel
                 {
                     CurrentPage = page,
@@ -86,29 +88,19 @@ namespace PhysioLink.AdminPanel.Controllers
                 durationMinutes = exercise.DurationMinutes,
                 difficulty      = exercise.Difficulty,
                 category        = exercise.Category,
-                videoUrl        = ResolveVideoUrl(exercise.VideoUrl)
+                videoUrl        = ExerciseMedia.ResolveUrl(exercise.VideoUrl, MediaBaseUrl),
+                thumbnailUrl    = ExerciseMedia.ThumbnailUrl(exercise.VideoUrl, MediaBaseUrl)
             });
         }
 
-        // Server-relative video paths (e.g. /videos/xxx.mp4) are stored relative to
-        // the API host, not this admin panel — resolve them to an absolute URL so
-        // the browser fetches the file from the right origin. Full URLs (YouTube,
-        // or any other already-absolute link) pass through unchanged.
-        //
-        // The resolved URL is embedded in the page and fetched by the USER'S BROWSER,
-        // so it must point at the API's PUBLIC address. ApiBaseUrl may be a private
-        // internal address (e.g. Railway's *.railway.internal host) that the panel
-        // uses for fast server-to-server calls but the browser cannot reach — using
-        // it here loads the modal data yet leaves the video broken. Prefer the
-        // public media base and fall back to ApiBaseUrl for local dev, where they
-        // are the same localhost origin.
-        private string? ResolveVideoUrl(string? videoUrl)
-        {
-            if (string.IsNullOrWhiteSpace(videoUrl)) return videoUrl;
-            if (videoUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return videoUrl;
-
-            var mediaBaseUrl = (_configuration["PublicApiBaseUrl"] ?? _configuration["ApiBaseUrl"])!.TrimEnd('/');
-            return $"{mediaBaseUrl}{videoUrl}";
-        }
+        // Video and thumbnail paths are stored relative to the API host and fetched by
+        // the USER'S BROWSER, so they must resolve against the API's PUBLIC address.
+        // ApiBaseUrl may be a private internal address (e.g. Railway's
+        // *.railway.internal host) that the panel uses for fast server-to-server
+        // calls but the browser cannot reach — using it here loads the modal data yet
+        // leaves the media broken. Prefer the public media base and fall back to
+        // ApiBaseUrl for local dev, where they are the same localhost origin.
+        private string MediaBaseUrl =>
+            (_configuration["PublicApiBaseUrl"] ?? _configuration["ApiBaseUrl"])!.TrimEnd('/');
     }
 }

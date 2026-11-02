@@ -10,6 +10,7 @@ namespace PhysioLink.AdminPanel.ViewModels
         public string? SearchQuery { get; set; }
         public string? DifficultyFilter { get; set; }
         public string? CategoryFilter { get; set; }
+        public string MediaBaseUrl { get; set; } = string.Empty;
         public PaginationViewModel Pagination { get; set; } = new();
 
     }

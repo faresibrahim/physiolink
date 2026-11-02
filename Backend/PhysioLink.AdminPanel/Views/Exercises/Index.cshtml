@@ -1,26 +1,7 @@
 @model PhysioLink.AdminPanel.ViewModels.ExerciseListViewModel
+@using PhysioLink.AdminPanel.Helpers
 @{
     ViewData["Title"] = "Exercises";
-}
-
-@functions {
-    // Mirrors the isDirectVideo/extractYouTubeId logic in the modal script below,
-    // so cards and the detail modal agree on what counts as a YouTube video.
-    private static string? GetYouTubeThumbnail(string? videoUrl)
-    {
-        if (string.IsNullOrWhiteSpace(videoUrl)) return null;
-
-        bool isDirectFile = videoUrl.StartsWith("/") ||
-            System.Text.RegularExpressions.Regex.IsMatch(videoUrl, @"\.(mp4|mov|webm|ogg|m4v)(\?|#|$)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        if (isDirectFile) return null;
-
-        var match = System.Text.RegularExpressions.Regex.Match(videoUrl,
-            @"(?:youtu\.be/|youtube\.com/(?:embed/|watch\?v=|shorts/))([^?&#/]+)",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        var id = match.Success ? match.Groups[1].Value : videoUrl;
-
-        return $"https://img.youtube.com/vi/{id}/hqdefault.jpg";
-    }
 }
 
 @* =========================================================================
@@ -126,15 +107,19 @@ else
                 "Hard" => "diff-advanced",
                 _ => "diff-neutral"
             };
-            string? thumbnailUrl = GetYouTubeThumbnail(exercise.VideoUrl);
+            string? thumbnailUrl = ExerciseMedia.ThumbnailUrl(exercise.VideoUrl, Model.MediaBaseUrl);
 
             <article class="exercise-card" onclick="openExerciseModal('@exercise.ExerciseId')" tabindex="0" role="button"
                      aria-label="@exercise.Name — open details"
                      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openExerciseModal('@exercise.ExerciseId');}">
-                @* Top visual — only when there is a YouTube thumbnail to show *@
+                @* Top visual — a still from the exercise's video. If the image is missing
+                   (a new video whose thumbnail hasn't been generated yet), the whole
+                   visual drops out and the card starts at the text. *@
                 @if (thumbnailUrl != null)
                 {
-                    <div class="exercise-visual" style="background-image:url('@thumbnailUrl')">
+                    <div class="exercise-visual">
+                        <img class="exercise-thumb" src="@thumbnailUrl" alt="" loading="lazy"
+                             onerror="this.parentElement.remove()" />
                         <div class="exercise-icon-disc">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                 <polygon points="6 3 20 12 6 21 6 3"></polygon>
