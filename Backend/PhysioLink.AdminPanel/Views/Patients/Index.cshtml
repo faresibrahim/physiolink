@@ -118,9 +118,9 @@
                                 <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                                 <circle cx="12" cy="7" r="4" />
                             </svg>
-                            <span class="name">
+                            <a asp-action="Detail" asp-route-id="@patient.PatientId" class="name cell-link">
                                 @patient.FirstName @patient.LastName
-                            </span>
+                            </a>
                         </div>
                     </td>
                     <td class="muted-cell">
@@ -141,10 +141,6 @@
                     </td>
                     <td>
                         <div class="cell-actions">
-                            <a asp-action="Detail" asp-route-id="@patient.PatientId"
-                               class="btn btn-ghost btn-sm">
-                                View
-                            </a>
                             <button type="button" class="btn btn-ghost btn-sm"
                                     onclick="openEditPatientModal('@patient.PatientId')">
                                 Edit

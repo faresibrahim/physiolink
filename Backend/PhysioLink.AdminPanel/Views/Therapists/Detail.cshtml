@@ -97,7 +97,6 @@
                     <th>Patient</th>
                     <th>Phone</th>
                     <th>Status</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
 
@@ -106,7 +105,7 @@
                 @if (Model.AssignedPatients.Count == 0)
                 {
                     <tr>
-                        <td colspan="4" class="empty-row">
+                        <td colspan="3" class="empty-row">
                             No patients assigned to this therapist yet.
                         </td>
                     </tr>
@@ -118,9 +117,11 @@
 
                         <td>
                             <div class="cell-person">
-                                <span class="name">
+                                <a asp-controller="Patients" asp-action="Detail"
+                                   asp-route-id="@patient.PatientId"
+                                   class="name cell-link">
                                     @patient.FirstName @patient.LastName
-                                </span>
+                                </a>
                             </div>
                         </td>
 
@@ -130,15 +131,6 @@
 
                         <td>
                             @await Html.PartialAsync("_StatusBadge", patient.IsActive ? "Active" : "Inactive")
-                        </td>
-
-                        <td>
-                            <a asp-controller="Patients"
-                               asp-action="Detail"
-                               asp-route-id="@patient.PatientId"
-                               class="btn btn-ghost btn-sm">
-                                View
-                            </a>
                         </td>
 
                     </tr>

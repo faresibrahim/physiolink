@@ -26,7 +26,7 @@
 @* =========================================================================
    THERAPIST FILTER — dropdown list, auto-submits on change
    ========================================================================= *@
-<form method="get" asp-action="Requests" class="toolbar">
+<form method="get" asp-action="Requests" class="toolbar toolbar-bare">
     <select name="therapistFilter" class="filter-select" aria-label="Filter by therapist" onchange="this.form.submit()">
         <option value="" selected="@(Model.TherapistFilter == null)">All therapists</option>
         @foreach (var t in Model.Therapists)

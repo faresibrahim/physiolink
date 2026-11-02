@@ -8,7 +8,7 @@
    · Flat surfaces: 1px borders do the separating; elevation only for what
      floats above the page (modal, dropdown, popover)
    · Labels are sentence case — one label style per role, no tracked caps
-   · One button system: pad-x = 2 × pad-y, ≥44px tap targets on mobile
+   · One button system: fixed 40/32px heights, ≥44px tap targets on mobile
    · Brand colors are identity — #004AAD blue, #4CAF82 green. Text-on-tint
      variants are darkened for WCAG AA contrast; fills stay on-brand.
    · Primary CTA is the only solid-blue action per screen (Von Restorff);
@@ -98,13 +98,11 @@
     --shadow-pop: 0 8px 24px rgba(15, 23, 42, 0.08);
     --shadow-modal: 0 24px 64px rgba(15, 23, 42, 0.18);
 
-    /* ---- Controls: pad-x = 2 × pad-y ---- */
+    /* ---- Controls: fixed heights, label centred; only pad-x is set ---- */
     --control-h: 40px;
     --control-h-sm: 32px;
-    --btn-pad-y: 10px;
-    --btn-pad-x: 20px;                /* = pad-y × 2 */
-    --btn-pad-y-sm: 6px;
-    --btn-pad-x-sm: 12px;             /* = pad-y × 2 */
+    --btn-pad-x: 20px;
+    --btn-pad-x-sm: 12px;
 
     /* ---- Layout ---- */
     --grid-columns: 12;
@@ -514,6 +512,14 @@ select,
     margin-bottom: var(--space-3);
 }
 
+/* A lone control needs no panel around it; the field's own border is enough */
+.toolbar-bare {
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
 .ml-auto {
     margin-left: auto;
 }
@@ -590,7 +596,7 @@ select,
 }
 
 /* =============================================================================
-   BUTTONS — one system. pad-x = 2 × pad-y.
+   BUTTONS — one system: fixed 40px / 32px heights, horizontal padding only.
    Primary = the one solid CTA. Secondary/danger-outline = tonal fills.
    Ghost = quiet neutral. No heavy outlines anywhere.
    ============================================================================= */
@@ -1057,6 +1063,17 @@ textarea.input {
     .cell-person .name {
         font-weight: 500;
         color: var(--text-primary);
+    }
+
+/* A row's name is its link to the detail page — no separate View button */
+.cell-link {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+    .cell-link:hover {
+        color: var(--primary);
+        text-decoration: underline;
     }
 
 /* Constant patient glyph — replaces initials wherever a patient is listed
