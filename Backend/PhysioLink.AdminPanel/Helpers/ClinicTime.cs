@@ -26,4 +26,13 @@ public static class ClinicTime
     }
 
     public static DateTime Today => ToLocal(DateTime.UtcNow).Date;
+
+    // "Today" / "Tomorrow" for the next two clinic days, otherwise "Wed, Nov 11".
+    public static string DayLabel(DateTime clinicLocal)
+    {
+        var date = clinicLocal.Date;
+        if (date == Today) return "Today";
+        if (date == Today.AddDays(1)) return "Tomorrow";
+        return clinicLocal.ToString("ddd, MMM d");
+    }
 }

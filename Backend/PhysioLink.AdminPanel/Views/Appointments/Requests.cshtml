@@ -58,9 +58,9 @@ else
         {
             var scheduledLocal = ClinicTime.ToLocal(r.ScheduledAt);
             <div class="request-card">
-                <div class="appt-date-block request-date-block">
-                    <span class="appt-month">@scheduledLocal.ToString("MMM")</span>
-                    <span class="appt-day">@scheduledLocal.ToString("dd")</span>
+                <div class="appt-when request-when">
+                    <span class="appt-when-time">@scheduledLocal.ToString("HH:mm")</span>
+                    <span class="appt-when-day">@ClinicTime.DayLabel(scheduledLocal)</span>
                 </div>
 
                 <div class="request-body">
@@ -70,9 +70,6 @@ else
                             <div class="request-meta">
                                 <svg class="request-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                                 <span>@r.TherapistName</span>
-                                <span class="request-dot">&bull;</span>
-                                <svg class="request-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                <span>@scheduledLocal.ToString("ddd, MMM d · HH:mm")</span>
                             </div>
                         </div>
                         <span class="status-pill status-requested">Pending</span>

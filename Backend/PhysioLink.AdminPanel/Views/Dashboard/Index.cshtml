@@ -95,15 +95,16 @@
             <ul class="row-list">
                 @foreach (var appt in Model.UpcomingAppointments)
                 {
+                    var local = ClinicTime.ToLocal(appt.AppointmentTime);
                     <li class="row-item">
                         <div class="row-lead">
-                            <div class="appt-date-block">
-                                <span class="appt-month">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("MMM")</span>
-                                <span class="appt-day">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("dd")</span>
+                            <div class="appt-when">
+                                <span class="appt-when-time">@local.ToString("h:mm tt")</span>
+                                <span class="appt-when-day">@ClinicTime.DayLabel(local)</span>
                             </div>
                             <div>
                                 <p class="row-title">@appt.Title</p>
-                                <p class="row-meta">@appt.PatientName · @ClinicTime.ToLocal(appt.AppointmentTime).ToString("h:mm tt")</p>
+                                <p class="row-meta">@appt.PatientName</p>
                             </div>
                         </div>
                         @await Html.PartialAsync("_StatusBadge", appt.Status)
