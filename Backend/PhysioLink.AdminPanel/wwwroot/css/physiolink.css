@@ -1778,30 +1778,22 @@ textarea.input {
    ============================================================================= */
 
 /* Navy hero band — the one intentionally rich surface in the app; it echoes
-   the rail so the dashboard reads as home. The light comes from the Light Rays
-   canvas, which sits under the text. */
+   the rail so the dashboard reads as home. Its title stays a step below the
+   32px KPI figures, so the numbers are what the eye lands on. */
 .hero {
-    position: relative;
-    overflow: hidden;
-    isolation: isolate;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
     gap: var(--space-3);
-    padding: var(--space-5);
+    padding: var(--space-4);
     margin-bottom: var(--space-4);
     border-radius: var(--radius-lg);
     color: #fff;
     background: linear-gradient(135deg, #0A1C38 0%, #10305F 100%);
 }
 
-    .hero > :not(.light-rays) {
-        position: relative;
-        z-index: 1;
-    }
-
 .hero-title {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl);
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: var(--line-height-tight);
@@ -2210,7 +2202,7 @@ textarea.input {
 /* Danger zone — visually separated destructive area */
 .danger-card {
     border-color: rgba(255, 59, 48, 0.35);
-    background: #FEF7F7;
+    background: var(--surface);
 }
 
 .danger-title {
@@ -3425,86 +3417,9 @@ html.lenis body {
     overflow: clip;
 }
 
-/* Content waits, unseen, for motion.js to set its starting states, so blocks
-   rise in instead of flashing at rest first (see Views/Shared/_Motion.cshtml) */
-.motion:not(.motion-ready) .screens,
-.motion:not(.motion-ready) .auth-card {
-    opacity: 0;
-}
-
-/* A block mid-rise: a hover transition on transform would smear every frame */
-.is-revealing {
-    transition: none !important;
-}
-
-/* Light Rays — the canvas fills its positioned parent, under the content */
-.light-rays {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-}
-
 /* Blur Text — each word moves on its own */
 .blur-seg {
     display: inline-block;
-}
-
-/* Star Border — two lights sweep along the button's edge. The ring sits over
-   the 1px border and is masked to its own outline, so the lights never cross
-   the label; the button keeps its fill. */
-[data-star-border] {
-    position: relative;
-    isolation: isolate;
-}
-
-.star-border {
-    position: absolute;
-    inset: -1px;
-    padding: 2px;
-    border-radius: inherit;
-    overflow: hidden;
-    pointer-events: none;
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-}
-
-.star-border-star {
-    position: absolute;
-    width: 300%;
-    height: 50%;
-    border-radius: 50%;
-    opacity: 0.7;
-    background: radial-gradient(circle, var(--rail-accent), transparent 10%);
-    animation: star-bottom 6s linear infinite alternate;
-}
-
-.star-border-bottom {
-    bottom: -12px;
-    right: -250%;
-}
-
-.star-border-top {
-    top: -12px;
-    left: -250%;
-    animation-name: star-top;
-}
-
-@keyframes star-bottom {
-    from { transform: translate(0, 0); opacity: 1; }
-    to   { transform: translate(-100%, 0); opacity: 0; }
-}
-
-@keyframes star-top {
-    from { transform: translate(0, 0); opacity: 1; }
-    to   { transform: translate(100%, 0); opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .star-border {
-        display: none;
-    }
 }
 
 /* =============================================================================
@@ -3619,11 +3534,6 @@ html.lenis body {
     .hero {
         flex-direction: column;
         align-items: flex-start;
-        padding: var(--space-4);
-    }
-
-    .hero-title {
-        font-size: var(--font-size-2xl);
     }
 
     .stat-card {

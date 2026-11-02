@@ -90,7 +90,7 @@
                     <h3 class="card-title">Assigned Exercises</h3>
                     <p class="card-subtitle">@Model.Patient.Exercises.Count active programs · personalized per patient</p>
                 </div>
-                <button type="button" onclick="openAssignModal()" class="btn btn-primary btn-sm" data-star-border>
+                <button type="button" onclick="openAssignModal()" class="btn btn-primary">
                     + Assign Exercise
                 </button>
             </div>
@@ -241,7 +241,7 @@
                 Deactivate Patient
             </h4>
             <p class="danger-text">Patient will lose access to the app and exercise programs. Data is retained.</p>
-            <button type="button" class="btn btn-danger btn-block" onclick="openDeactivateModal()">
+            <button type="button" class="btn btn-danger-outline" onclick="openDeactivateModal()">
                 Deactivate Account
             </button>
         </div>
