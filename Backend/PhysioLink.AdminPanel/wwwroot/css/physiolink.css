@@ -1116,6 +1116,8 @@ textarea.input {
     .data-table thead th {
         text-align: left;
         padding: var(--space-2) var(--space-3);
+        height: var(--space-6);
+        vertical-align: middle;
         color: var(--text-secondary);
         font-weight: 500;
         font-size: var(--font-size-xs);
