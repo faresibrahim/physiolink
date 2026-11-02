@@ -95,66 +95,70 @@
                 </button>
             </div>
 
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Exercise</th>
-                        <th>Sets × Reps</th>
-                        <th>Duration</th>
-                        <th>Feedback</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Patient.Exercises.Count == 0)
-                    {
+            @if (Model.Patient.Exercises.Count == 0)
+            {
+                <div class="empty-state">
+                    <h4 class="empty-state-title">No exercises assigned yet</h4>
+                    <p class="empty-state-subtitle">Assign an exercise to start this patient's program.</p>
+                </div>
+            }
+            else
+            {
+                <table class="data-table">
+                    <thead>
                         <tr>
-                            <td colspan="6" class="empty-row">No exercises assigned.</td>
+                            <th>Exercise</th>
+                            <th>Sets × Reps</th>
+                            <th>Duration</th>
+                            <th>Feedback</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
-                    }
-                    @foreach (var exercise in Model.Patient.Exercises)
-                    {
-                        <tr>
-                            <td class="primary-cell">@exercise.ExerciseName</td>
-                            <td class="muted-cell">@exercise.Sets × @exercise.Reps</td>
-                            <td class="muted-cell">@exercise.DurationMinutes min</td>
-                            <td class="muted-cell">
-                                @if (exercise.Feedback.HasValue)
-                                {
-                                    var fbVal = exercise.Feedback.Value;
-                                    var fbClass = fbVal <= 3 ? "fb-score-easy" : fbVal <= 6 ? "fb-score-moderate" : "fb-score-hard";
-                                    var fbLabel = fbVal switch {
-                                        1 => "Very Easy", 2 => "Easy", 3 => "Fairly Easy",
-                                        4 => "Somewhat Easy", 5 => "Moderate", 6 => "Somewhat Hard",
-                                        7 => "Fairly Hard", 8 => "Hard", 9 => "Very Hard",
-                                        10 => "Maximum Effort", _ => $"Level {fbVal}"
-                                    };
-                                    <span class="fb-score @fbClass">@fbVal</span>
-                                    <span class="muted-cell"> · @fbLabel</span>
-                                }
-                                else
-                                {
-                                    <span>—</span>
-                                }
-                            </td>
-                            <td>
-                                @await Html.PartialAsync("_StatusBadge", exercise.Status)
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-ghost btn-sm"
-                                        onclick="openEditModal('@exercise.ExerciseAssignmentId')">
-                                    Edit
-                                </button>
-                                <button type="button" class="btn btn-danger-outline btn-sm"
-                                        onclick="confirmUnassign('@exercise.ExerciseAssignmentId', '@exercise.ExerciseName.Replace("\\", "\\\\").Replace("'", "\\'")')">
-                                    Unassign
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var exercise in Model.Patient.Exercises)
+                        {
+                            <tr>
+                                <td class="primary-cell">@exercise.ExerciseName</td>
+                                <td class="muted-cell">@exercise.Sets × @exercise.Reps</td>
+                                <td class="muted-cell">@exercise.DurationMinutes min</td>
+                                <td class="muted-cell">
+                                    @if (exercise.Feedback.HasValue)
+                                    {
+                                        var fbVal = exercise.Feedback.Value;
+                                        var fbClass = fbVal <= 3 ? "fb-score-easy" : fbVal <= 6 ? "fb-score-moderate" : "fb-score-hard";
+                                        var fbLabel = fbVal switch {
+                                            1 => "Very Easy", 2 => "Easy", 3 => "Fairly Easy",
+                                            4 => "Somewhat Easy", 5 => "Moderate", 6 => "Somewhat Hard",
+                                            7 => "Fairly Hard", 8 => "Hard", 9 => "Very Hard",
+                                            10 => "Maximum Effort", _ => $"Level {fbVal}"
+                                        };
+                                        <span class="fb-score @fbClass">@fbVal</span>
+                                        <span class="muted-cell"> · @fbLabel</span>
+                                    }
+                                    else
+                                    {
+                                        <span>—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @await Html.PartialAsync("_StatusBadge", exercise.Status)
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-ghost btn-sm"
+                                            onclick="openEditModal('@exercise.ExerciseAssignmentId')">
+                                        Edit
+                                    </button>
+                                    <button type="button" class="btn btn-danger-outline btn-sm"
+                                            onclick="confirmUnassign('@exercise.ExerciseAssignmentId', '@exercise.ExerciseName.Replace("\\", "\\\\").Replace("'", "\\'")')">
+                                        Unassign
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
         </div>
     </div>
         

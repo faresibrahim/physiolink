@@ -3,7 +3,7 @@
    -----------------------------------------------------------------------------
    Rules this file encodes (do not deviate accidentally):
    · Spacing on the 8pt grid (4px half-step used sparingly)
-   · Type sizes in multiples of 2: 12 / 14 / 16 / 18 / 20 / 24
+   · Type scale: 12 / 14 / 16 / 20 / 24 / 32 — each step clearly larger
    · Text is near-black (#22262C), never pure #000
    · Flat surfaces: 1px borders do the separating; elevation only for what
      floats above the page (modal, dropdown, popover)
@@ -14,7 +14,7 @@
    · Primary CTA is the only solid-blue action per screen (Von Restorff);
      secondary actions are tonal fills, neutral actions are quiet outlines.
    · 12-column content grid across breakpoints, 24px gutters
-   · Motion is calm and lives in js/motion.js + js/bits/; all of it honours
+   · Motion is limited to short CSS transitions; all of it honours
      prefers-reduced-motion
    ============================================================================= */
 
@@ -51,7 +51,7 @@
     --divider-soft: #F0F1F4;
     --text-primary: #22262C;          /* near-black, never #000 */
     --text-secondary: #636A74;        /* AA on white */
-    --text-tertiary: #6E7681;         /* quiet text — still AA (4.6:1) on white */
+    --text-tertiary: #636A74;         /* same as secondary: #6E7681 failed AA on tinted surfaces */
 
     /* ---- Sidebar (dark navy rail derived from brand blue) ---- */
     --rail-bg: #0A1C38;
@@ -76,7 +76,6 @@
     --font-size-xs: 12px;
     --font-size-sm: 14px;
     --font-size-base: 16px;
-    --font-size-lg: 18px;
     --font-size-xl: 20px;
     --font-size-2xl: 24px;
     --font-size-3xl: 32px;
@@ -461,6 +460,13 @@ select,
     margin-bottom: var(--space-4);
 }
 
+/* More than one header action: a secondary link beside the primary CTA */
+.page-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
 .page-title {
     font-size: var(--font-size-2xl);
     font-weight: 700;
@@ -570,9 +576,13 @@ select,
     min-width: 0;
 }
 
-.therapist-grid > *,
-.exercise-grid > * {
+.therapist-grid > * {
     grid-column: span 4;
+}
+
+/* Exercise cards are text-led (most have no video), so four fit a row */
+.exercise-grid > * {
+    grid-column: span 3;
 }
 
 .grid-span-all {
@@ -1035,8 +1045,6 @@ textarea.input {
     padding: var(--space-4);
     margin: 0;
     text-align: center;
-    border: 1px dashed var(--divider);
-    border-radius: var(--radius-sm);
 }
 
 .cell-person {
@@ -1498,15 +1506,11 @@ textarea.input {
 }
 
 .modal-title {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-xl);
     font-weight: 700;
     letter-spacing: -0.01em;
     color: var(--text-primary);
     margin: 0 0 var(--space-1);
-}
-
-.modal-lg .modal-title {
-    font-size: var(--font-size-xl);
 }
 
 .modal-subtitle {
@@ -2333,10 +2337,14 @@ textarea.input {
         box-shadow: 0 0 0 3px var(--primary-ring);
     }
 
+/* Video thumbnail — rendered only when the exercise has a video; cards without
+   one start straight at the text */
 .exercise-visual {
     position: relative;
     height: 120px;
-    background-color: var(--surface-sunken);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     border-bottom: 1px solid var(--divider-soft);
     display: flex;
     align-items: center;
@@ -2344,48 +2352,30 @@ textarea.input {
     overflow: hidden;
 }
 
-.exercise-visual.has-thumbnail {
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.exercise-visual.has-thumbnail::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.35));
-}
-
-.exercise-visual.has-thumbnail .exercise-icon-disc {
-    position: relative;
-    background: rgba(255, 255, 255, 0.92);
-    color: var(--primary);
-}
-
-.region-tag {
-    position: absolute;
-    top: var(--space-2);
-    left: var(--space-2);
-    padding: var(--space-1) var(--space-2);
-    background: var(--surface);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    color: var(--text-primary);
-    border: 1px solid var(--divider-soft);
-}
+    .exercise-visual::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.35));
+    }
 
 .exercise-icon-disc {
+    position: relative;
     width: var(--space-7);
     height: var(--space-7);
     border-radius: var(--radius-md);
-    background: var(--surface);
+    background: rgba(255, 255, 255, 0.92);
     color: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--divider-soft);
+}
+
+.exercise-category {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-1);
 }
 
 .exercise-body {
@@ -2511,6 +2501,174 @@ textarea.input {
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
 }
+
+/* =============================================================================
+   BOOKING CALENDAR — month grid + time chips (new-appointment modal); mirrors
+   the Flutter booking page
+   ============================================================================= */
+
+.slot-cal {
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+}
+
+.slot-cal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+}
+
+.slot-cal-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.slot-cal-nav {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--primary);
+    font-size: var(--font-size-xl);
+    line-height: 1;
+    border-radius: var(--radius-sm);
+}
+
+    .slot-cal-nav:hover {
+        background: var(--primary-soft);
+    }
+
+    .slot-cal-nav:disabled {
+        color: #C7C7CC;
+        cursor: default;
+        background: transparent;
+    }
+
+.slot-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--space-1);
+}
+
+.slot-cal-wd {
+    text-align: center;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: var(--space-1) 0;
+}
+
+.slot-cal-day {
+    position: relative;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    color: #C7C7CC;
+    cursor: default;
+    user-select: none;
+}
+
+    .slot-cal-day.has-slots {
+        color: var(--text-primary);
+        cursor: pointer;
+    }
+
+        .slot-cal-day.has-slots:hover {
+            background: var(--surface-sunken);
+        }
+
+    .slot-cal-day.today {
+        background: var(--primary-soft);
+        color: var(--primary);
+        font-weight: 700;
+    }
+
+    .slot-cal-day.selected,
+    .slot-cal-day.selected:hover {
+        background: var(--primary);
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .slot-cal-day .dot {
+        position: absolute;
+        bottom: var(--space-1);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--secondary);
+    }
+
+    .slot-cal-day.selected .dot {
+        background: #fff;
+    }
+
+/* Selected-day time chips — brand green (secondary) tint, solid green when selected */
+.slot-day-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-3) 0 var(--space-1);
+}
+
+.slot-day-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.slot-duration-pill {
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+.slot-day-date {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-2);
+}
+
+.slot-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.slot-chip {
+    min-height: 44px;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid rgba(76, 175, 130, 0.3);
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--surface), var(--secondary-soft));
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+    .slot-chip:hover {
+        border-color: var(--secondary);
+    }
+
+    .slot-chip.selected {
+        background: var(--success-strong);
+        border-color: var(--success-strong);
+        color: #fff;
+    }
 
 /* =============================================================================
    REQUEST QUEUE — pending-request cards (Appointments/Requests)
@@ -3401,28 +3559,6 @@ textarea.input {
         }
 
 /* =============================================================================
-   MOTION — GSAP + ScrollTrigger + Lenis (js/motion.js) and the React Bits ports
-   in js/bits/. Calm by rule: short offsets, ease-outs, no bounce, and nothing
-   here runs under prefers-reduced-motion.
-   ============================================================================= */
-
-/* Lenis keeps the page at its natural height. Its stock iframe rule is left out
-   on purpose: it would make the exercise video player unclickable. */
-html.lenis,
-html.lenis body {
-    height: auto;
-}
-
-.lenis.lenis-stopped {
-    overflow: clip;
-}
-
-/* Blur Text — each word moves on its own */
-.blur-seg {
-    display: inline-block;
-}
-
-/* =============================================================================
    RESPONSIVE — desktop → tablet → phone, 12 columns throughout
    ============================================================================= */
 
@@ -3431,9 +3567,12 @@ html.lenis body {
         grid-column: span 6;
     }
 
-    .therapist-grid > *,
-    .exercise-grid > * {
+    .therapist-grid > * {
         grid-column: span 6;
+    }
+
+    .exercise-grid > * {
+        grid-column: span 4;
     }
 }
 

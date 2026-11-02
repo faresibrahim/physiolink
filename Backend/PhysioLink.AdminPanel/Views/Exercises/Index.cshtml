@@ -131,29 +131,21 @@ else
             <article class="exercise-card" onclick="openExerciseModal('@exercise.ExerciseId')" tabindex="0" role="button"
                      aria-label="@exercise.Name — open details"
                      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openExerciseModal('@exercise.ExerciseId');}">
-                @* Top visual — YouTube thumbnail when a video exists, otherwise a plain sunken surface *@
-                <div class="exercise-visual@(thumbnailUrl != null ? " has-thumbnail" : "")"
-                     style="@(thumbnailUrl != null ? $"background-image:url('{thumbnailUrl}')" : "")">
-                    <span class="region-tag">@exercise.Category</span>
-
-                    <div class="exercise-icon-disc">
-                        @if (thumbnailUrl != null)
-                        {
+                @* Top visual — only when there is a YouTube thumbnail to show *@
+                @if (thumbnailUrl != null)
+                {
+                    <div class="exercise-visual" style="background-image:url('@thumbnailUrl')">
+                        <div class="exercise-icon-disc">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                 <polygon points="6 3 20 12 6 21 6 3"></polygon>
                             </svg>
-                        }
-                        else
-                        {
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                            </svg>
-                        }
+                        </div>
                     </div>
-                </div>
+                }
 
-                @* Body — title + difficulty + description + meta *@
+                @* Body — region + title + difficulty + description *@
                 <div class="exercise-body">
+                    <p class="exercise-category">@exercise.Category</p>
                     <div class="exercise-title-row">
                         <h3 class="exercise-name">@exercise.Name</h3>
                         <span class="difficulty-pill @difficultyClass">

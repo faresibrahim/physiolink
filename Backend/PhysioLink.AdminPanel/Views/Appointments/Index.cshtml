@@ -15,6 +15,15 @@
         <h1 class="page-title">Appointments</h1>
         <p class="page-sub">@Model.TotalAppointmentCount appointment@(Model.TotalAppointmentCount == 1 ? "" : "s") this week</p>
     </div>
+    <div class="page-actions">
+        <a asp-action="History" asp-controller="Appointments" class="btn btn-ghost">
+            History
+        </a>
+        <button type="button" onclick="openAppointmentModal()" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
+            New appointment
+        </button>
+    </div>
 </div>
 
 @* ── Filter / navigation bar ─────────────────────────────────────────────── *@
@@ -102,15 +111,6 @@
     <input type="hidden" name="weekStart"  value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
     <input type="hidden" name="viewMode"   value="@Model.ViewMode" />
     <input type="hidden" name="page"       value="1" />
-
-    <a asp-action="History" asp-controller="Appointments" class="btn btn-ghost ml-auto">
-        History
-    </a>
-
-    <button type="button" onclick="openAppointmentModal()" class="btn btn-primary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
-        New appointment
-    </button>
 </form>
 
 @* ── Appointments table ───────────────────────────────────────────────────── *@
@@ -351,48 +351,6 @@
         </form>
     </div>
 </div>
-
-<style>
-    /* Month calendar (mirrors the Flutter booking page) */
-    .slot-cal { border: 1px solid #E5E5EA; border-radius: 12px; padding: 12px; }
-    .slot-cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    .slot-cal-title { font-size: 14px; font-weight: 600; color: #323232; }
-    .slot-cal-nav {
-        width: 32px; height: 32px; border: none; background: transparent; cursor: pointer;
-        color: #004AAD; font-size: 20px; line-height: 1; border-radius: 8px;
-    }
-    .slot-cal-nav:hover { background: #E8F0FE; }
-    .slot-cal-nav:disabled { color: #C7C7CC; cursor: default; background: transparent; }
-    .slot-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-    .slot-cal-wd { text-align: center; font-size: 11px; font-weight: 600; color: var(--text-secondary); padding: 4px 0; }
-    .slot-cal-day {
-        position: relative; height: 40px; display: flex; align-items: center; justify-content: center;
-        border-radius: 999px; font-size: 13px; color: #C7C7CC; cursor: default; user-select: none;
-    }
-    .slot-cal-day.has-slots { color: #323232; cursor: pointer; }
-    .slot-cal-day.has-slots:hover { background: #F2F2F7; }
-    .slot-cal-day.today { background: #E8F0FE; color: #004AAD; font-weight: 700; }
-    .slot-cal-day.selected, .slot-cal-day.selected:hover { background: #004AAD; color: #fff; font-weight: 700; }
-    .slot-cal-day .dot {
-        position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
-        width: 5px; height: 5px; border-radius: 50%; background: #4CAF82;
-    }
-    .slot-cal-day.selected .dot { background: #fff; }
-
-    /* Selected-day time chips — brand green (secondary) tint, green when selected */
-    .slot-day-head { display: flex; align-items: center; gap: 8px; margin: 16px 0 4px; }
-    .slot-day-title { font-size: 14px; font-weight: 600; color: #323232; }
-    .slot-duration-pill { padding: 2px 8px; border-radius: 999px; background: #E8F0FE; color: #004AAD; font-size: 11px; font-weight: 600; }
-    .slot-day-date { font-size: 12px; color: var(--text-secondary); margin: 0 0 8px; }
-    .slot-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .slot-chip {
-        min-height: 44px; padding: 10px 16px; border: 1px solid rgba(76, 175, 130, .3); border-radius: 12px;
-        background: linear-gradient(135deg, #ffffff, #E8F5EE); color: #323232; font-size: 14px; font-weight: 600;
-        cursor: pointer; transition: background .12s, border-color .12s, color .12s;
-    }
-    .slot-chip:hover { border-color: #4CAF82; }
-    .slot-chip.selected { background: var(--success-strong); border-color: var(--success-strong); color: #fff; }
-</style>
 
 <script>
     (function () {
