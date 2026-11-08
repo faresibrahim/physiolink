@@ -146,10 +146,7 @@ flutter run --dart-define=BASE_URL=https://physiolink-production.up.railway.app
 
 ### Demo Credentials
 
-| Surface | Email | Password |
-|---|---|---|
-| Flutter app (patient) | `john.smith@example.com` | `patient@123` |
-| Admin panel (ClinicAdmin) | `fares.a.ibrahim@gmail.com` | `test@123` |
+Demo accounts are not published here. For local development, `DbSeeder` creates sample ClinicAdmin and patient accounts when the API runs in the Development environment. Access to the live demo is shared privately on request.
 
 ---
 

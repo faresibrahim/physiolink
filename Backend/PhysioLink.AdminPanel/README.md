@@ -98,10 +98,7 @@ Listens on `http://localhost:5001` (or `https://localhost:7171;http://localhost:
 
 ### Demo Credentials
 
-| Field | Value |
-|---|---|
-| Email | `fares.a.ibrahim@gmail.com` |
-| Password | `test@123` |
+Not published here. Run the API in the Development environment to get the seeded ClinicAdmin account (see `DbSeeder`); live-demo access is shared privately.
 
 ---
 

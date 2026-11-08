@@ -196,15 +196,10 @@ Swagger UI: `http://localhost:5218/swagger`
 
 - 2 clinics
 - 6 therapists
-- 10 patients (including the test patient below)
+- 10 patients (including a test patient)
 - 3 exercises across varying difficulty levels
 
-**Test patient credentials:**
-
-| Field | Value |
-|---|---|
-| Email | `john.smith@example.com` |
-| Password | `patient@123` |
+**Test accounts:** created by `DbSeeder` in the Development environment only. Credentials are not published in this README.
 
 ---
 
