@@ -17,8 +17,7 @@ public class AppointmentSlotIsolationTests
     // Seeded therapist in clinic 1 (DbSeeder C1T1Id).
     private static readonly Guid Clinic1TherapistId = new Guid("11111111-1111-1111-1111-100000000001");
 
-    private const string ConnectionString =
-        "Host=localhost;Port=5433;Database=PhysioLinkDb;Username=postgres;Password=Ibra@2026";
+    private static string ConnectionString => TestDb.ConnectionString;
 
     private PhysioLinkDbContext CreateContext(Guid clinicId)
     {

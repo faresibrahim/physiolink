@@ -13,8 +13,7 @@ public class DeviceTokenTests
     private static readonly Guid Clinic1Id = new Guid("11111111-1111-1111-1111-111111111111");
     private static readonly Guid Clinic2Id = new Guid("22222222-2222-2222-2222-222222222222");
 
-    private const string ConnectionString =
-        "Host=localhost;Port=5433;Database=PhysioLinkDb;Username=postgres;Password=Ibra@2026";
+    private static string ConnectionString => TestDb.ConnectionString;
 
     private static PhysioLinkDbContext CreateContext(Guid clinicId)
     {

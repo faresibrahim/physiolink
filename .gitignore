@@ -6,8 +6,18 @@ Thumbs.db
 *.zip
 
 
-.env
 secrets.md
+
+# Secrets and signing material (anywhere in the repo)
+.env*
+!.env.example
+*.jks
+*.keystore
+**/android/key.properties
+*.p12
+*.p8
+*.mobileprovision
+*service*account*.json
 
 
 .claude/settings.local.json
