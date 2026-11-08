@@ -34,7 +34,7 @@ dart run build_runner build --delete-conflicting-outputs
 flutter run --dart-define=BASE_URL=https://physiolink-production.up.railway.app
 ```
 
-`BASE_URL` is read in [`lib/core/network/api_config.dart`](lib/core/network/api_config.dart) via `String.fromEnvironment`. If omitted, it defaults to `http://10.0.2.2:5218` — the Android emulator's alias for the host machine's `localhost`, for running against a locally-hosted API (see [`Backend/README.md`](../Backend/README.md)). For a physical device use the host machine's LAN IP instead; for iOS (once buildable) use `http://localhost:5218`.
+`BASE_URL` is read in [`lib/core/network/api_config.dart`](lib/core/network/api_config.dart) via `String.fromEnvironment`. If omitted, it defaults to `http://10.0.2.2:5218` — the Android emulator's alias for the host machine's `localhost`, for running against a locally-hosted copy of the API. For a physical device use the host machine's LAN IP instead; for iOS (once buildable) use `http://localhost:5218`.
 
 ### Lint
 
