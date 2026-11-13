@@ -25,3 +25,6 @@ secrets.md
 
 
 /.claude/
+
+# Design reference templates (Sneat exports) — kept locally, not part of the app
+Backend/PhysioLink.AdminPanel/*-export/
