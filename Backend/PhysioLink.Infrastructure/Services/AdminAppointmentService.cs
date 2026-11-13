@@ -34,7 +34,7 @@ namespace PhysioLink.Infrastructure.Services
             _logger = logger;
         }
 
-        public async Task<PagedResult<AdminAppointmentDto>> GetAllAsync(int page, int pageSize, DateTime? from = null, DateTime? to = null, string? status = null)
+        public async Task<PagedResult<AdminAppointmentDto>> GetAllAsync(int page, int pageSize, DateTime? from = null, DateTime? to = null, string? status = null, string? therapistName = null)
         {
             var clinicId = _currentClinicService.GetCurrentClinicId()
                 ?? throw new InvalidOperationException("No clinic in context.");
@@ -55,6 +55,10 @@ namespace PhysioLink.Infrastructure.Services
 
             if (!string.IsNullOrEmpty(status) && Enum.TryParse<AppointmentStatus>(status, true, out var parsedStatus))
                 baseQuery = baseQuery.Where(a => a.Status == parsedStatus);
+
+            // Same exact-name match as History, so both filters behave identically.
+            if (!string.IsNullOrEmpty(therapistName))
+                baseQuery = baseQuery.Where(a => a.TherapistName == therapistName);
 
             var query = baseQuery.OrderBy(a => a.AppointmentTime).Select(a => new AdminAppointmentDto
                 {
