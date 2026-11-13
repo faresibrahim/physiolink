@@ -39,7 +39,8 @@ public class AppointmentsController : BaseController
         var to = computedWeekStart.AddDays(7);
 
         var appointmentsTask = _apiClient.GetAppointmentsAsync(
-            page, 50, status: status, from: ClinicTime.ToUtc(from), to: ClinicTime.ToUtc(to));
+            page, 50, status: status, from: ClinicTime.ToUtc(from), to: ClinicTime.ToUtc(to),
+            therapistName: therapistFilter);
         var therapistsTask = _apiClient.GetTherapistsAsync(1, 100);
         var patientsTask = _apiClient.GetPatientsAsync(1, 200, null);
 
