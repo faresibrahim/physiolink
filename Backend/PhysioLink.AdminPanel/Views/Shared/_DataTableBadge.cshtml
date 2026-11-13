@@ -1,0 +1,21 @@
+@model string
+@* Tinted status badge for data-table cards (Sneat bg-label-* style). Takes the
+   raw status name; the label is humanised and translated like _StatusBadge. *@
+@{
+    var raw = Model ?? string.Empty;
+    var label = raw switch
+    {
+        "Requested"         => "Pending",
+        "CancelledByClinic" => "Cancelled",
+        _                   => raw
+    };
+    var tone = raw switch
+    {
+        "Active" or "Completed"                    => "success",
+        "Requested" or "Paused"                    => "warning",
+        "Confirmed"                                => "primary",
+        "Rejected"                                 => "danger",
+        _                                          => "secondary" // Inactive, Cancelled, Expired
+    };
+}
+<span class="dt-badge dt-badge-@tone">@L[label]</span>

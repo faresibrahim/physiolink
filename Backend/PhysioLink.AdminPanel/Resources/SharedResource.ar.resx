@@ -1092,12 +1092,6 @@
   <data name="Sun" xml:space="preserve">
     <value>أحد</value>
   </data>
-  <data name="{0} appointment this week" xml:space="preserve">
-    <value>مواعيد هذا الأسبوع: {0}</value>
-  </data>
-  <data name="{0} appointments this week" xml:space="preserve">
-    <value>مواعيد هذا الأسبوع: {0}</value>
-  </data>
   <data name="{0} finished appointment on record" xml:space="preserve">
     <value>المواعيد المنتهية في السجل: {0}</value>
   </data>

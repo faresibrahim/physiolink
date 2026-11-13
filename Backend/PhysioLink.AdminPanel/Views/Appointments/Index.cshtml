@@ -9,114 +9,112 @@
     var weekEnd  = Model.WeekStart.AddDays(6);
 }
 
-@* ── Page header ─────────────────────────────────────────────────────────── *@
-<div class="page-header">
-    <div>
-        <h1 class="page-title">@L["Appointments"]</h1>
-        <p class="page-sub">@L[Model.TotalAppointmentCount == 1 ? "{0} appointment this week" : "{0} appointments this week", Model.TotalAppointmentCount]</p>
-    </div>
-    <div class="page-actions">
-        <a asp-action="History" asp-controller="Appointments" class="btn btn-ghost">
-            @L["History"]
-        </a>
-        <button type="button" onclick="openAppointmentModal()" class="btn btn-primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
-            @L["New appointment"]
-        </button>
-    </div>
-</div>
+@* Appointments table — same data-table card as Patients (datatable-export
+   design). Header row: title + History + New appointment. Second row: week
+   navigator, Today and the filters. *@
+<div class="dt-card">
 
-@* ── Filter / navigation bar ─────────────────────────────────────────────── *@
-<form method="get" asp-action="Index" class="toolbar">
+    <div class="dt-header">
+        <h1 class="dt-title">@L["Appointments"]</h1>
 
-    @* Week navigator *@
-    <div class="appt-week-nav">
+        <div class="dt-tools">
+            <a asp-action="History" asp-controller="Appointments" class="dt-btn dt-btn-outline">@L["History"]</a>
+            <button type="button" onclick="openAppointmentModal()" class="dt-btn dt-btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
+                @L["New appointment"]
+            </button>
+        </div>
+    </div>
+
+    <form method="get" asp-action="Index" class="dt-subbar">
+
+        @* Week navigator *@
+        <div class="dt-week">
+            <a asp-action="Index"
+               asp-route-weekStart="@prevWeek.ToString("yyyy-MM-dd")"
+               asp-route-status="@Model.StatusFilter"
+               asp-route-therapistFilter="@Model.TherapistFilter"
+               asp-route-viewMode="@Model.ViewMode"
+               class="dt-page dt-page-icon" aria-label="@L["Previous week"]">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+            </a>
+
+            <span class="dt-week-label">
+                @Model.WeekStart.ToString(DatePatterns.MonthDay) – @weekEnd.ToString(DatePatterns.MonthDayYear)
+            </span>
+
+            <a asp-action="Index"
+               asp-route-weekStart="@nextWeek.ToString("yyyy-MM-dd")"
+               asp-route-status="@Model.StatusFilter"
+               asp-route-therapistFilter="@Model.TherapistFilter"
+               asp-route-viewMode="@Model.ViewMode"
+               class="dt-page dt-page-icon" aria-label="@L["Next week"]">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+            </a>
+        </div>
+
         <a asp-action="Index"
-           asp-route-weekStart="@prevWeek.ToString("yyyy-MM-dd")"
            asp-route-status="@Model.StatusFilter"
            asp-route-therapistFilter="@Model.TherapistFilter"
            asp-route-viewMode="@Model.ViewMode"
-           class="appt-week-arrow" aria-label="@L["Previous week"]">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        </a>
+           class="dt-btn dt-btn-outline">@L["Today"]</a>
 
-        <span class="appt-week-label">
-            @Model.WeekStart.ToString(DatePatterns.MonthDay) – @weekEnd.ToString(DatePatterns.MonthDayYear)
-        </span>
+        <div class="dt-subbar-filters">
+            @* Status filter *@
+            <select name="status" class="dt-input dt-select" aria-label="@L["Filter by status"]" onchange="this.form.submit()">
+                <option value="">@L["Status"]</option>
+                @{
+                    // Values must match PhysioLink.Domain.Enums.AppointmentStatus member
+                    // names exactly — the API parses this filter with Enum.TryParse.
+                    // Completed is intentionally omitted — a completed appointment is always
+                    // past its due date, so it lives in History, never on the board.
+                    var statusOptions = new[]
+                    {
+                        ("Requested", "Pending"),
+                        ("Confirmed", "Confirmed"),
+                        ("Rejected", "Rejected"),
+                        ("Expired", "Expired"),
+                        ("CancelledByClinic", "Cancelled")
+                    };
+                }
+                @foreach (var (value, label) in statusOptions)
+                {
+                    if (Model.StatusFilter == value)
+                    {
+                        <option value="@value" selected>@L[label]</option>
+                    }
+                    else
+                    {
+                        <option value="@value">@L[label]</option>
+                    }
+                }
+            </select>
 
-        <a asp-action="Index"
-           asp-route-weekStart="@nextWeek.ToString("yyyy-MM-dd")"
-           asp-route-status="@Model.StatusFilter"
-           asp-route-therapistFilter="@Model.TherapistFilter"
-           asp-route-viewMode="@Model.ViewMode"
-           class="appt-week-arrow" aria-label="@L["Next week"]">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        </a>
-    </div>
+            @* Therapist filter *@
+            <select name="therapistFilter" class="dt-input dt-select" aria-label="@L["Filter by therapist"]" onchange="this.form.submit()">
+                <option value="">@L["All therapists"]</option>
+                @foreach (var t in Model.Therapists)
+                {
+                    var tName = $"{t.FirstName.Trim()} {t.LastName.Trim()}";
+                    if (Model.TherapistFilter == tName)
+                    {
+                        <option value="@tName" selected>@tName</option>
+                    }
+                    else
+                    {
+                        <option value="@tName">@tName</option>
+                    }
+                }
+            </select>
+        </div>
 
-    @* Today shortcut — standalone pill *@
-    <a asp-action="Index"
-       asp-route-status="@Model.StatusFilter"
-       asp-route-therapistFilter="@Model.TherapistFilter"
-       asp-route-viewMode="@Model.ViewMode"
-       class="appt-today-btn">@L["Today"]</a>
+        <input type="hidden" name="weekStart"  value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
+        <input type="hidden" name="viewMode"   value="@Model.ViewMode" />
+        <input type="hidden" name="page"       value="1" />
+    </form>
 
-    @* Status filter *@
-    <select name="status" class="filter-select" aria-label="@L["Filter by status"]" onchange="this.form.submit()">
-        <option value="">@L["Status"]</option>
-        @{
-            // Values must match PhysioLink.Domain.Enums.AppointmentStatus member
-            // names exactly — the API parses this filter with Enum.TryParse.
-            // Completed is intentionally omitted — a completed appointment is always
-            // past its due date, so it lives in History, never on the board.
-            var statusOptions = new[]
-            {
-                ("Requested", "Pending"),
-                ("Confirmed", "Confirmed"),
-                ("Rejected", "Rejected"),
-                ("Expired", "Expired"),
-                ("CancelledByClinic", "Cancelled")
-            };
-        }
-        @foreach (var (value, label) in statusOptions)
-        {
-            if (Model.StatusFilter == value)
-            {
-                <option value="@value" selected>@L[label]</option>
-            }
-            else
-            {
-                <option value="@value">@L[label]</option>
-            }
-        }
-    </select>
-
-    @* Therapist filter *@
-    <select name="therapistFilter" class="filter-select" aria-label="@L["Filter by therapist"]" onchange="this.form.submit()">
-        <option value="">@L["All therapists"]</option>
-        @foreach (var t in Model.Therapists)
-        {
-            var tName = $"{t.FirstName.Trim()} {t.LastName.Trim()}";
-            if (Model.TherapistFilter == tName)
-            {
-                <option value="@tName" selected>@tName</option>
-            }
-            else
-            {
-                <option value="@tName">@tName</option>
-            }
-        }
-    </select>
-
-    <input type="hidden" name="weekStart"  value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
-    <input type="hidden" name="viewMode"   value="@Model.ViewMode" />
-    <input type="hidden" name="page"       value="1" />
-</form>
-
-@* ── Appointments table ───────────────────────────────────────────────────── *@
-<div class="card card-flush">
-    <div class="table-scroll">
-        <table class="data-table data-table-wide">
+    <div class="dt-scroll">
+        <table class="dt-table">
             <thead>
                 <tr>
                     <th>@L["Date & Time"]</th>
@@ -124,7 +122,7 @@
                     <th>@L["Therapist"]</th>
                     <th>@L["Title"]</th>
                     <th>@L["Status"]</th>
-                    <th>@L["Actions"]</th>
+                    <th class="dt-col-actions">@L["Actions"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -141,34 +139,47 @@
             }
             @foreach (var appt in Model.Appointments)
             {
-                var therapist = string.IsNullOrEmpty(appt.TherapistName) ? "—" : appt.TherapistName;
+                var local = ClinicTime.ToLocal(appt.AppointmentTime);
                 <tr>
                     <td>
-                        <span class="appt-date">@ClinicTime.ToLocal(appt.AppointmentTime).ToString(DatePatterns.MonthDay)</span>
-                        <span class="appt-time">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("HH:mm")</span>
-                    </td>
-                    <td class="primary-cell">@appt.PatientName</td>
-                    <td class="muted-cell">@therapist</td>
-                    <td class="primary-cell">@appt.Title</td>
-                    <td>
-                        @await Html.PartialAsync("_StatusBadge", appt.Status)
+                        <span class="dt-cell-main">@local.ToString(DatePatterns.MonthDay)</span>
+                        <span class="dt-cell-sub" dir="ltr">@local.ToString("HH:mm")</span>
                     </td>
                     <td>
-                        <div class="row-actions">
-                            @* Edit is the priority action on this page — full-size text button, first. *@
-                            <button type="button" class="btn btn-ghost btn-sm" aria-label="@L["Edit appointment"]"
-                                    onclick="openEditAppointmentModal('@appt.AppointmentId')">
-                                @L["Edit"]
+                        <a asp-controller="Patients" asp-action="Detail" asp-route-id="@appt.PatientId" class="dt-name">@appt.PatientName</a>
+                    </td>
+                    <td>
+                        @if (string.IsNullOrEmpty(appt.TherapistName))
+                        {
+                            <span class="unassigned-text">—</span>
+                        }
+                        else
+                        {
+                            @appt.TherapistName
+                        }
+                    </td>
+                    <td>@appt.Title</td>
+                    <td>
+                        @await Html.PartialAsync("_DataTableBadge", appt.Status)
+                    </td>
+                    <td class="dt-col-actions">
+                        <div class="dt-menu" data-dt-menu>
+                            <button type="button" class="dt-menu-toggle" data-dt-menu-toggle
+                                    aria-haspopup="menu" aria-expanded="false"
+                                    aria-label="@L["Actions for {0}", appt.PatientName]">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.75" /><circle cx="12" cy="12" r="1.75" /><circle cx="12" cy="19" r="1.75" /></svg>
                             </button>
-                            @* View patient is secondary here — icon-only. *@
-                            <a asp-controller="Patients" asp-action="Detail"
-                               asp-route-id="@appt.PatientId"
-                               class="icon-btn" aria-label="@L["View patient"]">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                            </a>
+                            <div class="dt-menu-list" role="menu" hidden>
+                                <button type="button" role="menuitem" class="dt-menu-item"
+                                        onclick="openEditAppointmentModal('@appt.AppointmentId')">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9" /><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z" /></svg>
+                                    @L["Edit appointment"]
+                                </button>
+                                <a role="menuitem" class="dt-menu-item" asp-controller="Patients" asp-action="Detail" asp-route-id="@appt.PatientId">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
+                                    @L["View patient"]
+                                </a>
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -176,10 +187,15 @@
             </tbody>
         </table>
     </div>
-</div>
 
-@* ── Pagination ───────────────────────────────────────────────────────────── *@
-@await Html.PartialAsync("_Pagination", Model.Pagination)
+    @await Html.PartialAsync("_DataTableFooter", new PhysioLink.AdminPanel.ViewModels.Shared.DataTableFooterViewModel
+    {
+        TotalCount = Model.TotalAppointmentCount,
+        PageSize = Model.PageSize,
+        ItemCount = Model.Appointments.Count,
+        Pagination = Model.Pagination
+    })
+</div>
 
 
 

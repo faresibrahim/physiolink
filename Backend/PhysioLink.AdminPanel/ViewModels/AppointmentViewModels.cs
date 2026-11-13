@@ -14,6 +14,7 @@ namespace PhysioLink.AdminPanel.ViewModels
         public required string ViewMode { get; set; }
         public List<TherapistResponse> Therapists { get; set; } = [];
         public int TotalAppointmentCount { get; set; }
+        public int PageSize { get; set; }
         public List<PatientResponse> Patients { get; set; } = [];
         public PaginationViewModel Pagination { get; set; } = new();
     }
