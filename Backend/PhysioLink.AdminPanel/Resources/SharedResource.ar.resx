@@ -642,6 +642,9 @@
   <data name="PDF, image, or document · up to 10 MB" xml:space="preserve">
     <value>PDF أو صورة أو مستند · حتى 10 ميغابايت</value>
   </data>
+  <data name="Uploading…" xml:space="preserve">
+    <value>جارٍ الرفع…</value>
+  </data>
   <data name="No attachments yet." xml:space="preserve">
     <value>لا توجد مرفقات بعد.</value>
   </data>

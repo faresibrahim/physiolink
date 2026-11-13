@@ -77,68 +77,58 @@
 
     </div>
 
-    <div class="card">
+    @* Assigned patients — the shared data-table card (datatable-export design).
+       Every assigned patient is listed, so there is no pagination footer. *@
+    <div class="dt-card">
 
-        <div class="card-header-row">
+        <div class="dt-header">
             <div>
-                <h3 class="card-title">@L["Assigned Patients"]</h3>
-                <p class="card-subtitle">@L[Model.AssignedPatients.Count == 1 ? "{0} patient under this therapist's care" : "{0} patients under this therapist's care", Model.AssignedPatients.Count]</p>
+                <h3 class="dt-title">@L["Assigned Patients"]</h3>
+                <p class="dt-subtitle">@L[Model.AssignedPatients.Count == 1 ? "{0} patient under this therapist's care" : "{0} patients under this therapist's care", Model.AssignedPatients.Count]</p>
             </div>
 
-            <button type="button" onclick="openPatientModal()" class="btn btn-primary btn-sm">
-                + @L["Add Patient"]
+            <button type="button" onclick="openPatientModal()" class="dt-btn dt-btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
+                @L["Add Patient"]
             </button>
         </div>
 
-        <table class="data-table">
-
-            <thead>
-                <tr>
-                    <th>@L["Patient"]</th>
-                    <th>@L["Phone"]</th>
-                    <th>@L["Status"]</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                @if (Model.AssignedPatients.Count == 0)
-                {
+        <div class="dt-scroll">
+            <table class="dt-table">
+                <thead>
                     <tr>
-                        <td colspan="3" class="empty-row">
-                            @L["No patients assigned to this therapist yet."]
-                        </td>
+                        <th>@L["Patient"]</th>
+                        <th>@L["Phone"]</th>
+                        <th>@L["Status"]</th>
                     </tr>
-                }
+                </thead>
+                <tbody>
+                    @if (Model.AssignedPatients.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="3" class="empty-row">
+                                @L["No patients assigned to this therapist yet."]
+                            </td>
+                        </tr>
+                    }
 
-                @foreach (var patient in Model.AssignedPatients)
-                {
-                    <tr>
-
-                        <td>
-                            <div class="cell-person">
+                    @foreach (var patient in Model.AssignedPatients)
+                    {
+                        <tr>
+                            <td>
                                 <a asp-controller="Patients" asp-action="Detail"
                                    asp-route-id="@patient.PatientId"
-                                   class="name cell-link">
-                                    @patient.FirstName @patient.LastName
-                                </a>
-                            </div>
-                        </td>
-
-                        <td class="muted-cell">
-                            @patient.PhoneNumber
-                        </td>
-
-                        <td>
-                            @await Html.PartialAsync("_StatusBadge", patient.IsActive ? "Active" : "Inactive")
-                        </td>
-
-                    </tr>
-                }
-
-            </tbody>
-
-        </table>
+                                   class="dt-name">@patient.FirstName @patient.LastName</a>
+                            </td>
+                            <td><span dir="ltr">@patient.PhoneNumber</span></td>
+                            <td>
+                                @await Html.PartialAsync("_DataTableBadge", patient.IsActive ? "Active" : "Inactive")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
     </div>
 

@@ -1241,29 +1241,6 @@ textarea.input {
     text-align: center;
 }
 
-.cell-person {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    min-width: 0;
-}
-
-    .cell-person .name {
-        font-weight: 500;
-        color: var(--text-primary);
-    }
-
-/* A row's name is its link to the detail page — no separate View button */
-.cell-link {
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-    .cell-link:hover {
-        color: var(--primary);
-        text-decoration: underline;
-    }
-
 /* Constant patient glyph — replaces initials wherever a patient is listed
    (patients table, dashboard recent-patients) so identity comes from the
    name text, not a color-coded circle. */
@@ -1866,6 +1843,10 @@ textarea.input {
 }
 
 .modal-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
     padding: var(--space-8) var(--space-4);
     text-align: center;
     color: var(--text-secondary);
@@ -3798,6 +3779,13 @@ textarea.input {
     color: var(--dt-heading);
 }
 
+/* Optional line under the card title (e.g. a count) */
+.dt-subtitle {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: var(--dt-body);
+}
+
 .dt-tools,
 .dt-filters {
     display: flex;
@@ -4232,6 +4220,71 @@ textarea.input {
 
     .dt-input {
         font-size: var(--font-size-base);
+    }
+}
+
+/* =============================================================================
+   SPINNERS — the Sneat/Bootstrap ring spinner (spinners-export/): a rotating
+   circle with one transparent side, in the current text colour. Sizes: sm 16px,
+   default 32px, lg 48px. Screen readers get "busy" from aria-busy on the
+   element, or a .visually-hidden label next to the spinner.
+   Buttons: site.js / login.js add .is-loading, which hides the button icon,
+   prepends a small spinner and disables the button until the page moves on.
+   ============================================================================= */
+
+.spinner {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    vertical-align: -0.125em;
+    border: 0.25em solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: 50%;
+    animation: spinner-rotate 0.75s linear infinite;
+}
+
+.spinner-sm {
+    width: 16px;
+    height: 16px;
+    border-width: 0.2em;
+}
+
+.spinner-lg {
+    width: 48px;
+    height: 48px;
+}
+
+.spinner-primary {
+    color: var(--primary);
+}
+
+@keyframes spinner-rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Busy buttons and icon buttons */
+.is-loading {
+    cursor: progress;
+}
+
+    .is-loading > svg {
+        display: none;
+    }
+
+    /* Buttons that are not flex containers (login) need their own gap */
+    .auth-submit > .spinner {
+        margin-inline-end: var(--space-2);
+    }
+
+/* Reduced motion: slow the spinner down rather than freezing it, so "still
+   working" stays visible (the global reduced-motion rule would stop it). */
+@media (prefers-reduced-motion: reduce) {
+    .spinner {
+        animation-duration: 1.5s !important;
+        animation-iteration-count: infinite !important;
     }
 }
 
@@ -4685,7 +4738,22 @@ textarea.input {
     pointer-events: none;
     border-color: var(--primary);
     background: var(--primary-soft);
-    opacity: 0.7;
+}
+
+    .upload-zone-busy .upload-zone-icon,
+    .upload-zone-busy .upload-zone-text,
+    .upload-zone-busy .upload-zone-hint,
+    .upload-zone:not(.upload-zone-busy) .upload-zone-progress {
+        display: none;
+    }
+
+.upload-zone-progress {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--primary);
+    font-weight: 500;
 }
 
 /* File list */
