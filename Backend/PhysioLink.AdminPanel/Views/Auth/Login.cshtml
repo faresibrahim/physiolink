@@ -15,50 +15,66 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/physiolink.css" asp-append-version="true" />
+    <script src="~/js/login.js" asp-append-version="true" defer></script>
 </head>
 
-<body>
-<div class="auth-page">
-    <div class="card auth-card">
+<body class="auth-body">
+@* Login — adapted from the Sneat "Login Basic" page (login-export/): centred
+   card on a light page with two dotted shapes peeking out behind it. *@
+<main class="auth-wrapper">
+    <div class="auth-inner">
+        <div class="auth-card">
 
-        <div class="brand">
-            <img src="~/images/physiolink_logo.svg" alt="" width="56" height="56" />
-            <div>
-                <div class="brand-name">PhysioLink</div>
-                <div class="brand-sub">Admin Panel</div>
+            <div class="auth-brand">
+                <img class="auth-brand-logo" src="~/images/physiolink_logo.svg" alt="" width="44" height="44" />
+                <span class="auth-brand-text">PhysioLink</span>
             </div>
-        </div>
 
-        <h1 class="auth-title">Sign in</h1>
-        <p class="auth-sub">Patients, therapists and scheduling.</p>
+            <p class="auth-sub">Please sign in to your clinic account to manage patients, therapists and scheduling.</p>
 
-        @if (TempData["ErrorMessage"] is string err)
-        {
-            <div class="alert alert-error" role="alert">
-                <div class="alert-icon">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            @if (TempData["ErrorMessage"] is string err)
+            {
+                <div class="alert alert-error auth-alert" role="alert">
+                    <div class="alert-icon">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                    </div>
+                    @err
                 </div>
-                @err
-            </div>
-        }
+            }
 
-        <form asp-action="Login" asp-controller="Auth" method="post" class="auth-form">
-            <div class="field">
-                <label asp-for="Email"></label>
-                <input asp-for="Email" class="input" type="email" placeholder="admin@clinic.com" autocomplete="email" required autofocus />
-            </div>
-            <div class="field">
-                <label asp-for="Password"></label>
-                <input asp-for="Password" class="input" type="password" placeholder="••••••••" autocomplete="current-password" required />
-            </div>
-            <label class="checkbox-label">
-                <input asp-for="RememberMe" class="checkbox-input" />
-                <span class="checkbox-text">Remember me</span>
-            </label>
-            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
-        </form>
+            <form asp-action="Login" asp-controller="Auth" method="post" class="auth-form">
+                <div class="auth-field">
+                    <label asp-for="Email" class="auth-label">Email</label>
+                    <input asp-for="Email" class="auth-input" type="email" placeholder="Enter your email" autocomplete="email" required autofocus />
+                </div>
 
+                <div class="auth-field">
+                    <label asp-for="Password" class="auth-label">Password</label>
+                    <div class="auth-input-group">
+                        <input asp-for="Password" class="auth-input" type="password" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" autocomplete="current-password" required />
+                        <button type="button" class="auth-password-toggle" data-password-toggle
+                                aria-controls="Password" aria-label="Show password" aria-pressed="false">
+                            @* Eye with a slash = password hidden (shown by default) *@
+                            <svg class="icon-hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" /><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" /><path d="m2 2 20 20" /></svg>
+                            <svg class="icon-shown" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="auth-row">
+                    <label class="auth-check">
+                        <input asp-for="RememberMe" class="auth-check-input" />
+                        <span>Remember me</span>
+                    </label>
+                    @* No password-reset flow exists yet — this link has no destination. *@
+                    <a href="#" class="auth-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="auth-submit">Sign in</button>
+            </form>
+
+        </div>
     </div>
-</div>
+</main>
 </body>
 </html>
