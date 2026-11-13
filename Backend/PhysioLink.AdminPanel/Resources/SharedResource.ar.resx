@@ -288,6 +288,18 @@
   <data name="Next" xml:space="preserve">
     <value>التالي</value>
   </data>
+  <data name="Showing {0} to {1} of {2} entries" xml:space="preserve">
+    <value>عرض {0} إلى {1} من أصل {2}</value>
+  </data>
+  <data name="First page" xml:space="preserve">
+    <value>الصفحة الأولى</value>
+  </data>
+  <data name="Last page" xml:space="preserve">
+    <value>الصفحة الأخيرة</value>
+  </data>
+  <data name="Actions for {0}" xml:space="preserve">
+    <value>إجراءات {0}</value>
+  </data>
   <data name="Please sign in to your clinic account to manage patients, therapists and scheduling." xml:space="preserve">
     <value>سجّل الدخول إلى حساب عيادتك لإدارة المرضى والمعالجين والمواعيد.</value>
   </data>
@@ -1079,12 +1091,6 @@
   </data>
   <data name="Sun" xml:space="preserve">
     <value>أحد</value>
-  </data>
-  <data name="{0} patient" xml:space="preserve">
-    <value>عدد المرضى: {0}</value>
-  </data>
-  <data name="{0} patients" xml:space="preserve">
-    <value>عدد المرضى: {0}</value>
   </data>
   <data name="{0} appointment this week" xml:space="preserve">
     <value>مواعيد هذا الأسبوع: {0}</value>

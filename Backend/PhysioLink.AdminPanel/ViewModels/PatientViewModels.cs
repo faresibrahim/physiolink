@@ -11,6 +11,7 @@ public class PatientListViewModel
     public int TotalCount { get; set; }
     public int CurrentPage { get; set; }
     public int TotalPages { get; set; }
+    public int PageSize { get; set; }
     public string? SearchQuery { get; set; }
     public Guid? SelectedTherapistId { get; set; }
     public PaginationViewModel Pagination { get; set; } = new();
