@@ -119,7 +119,17 @@
                         @foreach (var exercise in Model.Patient.Exercises)
                         {
                             <tr>
-                                <td class="primary-cell">@exercise.ExerciseName</td>
+                                <td class="primary-cell">
+                                    @if (exercise.ExerciseId != Guid.Empty)
+                                    {
+                                        <button type="button" class="cell-exercise-link"
+                                                onclick="openExerciseModal('@exercise.ExerciseId')">@exercise.ExerciseName</button>
+                                    }
+                                    else
+                                    {
+                                        @exercise.ExerciseName
+                                    }
+                                </td>
                                 <td class="muted-cell">@exercise.Sets × @exercise.Reps</td>
                                 <td class="muted-cell">@L["{0} min", exercise.DurationMinutes]</td>
                                 <td class="muted-cell">

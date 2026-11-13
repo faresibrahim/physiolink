@@ -111,6 +111,8 @@ public class AssignmentSummaryResponse
 {
     [JsonPropertyName("exerciseAssignmentId")]
     public Guid ExerciseAssignmentId { get; set; }
+    [JsonPropertyName("exerciseId")]
+    public Guid ExerciseId { get; set; }
     [JsonPropertyName("exerciseName")]
     public string ExerciseName { get; set; } = string.Empty;
     [JsonPropertyName("sets")]
