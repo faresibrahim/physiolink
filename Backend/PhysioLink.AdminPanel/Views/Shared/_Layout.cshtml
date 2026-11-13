@@ -130,23 +130,16 @@
                    admin can still read what failed after looking away. *@
                 @if (TempData["SuccessMessage"] is string success)
                 {
-                    <div id="pl-toast-success" class="alert alert-success" role="status">
-                        <div class="alert-icon">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-                        </div>
+                    <div id="pl-toast-success" class="alert alert-success alert-dismissible" role="status">
                         @L[success]
+                        <button type="button" class="alert-dismiss" aria-label="@L["Dismiss"]"></button>
                     </div>
                 }
                 @if (TempData["ErrorMessage"] is string error)
                 {
-                    <div id="pl-toast-error" class="alert alert-error" role="alert">
-                        <div class="alert-icon">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                        </div>
+                    <div id="pl-toast-error" class="alert alert-danger alert-dismissible" role="alert">
                         @L[error]
-                        <button type="button" class="alert-dismiss" aria-label="@L["Dismiss"]">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                        </button>
+                        <button type="button" class="alert-dismiss" aria-label="@L["Dismiss"]"></button>
                     </div>
                 }
 

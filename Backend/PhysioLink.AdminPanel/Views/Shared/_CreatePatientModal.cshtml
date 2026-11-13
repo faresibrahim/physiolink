@@ -22,7 +22,7 @@
         </div>
 
         <form method="post" asp-action="Create" asp-controller="Patients" class="modal-form" id="patientForm" novalidate>
-            <div class="alert alert-error form-error-banner" role="alert" hidden></div>
+            <div class="alert alert-danger form-error-banner" role="alert" hidden></div>
             @Html.AntiForgeryToken()
 
             <div class="form-row">

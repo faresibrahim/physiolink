@@ -1609,76 +1609,107 @@ textarea.input {
 }
 
 /* =============================================================================
-   ALERTS (inline page banners)
+   ALERTS — Sneat dismissible alerts (alerts-export/): a flat tinted bar in one
+   of seven colours, text in the alert's colour, and an optional "×" (button
+   .alert-dismiss inside .alert-dismissible). Sneat's bright text colours are
+   darkened to pass WCAG AA on their tints; primary is PhysioLink blue.
+   Usage: <div class="alert alert-success alert-dismissible" role="status">
+            Message <button type="button" class="alert-dismiss" aria-label="Dismiss"></button>
+          </div>
    ============================================================================= */
 
 .alert {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-sm);
-    font-weight: 500;
+    --alert-bg: #EBEEF0;
+    --alert-color: #5F6B7A;
+    position: relative;
     margin-bottom: var(--space-3);
-    border: 1px solid transparent;
+    padding: 12px var(--space-3);
+    border: 1px solid var(--alert-bg);
+    border-radius: 6px;
+    background: var(--alert-bg);
+    color: var(--alert-color);
+    font-size: 15px;
+    line-height: 22px;
     transition: opacity 200ms ease-out;
 }
 
-.alert-icon {
-    width: var(--icon-md);
-    height: var(--icon-md);
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
+.alert-primary {
+    --alert-bg: var(--primary-soft);
+    --alert-color: var(--primary);
+}
+
+.alert-secondary {
+    --alert-bg: #EBEEF0;
+    --alert-color: #5F6B7A;
 }
 
 .alert-success {
-    background: var(--success-soft);
-    border-color: rgba(76, 175, 130, 0.35);
-    color: var(--success-text);
+    --alert-bg: var(--success-soft);
+    --alert-color: var(--success-text);
 }
 
-    .alert-success .alert-icon {
-        color: #fff;
-    }
-
-    .alert-success .alert-icon {
-        background: var(--success-strong);
-    }
-
-.alert-error {
-    background: var(--danger-soft);
-    border-color: rgba(255, 59, 48, 0.3);
-    color: var(--danger-text);
+.alert-danger {
+    --alert-bg: var(--danger-soft);
+    --alert-color: var(--danger-text);
 }
 
-    .alert-error .alert-icon {
-        background: var(--danger-strong);
-        color: #fff;
-    }
+.alert-warning {
+    --alert-bg: var(--warning-soft);
+    --alert-color: var(--warning-text);
+}
 
-/* Errors stay until dismissed; only the success toast times out */
+.alert-info {
+    --alert-bg: #D7F5FC;
+    --alert-color: #0A6E85;
+}
+
+.alert-dark {
+    --alert-bg: #DDDDE0;
+    --alert-color: #2B2C40;
+}
+
+/* Room for the "×" on the inline-end side */
+.alert-dismissible {
+    padding-inline-end: 48px;
+}
+
+/* The template's close mark: a 13px "×" in the alert's own colour, with a
+   44px hit area around it. */
 .alert-dismiss {
-    margin-inline-start: auto;
-    width: var(--icon-md);
-    height: var(--icon-md);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border-radius: var(--radius-sm);
-    color: currentColor;
-    opacity: 0.7;
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+    width: 44px;
+    height: 46px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--alert-color);
     cursor: pointer;
+    opacity: 0.8;
 }
+
+    .alert-dismiss::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 13px;
+        height: 13px;
+        transform: translate(-50%, -50%);
+        background: currentColor;
+        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 150'%3E%3Cpolygon points='131.25 0 75 56.25 18.75 0 0 18.75 56.25 75 0 131.25 18.75 150 75 93.75 131.25 150 150 131.25 93.75 75 150 18.75'/%3E%3C/svg%3E") center / contain no-repeat;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 150'%3E%3Cpolygon points='131.25 0 75 56.25 18.75 0 0 18.75 56.25 75 0 131.25 18.75 150 75 93.75 131.25 150 150 131.25 93.75 75 150 18.75'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
 
     .alert-dismiss:hover {
         opacity: 1;
-        background: rgba(0, 0, 0, 0.06);
+    }
+
+    .alert-dismiss:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: -8px;
+        border-radius: 8px;
     }
 
 /* =============================================================================
@@ -1959,31 +1990,6 @@ textarea.input {
     }
 
 /* Credentials reveal (after patient creation) */
-.notice {
-    display: flex;
-    gap: var(--space-2);
-    align-items: flex-start;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-sm);
-    line-height: var(--line-height-normal);
-}
-
-    .notice svg {
-        flex-shrink: 0;
-        margin-top: 2px;
-    }
-
-    .notice p {
-        margin: 0;
-    }
-
-.notice-warning {
-    background: var(--warning-soft);
-    border: 1px solid rgba(245, 158, 11, 0.45);
-    color: var(--warning-text);
-}
-
 .credential-box {
     background: var(--bg);
     border-radius: var(--radius-sm);
