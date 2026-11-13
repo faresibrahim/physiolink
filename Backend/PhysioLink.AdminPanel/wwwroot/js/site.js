@@ -243,10 +243,72 @@
     }
     initRowMenus();
 
+    // ---- Loading state for buttons -------------------------------------------
+    // start(el) disables a button, hides its icon and prepends a small spinner;
+    // the returned function undoes it. A trigger that sits inside a "⋮" row menu
+    // (already closed by the time it runs) passes the busy state to the menu's
+    // own button, which is where focus went back to.
+    function busyTarget(el) {
+        if (!el) return null;
+        var menu = el.closest && el.closest('[data-dt-menu]');
+        if (menu && el.getAttribute('role') === 'menuitem') {
+            return menu.querySelector('[data-dt-menu-toggle]') || el;
+        }
+        return el;
+    }
+
+    function startLoading(el) {
+        el = busyTarget(el);
+        if (!el || el.classList.contains('is-loading')) return function () { };
+        el.classList.add('is-loading');
+        el.setAttribute('aria-busy', 'true');
+        var spinner = document.createElement('span');
+        spinner.className = 'spinner spinner-sm';
+        spinner.setAttribute('aria-hidden', 'true');
+        el.insertBefore(spinner, el.firstChild);
+        var wasDisabled = el.disabled;
+        if ('disabled' in el) el.disabled = true;
+        return function stop() {
+            el.classList.remove('is-loading');
+            el.removeAttribute('aria-busy');
+            if (spinner.parentNode) spinner.parentNode.removeChild(spinner);
+            if ('disabled' in el) el.disabled = wasDisabled;
+        };
+    }
+
+    // Every POST form shows the spinner on the button that submitted it, once
+    // its own validation and confirm() have let the submit through. Disabling
+    // waits a tick so the button is still part of the posted form data, and it
+    // stops a second click from sending the form twice. GET forms (filters,
+    // search) are left alone — the browser already shows the page loading.
+    document.addEventListener('submit', function (e) {
+        if (e.defaultPrevented) return;
+        var form = e.target;
+        if ((form.getAttribute('method') || 'get').toLowerCase() !== 'post') return;
+        if (form.hasAttribute('data-no-loading')) return;
+        var button = e.submitter || form.querySelector('[type="submit"]');
+        if (!button) return;
+        window.setTimeout(function () { startLoading(button); }, 0);
+    });
+
+    // Coming back with the browser's Back button restores the page from cache
+    // with its buttons still busy — reset them.
+    window.addEventListener('pageshow', function (e) {
+        if (!e.persisted) return;
+        Array.prototype.forEach.call(document.querySelectorAll('.is-loading'), function (el) {
+            el.classList.remove('is-loading');
+            el.removeAttribute('aria-busy');
+            var spinner = el.querySelector(':scope > .spinner');
+            if (spinner) el.removeChild(spinner);
+            if ('disabled' in el) el.disabled = false;
+        });
+    });
+
     window.plModal = {
         opened: onModalOpen,
         closed: onModalClose
     };
+    window.plLoading = { start: startLoading };
     window.plForm = {
         setFieldError: setFieldError,
         clearErrors: clearErrors,

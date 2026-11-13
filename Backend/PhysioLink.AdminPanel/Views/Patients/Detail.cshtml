@@ -146,7 +146,7 @@
                                 </td>
                                 <td>
                                     <button type="button" class="btn btn-ghost btn-sm"
-                                            onclick="openEditModal('@exercise.ExerciseAssignmentId')">
+                                            onclick="openEditModal('@exercise.ExerciseAssignmentId', this)">
                                         @L["Edit"]
                                     </button>
                                     <button type="button" class="btn btn-danger-outline btn-sm"
@@ -190,6 +190,10 @@
                     </svg>
                     <span class="upload-zone-text"><strong>@L["Click to upload"]</strong> @L["or drag a file here"]</span>
                     <span class="upload-zone-hint">@L["PDF, image, or document · up to 10 MB"]</span>
+                    <span class="upload-zone-progress" role="status">
+                        <span class="spinner spinner-primary" aria-hidden="true"></span>
+                        @L["Uploading…"]
+                    </span>
                     <input type="file" name="file" id="attachmentFile" class="upload-input"
                            accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.heic,.doc,.docx,.xls,.xlsx,.txt,.csv" />
                 </label>
@@ -730,7 +734,8 @@
                 window.plModal.opened(modalEl);
             }
 
-            async function openEditModal(assignmentId) {
+            async function openEditModal(assignmentId, trigger) {
+                var stopLoading = window.plLoading.start(trigger);
                 try {
                     var response = await fetch('/Assignment/GetById/' + encodeURIComponent(assignmentId));
                     if (!response.ok) {
@@ -758,6 +763,8 @@
                 } catch (err) {
                     console.error('[assign] failed to load assignment:', err);
                     window.plForm.showFormError(modalEl, @Json.Serialize(L["Could not load this assignment. Check your connection and try again."].Value));
+                } finally {
+                    stopLoading();
                 }
             }
 

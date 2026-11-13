@@ -20,7 +20,10 @@
         </div>
 
         @* Loading state *@
-        <div id="exerciseModalLoading" class="modal-loading">@L["Loading..."]</div>
+        <div id="exerciseModalLoading" class="modal-loading" role="status">
+            <span class="spinner spinner-primary" id="exerciseModalSpinner" aria-hidden="true"></span>
+            <span id="exerciseModalLoadingText">@L["Loading..."]</span>
+        </div>
 
         @* Content (hidden until loaded) *@
         <div id="exerciseModalContent" class="modal-body" style="display:none;">
@@ -84,6 +87,8 @@
     });
     var modal     = document.getElementById('exerciseDetailModal');
     var loading   = document.getElementById('exerciseModalLoading');
+    var loadingText = document.getElementById('exerciseModalLoadingText');
+    var loadingSpinner = document.getElementById('exerciseModalSpinner');
     var content   = document.getElementById('exerciseModalContent');
     var iframe    = document.getElementById('exerciseVideoFrame');
     var videoFile = document.getElementById('exerciseVideoFile');
@@ -160,8 +165,9 @@
 
     async function openExerciseModal(id) {
         // Reset state
-        loading.textContent    = t.loading;
-        loading.style.display  = 'block';
+        loadingText.textContent = t.loading;
+        loadingSpinner.hidden  = false;
+        loading.style.display  = 'flex';
         content.style.display  = 'none';
         iframe.src             = '';
         videoFile.pause();
@@ -182,7 +188,7 @@
             });
 
             if (!response.ok) {
-                loading.textContent = t.failed;
+                loadingText.textContent = t.failed; loadingSpinner.hidden = true;
                 return;
             }
 
@@ -223,7 +229,7 @@
 
         } catch (err) {
             console.error('[exercise-modal]', err);
-            loading.textContent = t.failed;
+            loadingText.textContent = t.failed; loadingSpinner.hidden = true;
         }
     }
 
