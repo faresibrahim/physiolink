@@ -3846,6 +3846,397 @@ textarea.input {
 }
 
 /* =============================================================================
+   DATA TABLE CARD (Patients) — adapted from the Sneat "Table Basic" card
+   (datatable-export/): title and controls in the card header, uppercase column
+   heads, tinted status badges, a "⋮" row menu, and a footer with the entry
+   count and square pagination. Sneat's purple is swapped for PhysioLink blue;
+   muted greys are darkened where the template's failed AA contrast.
+   ============================================================================= */
+
+.dt-card {
+    --dt-heading: #384551;
+    --dt-body: #646E78;
+    --dt-border: #E4E6E8;
+    --dt-input-border: #D3D6D8;
+    --dt-hover: rgba(34, 48, 62, 0.06);
+    --dt-radius: 6px;
+    --dt-focus-shadow: 0 2px 4px 0 rgba(0, 74, 173, 0.4);
+    min-width: 0;
+    background: var(--surface);
+    border-radius: var(--dt-radius);
+    box-shadow: 0 3px 8px 0 rgba(34, 48, 62, 0.1);
+}
+
+/* ---- Header: title + filters + primary action ---- */
+.dt-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4);
+}
+
+.dt-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 28px;
+    color: var(--dt-heading);
+}
+
+.dt-tools,
+.dt-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.dt-filters {
+    margin: 0;
+}
+
+.dt-input {
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid var(--dt-input-border);
+    border-radius: var(--dt-radius);
+    background-color: transparent;
+    font: inherit;
+    font-size: 15px;
+    color: var(--dt-heading);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+    .dt-input::placeholder {
+        color: #8A929B;
+        opacity: 1;
+    }
+
+    .dt-input:hover:not(:focus) {
+        border-color: #7A838B;
+    }
+
+    .dt-input:focus,
+    .dt-input:focus-visible {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: inset 0 0 0 1px var(--primary), var(--dt-focus-shadow);
+    }
+
+.dt-search {
+    position: relative;
+}
+
+.dt-search-icon {
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 12px;
+    transform: translateY(-50%);
+    color: var(--dt-body);
+    pointer-events: none;
+}
+
+.dt-search-input {
+    width: 220px;
+    padding-inline-start: 36px;
+}
+
+.dt-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-inline-end: 36px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23646E78' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+}
+
+[dir="rtl"] .dt-select {
+    background-position: left 12px center;
+}
+
+.dt-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    height: 38px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: var(--dt-radius);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+}
+
+    .dt-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .dt-btn:active {
+        transform: none;
+    }
+
+.dt-btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    box-shadow: var(--dt-focus-shadow);
+}
+
+    .dt-btn-primary:hover {
+        background: var(--primary-hover);
+        border-color: var(--primary-hover);
+    }
+
+.dt-btn-outline {
+    background: transparent;
+    border-color: #A1AAB6;
+    color: #5F6B7A;
+}
+
+    .dt-btn-outline:hover {
+        background: #5F6B7A;
+        border-color: #5F6B7A;
+        color: #fff;
+    }
+
+/* ---- Table ---- */
+.dt-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.dt-table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+    .dt-table th {
+        padding: 18px 20px;
+        border-top: 1px solid var(--dt-border);
+        border-bottom: 1px solid var(--dt-border);
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+        text-transform: uppercase;
+        text-align: start;
+        color: var(--dt-heading);
+    }
+
+    .dt-table td {
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--dt-border);
+        font-size: 15px;
+        color: var(--dt-body);
+        vertical-align: middle;
+    }
+
+    .dt-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .dt-table .empty-row {
+        white-space: normal;
+    }
+
+.dt-col-actions {
+    width: 1%;
+}
+
+.dt-name {
+    font-weight: 500;
+    color: var(--dt-heading);
+    transition: color 0.15s;
+}
+
+    .dt-name:hover {
+        color: var(--primary);
+    }
+
+/* Tinted label badges (Sneat bg-label-*) */
+.dt-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.dt-badge-success {
+    background: var(--success-soft);
+    color: var(--success-text);
+}
+
+.dt-badge-secondary {
+    background: #EBEEF0;
+    color: #5F6B7A;
+}
+
+/* ---- Row "⋮" menu ---- */
+.dt-menu-toggle {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+    color: var(--dt-body);
+    transition: background-color 0.15s, color 0.15s;
+}
+
+    .dt-menu-toggle:hover,
+    .dt-menu-toggle[aria-expanded="true"] {
+        background: var(--dt-hover);
+        color: var(--dt-heading);
+    }
+
+/* Fixed so the table's horizontal scroll container can't clip it; site.js
+   positions it under its button. */
+.dt-menu-list {
+    position: fixed;
+    z-index: 150;
+    min-width: 160px;
+    padding: var(--space-2);
+    border-radius: var(--dt-radius, 6px);
+    background: var(--surface);
+    box-shadow: 0 4px 12px 0 rgba(34, 48, 62, 0.14);
+}
+
+.dt-menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    font: inherit;
+    font-size: 15px;
+    color: #384551;
+    text-align: start;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+    .dt-menu-item:hover,
+    .dt-menu-item:focus-visible {
+        background: rgba(34, 48, 62, 0.06);
+        outline: none;
+    }
+
+/* ---- Footer: entry count + pagination ---- */
+.dt-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4);
+}
+
+.dt-count {
+    font-size: 13px;
+    color: var(--dt-body);
+}
+
+.dt-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dt-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 8px;
+    border-radius: var(--dt-radius);
+    background: var(--dt-hover);
+    font-size: 15px;
+    color: var(--dt-heading);
+    transition: background-color 0.15s, color 0.15s;
+}
+
+    .dt-page:hover {
+        background: var(--primary-soft);
+        color: var(--primary);
+    }
+
+.is-active > .dt-page {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: var(--dt-focus-shadow);
+}
+
+.is-disabled > .dt-page {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+[dir="rtl"] .dt-page-icon svg {
+    transform: scaleX(-1);
+}
+
+@media (max-width: 768px) {
+    .dt-header,
+    .dt-footer {
+        padding: var(--space-3);
+    }
+
+    .dt-tools,
+    .dt-filters,
+    .dt-search {
+        width: 100%;
+    }
+
+    .dt-search-input {
+        width: 100%;
+    }
+
+    .dt-select {
+        flex: 1 1 auto;
+    }
+
+    .dt-tools > .dt-btn-primary {
+        width: 100%;
+    }
+
+    /* Fingertip targets on touch screens */
+    .dt-input,
+    .dt-btn,
+    .dt-page {
+        height: 44px;
+        min-width: 44px;
+    }
+
+    .dt-menu-toggle {
+        width: 44px;
+        height: 44px;
+    }
+
+    .dt-input {
+        font-size: var(--font-size-base);
+    }
+}
+
+/* =============================================================================
    RIGHT-TO-LEFT (Arabic)
    Layout mirrors through logical properties (margin-inline-start etc.) used
    throughout this file; flexbox and grid follow dir="rtl" on their own. What's

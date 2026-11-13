@@ -165,11 +165,83 @@
         });
     }
 
+    // Table row "⋮" menus ([data-dt-menu]). The list is position: fixed and
+    // placed under its button so the table's scroll container can't clip it.
+    // One open at a time; outside click, Escape, Tab, scroll or resize close it.
+    function initRowMenus() {
+        var open = null;
+
+        function close(returnFocus) {
+            if (!open) return;
+            open.list.hidden = true;
+            open.toggle.setAttribute('aria-expanded', 'false');
+            if (returnFocus) open.toggle.focus();
+            open = null;
+        }
+
+        function place(toggle, list) {
+            var r = toggle.getBoundingClientRect();
+            var rtl = document.documentElement.dir === 'rtl';
+            var width = list.offsetWidth;
+            var height = list.offsetHeight;
+            var left = rtl ? r.left : r.right - width;
+            left = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+            var top = r.bottom + 4;
+            if (top + height > window.innerHeight - 8) top = Math.max(8, r.top - height - 4);
+            list.style.left = left + 'px';
+            list.style.top = top + 'px';
+        }
+
+        // Capture phase: runs before an item's own onclick, so the menu closes and
+        // focus is back on its button before a dialog opens (and later returns there).
+        document.addEventListener('click', function (e) {
+            var toggle = e.target.closest('[data-dt-menu-toggle]');
+            if (toggle) {
+                var list = toggle.closest('[data-dt-menu]').querySelector('.dt-menu-list');
+                var wasOpen = open && open.toggle === toggle;
+                close(false);
+                if (wasOpen) return;
+                list.hidden = false;
+                toggle.setAttribute('aria-expanded', 'true');
+                open = { toggle: toggle, list: list };
+                place(toggle, list);
+                // Keyboard activation (detail 0) moves focus into the menu
+                if (e.detail === 0) {
+                    var first = list.querySelector('[role="menuitem"]');
+                    if (first) first.focus();
+                }
+                return;
+            }
+            if (!open) return;
+            if (e.target.closest('[role="menuitem"]') && open.list.contains(e.target)) close(true);
+            else if (!open.list.contains(e.target)) close(false);
+        }, true);
+
+        document.addEventListener('keydown', function (e) {
+            if (!open) return;
+            if (e.key === 'Escape') {
+                close(true);
+            } else if (e.key === 'Tab') {
+                close(false);
+            } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                var items = Array.prototype.slice.call(open.list.querySelectorAll('[role="menuitem"]'));
+                var i = items.indexOf(document.activeElement);
+                i = e.key === 'ArrowDown' ? (i + 1) % items.length : (i - 1 + items.length) % items.length;
+                items[i].focus();
+            }
+        });
+
+        window.addEventListener('resize', function () { close(false); });
+        window.addEventListener('scroll', function () { close(false); }, true);
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initToasts);
     } else {
         initToasts();
     }
+    initRowMenus();
 
     window.plModal = {
         opened: onModalOpen,

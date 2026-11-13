@@ -16,11 +16,13 @@ public class PatientsController : BaseController
         _apiClient = apiClient;
     }
 
+    private const int PatientsPageSize = 10;
+
     // GET /Patients?page=1&searchQuery=&therapistId=
     [HttpGet]
     public async Task<IActionResult> Index(int page = 1, string? searchQuery = null, Guid? therapistId = null)
     {
-        var patientsTask   = _apiClient.GetPatientsAsync(page, 10, therapistId, searchQuery);
+        var patientsTask   = _apiClient.GetPatientsAsync(page, PatientsPageSize, therapistId, searchQuery);
         var therapistsTask = _apiClient.GetTherapistsAsync(1, 100);
 
         await Task.WhenAll(patientsTask, therapistsTask);
@@ -50,6 +52,7 @@ public class PatientsController : BaseController
             TotalCount = patients.TotalCount,
             TotalPages = patients.TotalPages,
             CurrentPage = page,
+            PageSize = PatientsPageSize,
             SearchQuery = searchQuery,
             SelectedTherapistId = therapistId,
             Pagination = new PaginationViewModel
