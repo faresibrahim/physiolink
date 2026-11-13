@@ -132,6 +132,7 @@ namespace PhysioLink.Infrastructure.Services
                         .Select(ea => new AssignmentSummaryDto
                         {
                             ExerciseAssignmentId = ea.ExerciseAssignmentId,
+                            ExerciseId = ea.ExerciseId,
                             ExerciseName = ea.Exercise.Name,
                             Sets = ea.Sets,
                             Reps = ea.Reps,

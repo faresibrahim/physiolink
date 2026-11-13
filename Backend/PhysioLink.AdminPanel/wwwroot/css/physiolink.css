@@ -1335,6 +1335,29 @@ textarea.input {
     font-weight: 500;
 }
 
+/* Exercise name in the patient's Assigned Exercises table — opens the
+   exercise details popup. A button, styled as plain text that turns blue. */
+.cell-exercise-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: start;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+    .cell-exercise-link:hover {
+        color: var(--primary);
+    }
+
+    .cell-exercise-link:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+
 .muted-cell {
     color: var(--text-secondary);
 }

@@ -5,6 +5,7 @@ namespace PhysioLink.Application.DTOs.Patients
     public class AssignmentSummaryDto
     {
         public Guid ExerciseAssignmentId { get; set; }
+        public Guid ExerciseId { get; set; }
         public required string ExerciseName { get; set; }
         public int Sets { get; set; }
         public int Reps { get; set; }
