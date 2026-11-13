@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PhysioLink.AdminPanel.Helpers;
+using PhysioLink.AdminPanel.Localization;
 using PhysioLink.AdminPanel.Services;
 using PhysioLink.AdminPanel.ViewModels;
 using PhysioLink.AdminPanel.ViewModels.Shared;
@@ -111,7 +112,7 @@ public class AppointmentsController : BaseController
 
         if (!ok)
         {
-            TempData["ErrorMessage"] = $"Failed to create a new appointment. {error}";
+            TempData["ErrorMessage"] = $"{L["Failed to create a new appointment."]} {error}".TrimEnd();
             return RedirectToAction("Index", "Appointments");
         }
 
@@ -142,7 +143,7 @@ public class AppointmentsController : BaseController
         var (ok, error) = await _apiClient.UpdateAppointmentAsync(model.AppointmentId, appointment);
         if (!ok)
         {
-            TempData["ErrorMessage"] = $"Failed to update the appointment. {error}";
+            TempData["ErrorMessage"] = $"{L["Failed to update the appointment."]} {error}".TrimEnd();
             return RedirectToAction("Index", "Appointments");
         }
 
@@ -178,7 +179,7 @@ public class AppointmentsController : BaseController
             local     = ClinicTime.ToLocal(s.ScheduledAt).ToString("yyyy-MM-ddTHH:mm"),
             // Clinic-local calendar day (buckets the slot onto the calendar) and labels.
             date      = ClinicTime.ToLocal(s.ScheduledAt).ToString("yyyy-MM-dd"),
-            dayLabel  = ClinicTime.ToLocal(s.ScheduledAt).ToString("dddd, MMM d"),
+            dayLabel  = ClinicTime.ToLocal(s.ScheduledAt).ToString(DatePatterns.WeekdayMonthDay),
             timeLabel = ClinicTime.ToLocal(s.ScheduledAt).ToString("HH:mm"),
         });
 

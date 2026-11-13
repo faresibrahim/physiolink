@@ -5,8 +5,8 @@
 
 <div class="card form-card">
 
-    <h2 class="card-title">@(Model.IsEdit ? "Edit Therapist" : "Add Therapist")</h2>
-    <p class="card-subtitle">@(Model.IsEdit ? "Update this practitioner's details." : "Add a new practitioner to your clinic.")</p>
+    <h2 class="card-title">@(Model.IsEdit ? L["Edit Therapist"] : L["Add therapist"])</h2>
+    <p class="card-subtitle">@(Model.IsEdit ? L["Update this practitioner's details."] : L["Add a new practitioner to your clinic."])</p>
     <div class="profile-divider"></div>
 
     <form asp-action="@formAction" asp-route-id="@Model.TherapistId" method="post" class="form-stack">
@@ -19,41 +19,41 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label" asp-for="FirstName">First Name</label>
+                <label class="form-label" asp-for="FirstName">@L["First name"]</label>
                 <input asp-for="FirstName" class="form-input" />
                 <span asp-validation-for="FirstName" class="field-error"></span>
             </div>
             <div class="form-group">
-                <label class="form-label" asp-for="LastName">Last Name</label>
+                <label class="form-label" asp-for="LastName">@L["Last name"]</label>
                 <input asp-for="LastName" class="form-input" />
                 <span asp-validation-for="LastName" class="field-error"></span>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label" asp-for="Specialty">Specialty</label>
+            <label class="form-label" asp-for="Specialty">@L["Specialty"]</label>
             <input asp-for="Specialty" class="form-input" />
             <span asp-validation-for="Specialty" class="field-error"></span>
         </div>
 
         <div class="form-group">
-            <label class="form-label" asp-for="PhoneNumber">Phone</label>
+            <label class="form-label" asp-for="PhoneNumber">@L["Phone"]</label>
             <input asp-for="PhoneNumber" class="form-input" />
             <span asp-validation-for="PhoneNumber" class="field-error"></span>
         </div>
 
         <div class="form-group">
-            <label class="form-label" asp-for="Email">Email</label>
+            <label class="form-label" asp-for="Email">@L["Email"]</label>
             <input asp-for="Email" class="form-input" />
             <span asp-validation-for="Email" class="field-error"></span>
         </div>
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
-                @(Model.IsEdit ? "Save Changes" : "Add Therapist")
+                @(Model.IsEdit ? L["Save Changes"] : L["Add therapist"])
             </button>
             <a asp-action="Index" class="btn btn-ghost">
-                Cancel
+                @L["Cancel"]
             </a>
         </div>
 

@@ -1,8 +1,15 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Localization;
+using PhysioLink.AdminPanel;
 using PhysioLink.AdminPanel.Filters;
+using PhysioLink.AdminPanel.Localization;
 using PhysioLink.AdminPanel.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// English / Arabic. Strings use their English text as the key; Arabic comes from
+// Resources/SharedResource.ar.resx. Validation messages use the same table.
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews(options =>
@@ -10,7 +17,12 @@ builder.Services.AddControllersWithViews(options =>
     // Turns a dead session (ApiClient throws SessionExpiredException) into a clean
     // redirect to the login page instead of a silently-empty view full of zeros.
     options.Filters.Add<SessionExpiredExceptionFilter>();
-}).AddRazorRuntimeCompilation();
+})
+.AddDataAnnotationsLocalization(options =>
+{
+    options.DataAnnotationLocalizerProvider = (_, factory) => factory.Create(typeof(SharedResource));
+})
+.AddRazorRuntimeCompilation();
 
 // Cookie authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -64,6 +76,19 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+
+// A browser's first page view goes to the language screen; the choice is kept in
+// the culture cookie, which is also the only source of the request language
+// (no Accept-Language guessing — the user picks explicitly).
+app.UseMiddleware<FirstVisitLanguageMiddleware>();
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(PanelLanguages.English),
+    SupportedCultures = PanelLanguages.Supported,
+    SupportedUICultures = PanelLanguages.Supported,
+    RequestCultureProviders = new List<IRequestCultureProvider> { new CookieRequestCultureProvider() }
+});
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

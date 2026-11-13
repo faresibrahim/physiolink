@@ -138,6 +138,13 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* Arabic text uses IBM Plex Sans Arabic (DM Sans has no Arabic glyphs). Tracking
+   is switched off: letter-spacing pulls apart the joins between Arabic letters. */
+:lang(ar) {
+    font-family: 'IBM Plex Sans Arabic', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: normal !important;
+}
+
 a {
     color: inherit;
     text-decoration: none;
@@ -217,7 +224,7 @@ select,
 /* Keyboard-only shortcut past the rail, visible only when focused */
 .skip-link {
     position: absolute;
-    left: var(--space-2);
+    inset-inline-start: var(--space-2);
     top: var(--space-2);
     z-index: 300;
     padding: var(--space-2) var(--space-3);
@@ -305,7 +312,7 @@ select,
     display: none;
     position: absolute;
     top: 50%;
-    left: 243px;
+    inset-inline-start: 243px;
     transform: translateY(-50%);
     width: 36px;
     height: 36px;
@@ -355,7 +362,7 @@ select,
     .menu-header::before {
         content: "";
         position: absolute;
-        left: 0;
+        inset-inline-start: 0;
         top: 50%;
         width: var(--space-3);
         height: 1px;
@@ -392,7 +399,7 @@ select,
     font-size: var(--font-size-sm);
     font-weight: 400;
     line-height: 22px;
-    text-align: left;
+    text-align: start;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
 }
@@ -428,17 +435,18 @@ select,
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
+    inset-inline-end: 0;
     width: 4px;
     height: 100%;
     background: var(--primary);
-    border-radius: var(--menu-radius) 0 0 var(--menu-radius);
+    border-start-start-radius: var(--menu-radius);
+    border-end-start-radius: var(--menu-radius);
 }
 
 /* Pending appointment requests count */
 .menu-badge {
     flex-shrink: 0;
-    margin-left: auto;
+    margin-inline-start: auto;
     min-width: 20px;
     height: 20px;
     padding: 0 var(--space-2);
@@ -538,7 +546,7 @@ select,
         position: fixed;
         top: 0;
         bottom: 0;
-        left: 0;
+        inset-inline-start: 0;
         z-index: 250;
         width: var(--sidebar-w);
         height: 100%;
@@ -579,7 +587,8 @@ select,
         align-items: center;
         gap: var(--space-1);
         height: 56px;
-        padding: 0 var(--space-3) 0 var(--space-1);
+        padding-block: 0;
+        padding-inline: var(--space-1) var(--space-3);
         background: var(--surface);
         box-shadow: 0 2px 6px rgba(34, 48, 62, 0.08);
     }
@@ -708,7 +717,7 @@ select,
 }
 
 .ml-auto {
-    margin-left: auto;
+    margin-inline-start: auto;
 }
 
 /* =============================================================================
@@ -1005,7 +1014,7 @@ select.input,
 .filter-select {
     appearance: none;
     -webkit-appearance: none;
-    padding-right: var(--space-6);
+    padding-inline-end: var(--space-6);
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23636A74' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
     background-repeat: no-repeat;
     background-position: right 12px center;
@@ -1086,7 +1095,7 @@ textarea.input {
 
 .search-icon {
     position: absolute;
-    left: var(--space-3);
+    inset-inline-start: var(--space-3);
     top: 50%;
     transform: translateY(-50%);
     width: var(--icon-sm);
@@ -1098,7 +1107,8 @@ textarea.input {
 .search-input {
     width: 100%;
     height: var(--control-h);
-    padding: 0 var(--space-3) 0 var(--space-6);
+    padding-block: 0;
+    padding-inline: var(--space-6) var(--space-3);
     border: 1px solid var(--divider);
     border-radius: var(--radius-sm);
     background: var(--surface);
@@ -1325,7 +1335,7 @@ textarea.input {
 }
 
     .data-table thead th {
-        text-align: left;
+        text-align: start;
         padding: var(--space-2) var(--space-3);
         height: var(--space-6);
         vertical-align: middle;
@@ -1666,7 +1676,7 @@ textarea.input {
 
 /* Errors stay until dismissed; only the success toast times out */
 .alert-dismiss {
-    margin-left: auto;
+    margin-inline-start: auto;
     width: var(--icon-md);
     height: var(--icon-md);
     display: inline-flex;
@@ -2312,7 +2322,7 @@ textarea.input {
 }
 
 .feedback-count {
-    text-align: right;
+    text-align: end;
     color: var(--text-secondary);
     font-weight: 500;
     font-variant-numeric: tabular-nums;
@@ -2969,8 +2979,8 @@ textarea.input {
 
 .request-notes {
     margin: var(--space-2) 0 0;
-    padding-left: var(--space-3);
-    border-left: 1px solid var(--divider);
+    padding-inline-start: var(--space-3);
+    border-inline-start: 1px solid var(--divider);
     font-size: var(--font-size-sm);
     font-style: italic;
     color: var(--text-secondary);
@@ -3022,7 +3032,7 @@ textarea.input {
     }
 
     .schedule-grid thead th:first-child {
-        text-align: left;
+        text-align: start;
     }
 
     .schedule-grid th:first-child,
@@ -3049,7 +3059,7 @@ textarea.input {
 }
 
 .schedule-hour {
-    text-align: left;
+    text-align: start;
     font-weight: 500;
     color: var(--text-secondary);
     white-space: nowrap;
@@ -3387,7 +3397,8 @@ textarea.input {
     flex-shrink: 0;
     padding: 0;
     border: 0;
-    border-radius: 0 var(--auth-radius) var(--auth-radius) 0;
+    border-start-end-radius: var(--auth-radius);
+    border-end-end-radius: var(--auth-radius);
     background: transparent;
     color: var(--auth-heading);
     cursor: pointer;
@@ -3500,6 +3511,399 @@ textarea.input {
 }
 
 /* =============================================================================
+   LANGUAGE (first-visit screen) — logo, name and two language cards on a soft,
+   slowly drifting backdrop. The logo and name carry over to the login card via a
+   cross-document view transition where supported.
+   ============================================================================= */
+
+.lang-body {
+    --lang-ink: #1B2430;
+    --lang-muted: #5F6873;
+    --lang-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    min-height: 100vh;
+    background: #F5F6FA;
+    color: var(--lang-ink);
+    overflow-x: hidden;
+}
+
+.lang-stage {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6) var(--space-3);
+    overflow: hidden;
+    transition: opacity 0.38s ease, transform 0.38s var(--lang-ease), filter 0.38s ease;
+}
+
+    .lang-stage.is-leaving {
+        opacity: 0;
+        transform: scale(0.97);
+        filter: blur(4px);
+    }
+
+/* ---- Backdrop: two blurred brand-colour orbs + a faded dot grid ---- */
+.lang-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.lang-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(72px);
+    opacity: 0.55;
+    will-change: transform;
+}
+
+.lang-orb-a {
+    width: 520px;
+    height: 520px;
+    top: -180px;
+    left: -140px;
+    background: radial-gradient(circle at 30% 30%, rgba(0, 74, 173, 0.55), rgba(0, 74, 173, 0) 70%);
+    animation: lang-drift-a 18s ease-in-out infinite alternate;
+}
+
+.lang-orb-b {
+    width: 480px;
+    height: 480px;
+    right: -160px;
+    bottom: -200px;
+    background: radial-gradient(circle at 60% 60%, rgba(76, 175, 130, 0.5), rgba(76, 175, 130, 0) 70%);
+    animation: lang-drift-b 22s ease-in-out infinite alternate;
+}
+
+.lang-dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(0, 74, 173, 0.16) 1px, transparent 1.5px);
+    background-size: 24px 24px;
+    -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 45%, #000 0%, transparent 75%);
+    mask-image: radial-gradient(ellipse 60% 55% at 50% 45%, #000 0%, transparent 75%);
+}
+
+@keyframes lang-drift-a {
+    to {
+        transform: translate(80px, 60px) scale(1.08);
+    }
+}
+
+@keyframes lang-drift-b {
+    to {
+        transform: translate(-70px, -50px) scale(1.06);
+    }
+}
+
+/* ---- Content column ---- */
+.lang-content {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Staggered entrance; --i is each element's position in the sequence */
+.lang-reveal {
+    animation: lang-rise 0.7s var(--lang-ease) backwards;
+    animation-delay: calc(var(--i, 0) * 80ms + 60ms);
+}
+
+@keyframes lang-rise {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* The mark stands on its own — no tile behind it */
+.lang-logo {
+    width: 128px;
+    height: 128px;
+    display: block;
+    view-transition-name: pl-logo;
+}
+
+.lang-wordmark {
+    margin: var(--space-3) 0 0;
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--lang-ink);
+    view-transition-name: pl-wordmark;
+}
+
+.lang-tagline {
+    margin: var(--space-2) 0 var(--space-5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: var(--font-size-base);
+    color: var(--lang-muted);
+}
+
+.lang-tagline-sep {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.5;
+}
+
+/* ---- Language cards ---- */
+.lang-options {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    margin: 0;
+}
+
+.lang-option {
+    --lang-accent: var(--primary);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 96px;
+    padding: 20px var(--space-3);
+    border: 1px solid rgba(27, 36, 48, 0.08);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 1px 2px rgba(27, 36, 48, 0.04), 0 8px 24px -12px rgba(27, 36, 48, 0.18);
+    color: var(--lang-ink);
+    text-align: center;
+    cursor: pointer;
+    transition:
+        transform 0.25s var(--lang-ease),
+        box-shadow 0.25s var(--lang-ease),
+        border-color 0.2s ease,
+        background-color 0.25s ease,
+        color 0.25s ease,
+        opacity 0.25s ease;
+}
+
+    .lang-option:hover {
+        transform: translateY(-3px);
+        border-color: rgba(0, 74, 173, 0.35);
+        box-shadow: 0 2px 4px rgba(27, 36, 48, 0.04), 0 18px 36px -14px rgba(0, 74, 173, 0.38);
+    }
+
+    .lang-option:active {
+        transform: translateY(-1px) scale(0.99);
+    }
+
+    .lang-option:focus-visible {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-ring), 0 18px 36px -14px rgba(0, 74, 173, 0.38);
+    }
+
+.lang-option-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.lang-option-name {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.lang-option-sub {
+    font-size: var(--font-size-sm);
+    color: var(--lang-muted);
+    transition: color 0.25s ease;
+}
+
+/* Chosen: the card fills with brand blue and the other card steps back. */
+.lang-options.has-choice .lang-option {
+    pointer-events: none;
+}
+
+    .lang-options.has-choice .lang-option:not(.is-chosen) {
+        opacity: 0.45;
+        transform: scale(0.98);
+    }
+
+.lang-option.is-chosen {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px -14px rgba(0, 74, 173, 0.55);
+}
+
+    .lang-option.is-chosen .lang-option-sub {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+.lang-note {
+    margin: var(--space-5) 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--font-size-xs);
+    color: var(--lang-muted);
+}
+
+@media (max-width: 575.98px) {
+    .lang-options {
+        grid-template-columns: 1fr;
+    }
+
+    .lang-wordmark {
+        font-size: var(--font-size-3xl);
+    }
+
+    .lang-logo {
+        width: 104px;
+        height: 104px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lang-orb {
+        animation: none;
+    }
+}
+
+/* ---- Login page language switch (below the card) ---- */
+.auth-wrapper {
+    flex-direction: column;
+}
+
+.auth-lang {
+    position: relative;
+    z-index: 1;
+    margin: var(--space-3) 0 0;
+}
+
+.auth-lang-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-full);
+    color: var(--auth-body, #646E78);
+    font-size: 15px;
+    font-weight: 500;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+    .auth-lang-btn:hover {
+        background: rgba(0, 74, 173, 0.06);
+        color: var(--primary);
+    }
+
+/* ---- Hand-off to the login page ----
+   The login card's logo and name share view-transition names with the language
+   screen, so where cross-document view transitions are supported they glide into
+   place. Elsewhere the login card plays .auth-enter instead. */
+.auth-brand-logo {
+    view-transition-name: pl-logo;
+}
+
+.auth-brand-text {
+    view-transition-name: pl-wordmark;
+}
+
+.auth-enter .auth-inner {
+    animation: auth-enter 0.6s var(--lang-ease, cubic-bezier(0.2, 0.8, 0.2, 1)) both;
+}
+
+@keyframes auth-enter {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* =============================================================================
+   RIGHT-TO-LEFT (Arabic)
+   Layout mirrors through logical properties (margin-inline-start etc.) used
+   throughout this file; flexbox and grid follow dir="rtl" on their own. What's
+   left here: transforms, background positions and icons that point somewhere.
+   ============================================================================= */
+
+/* Off-canvas sidebar enters from the right */
+@media (max-width: 1199.98px) {
+    [dir="rtl"] .layout-menu {
+        transform: translate3d(100%, 0, 0);
+    }
+
+    [dir="rtl"].layout-menu-expanded .layout-menu,
+    [dir="rtl"] .layout-menu-expanded .layout-menu {
+        transform: none;
+    }
+}
+
+/* Select chevron sits on the inline-end side */
+[dir="rtl"] select.form-input,
+[dir="rtl"] select.input,
+[dir="rtl"] .select,
+[dir="rtl"] .filter-select {
+    background-position: left 12px center;
+}
+
+/* Icons with a direction ("back", "previous", "next", "open", "log out") */
+[dir="rtl"] .back-link svg,
+[dir="rtl"] .page-btn-nav svg,
+[dir="rtl"] .appt-week-arrow svg,
+[dir="rtl"] .profile-actions .btn svg,
+[dir="rtl"] .layout-menu-close svg,
+[dir="rtl"] .menu-logout .menu-icon,
+[dir="rtl"] .picker-option-preview svg {
+    transform: scaleX(-1);
+}
+
+/* Collapsed accordion chevron points into the reading direction; open still points down */
+[dir="rtl"] .picker-group-chevron {
+    transform: scaleX(-1);
+}
+
+[dir="rtl"] .picker-group-header[aria-expanded="true"] .picker-group-chevron {
+    transform: rotate(90deg);
+}
+
+/* The Arabic exercise description is already RTL; in the Arabic UI it simply
+   follows the page (no extra right alignment needed). */
+
+/* Phone numbers, emails and usernames stay left-to-right inside Arabic text */
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="tel"],
+[dir="rtl"] .credential-box {
+    direction: ltr;
+    text-align: end;
+}
+
+/* =============================================================================
    TOM SELECT — match .form-input
    ============================================================================= */
 
@@ -3598,7 +4002,7 @@ textarea.input {
     font-family: inherit;
     font-size: var(--font-size-sm);
     color: var(--text-primary);
-    text-align: left;
+    text-align: start;
     cursor: pointer;
     transition: border-color 150ms, box-shadow 150ms;
 }
@@ -3642,8 +4046,7 @@ textarea.input {
 .picker-panel {
     position: absolute;
     top: calc(100% + var(--space-1));
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     z-index: 20;
     max-height: 320px;
     overflow-y: auto;
@@ -3709,7 +4112,7 @@ textarea.input {
     font-size: var(--font-size-base);
     font-weight: 500;
     color: var(--text-primary);
-    text-align: left;
+    text-align: start;
     cursor: pointer;
 }
 
@@ -3774,14 +4177,15 @@ textarea.input {
 .picker-option-select {
     flex: 1;
     min-width: 0;
-    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-6);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-6) var(--space-2);
     border: none;
     background: none;
     font-family: inherit;
     font-size: var(--font-size-sm);
     line-height: var(--line-height-normal);
     color: var(--text-primary);
-    text-align: left;
+    text-align: start;
     cursor: pointer;
 }
 
@@ -3802,7 +4206,7 @@ textarea.input {
     justify-content: center;
     width: 44px;
     border: none;
-    border-left: 1px solid var(--divider-soft);
+    border-inline-start: 1px solid var(--divider-soft);
     background: none;
     color: var(--text-tertiary);
     cursor: pointer;

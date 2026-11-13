@@ -33,6 +33,6 @@ public static class ClinicTime
         var date = clinicLocal.Date;
         if (date == Today) return "Today";
         if (date == Today.AddDays(1)) return "Tomorrow";
-        return clinicLocal.ToString("ddd, MMM d");
+        return clinicLocal.ToString(Localization.DatePatterns.ShortWeekdayMonthDay);
     }
 }
