@@ -23,6 +23,7 @@ namespace PhysioLink.AdminPanel.ViewModels
     {
         public List<AppointmentSummaryResponse> Appointments { get; set; } = [];
         public int TotalCount { get; set; }
+        public int PageSize { get; set; }
         public string? StatusFilter { get; set; }
         public string? TherapistFilter { get; set; }
         public List<TherapistResponse> Therapists { get; set; } = [];

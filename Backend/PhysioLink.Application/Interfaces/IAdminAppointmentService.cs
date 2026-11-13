@@ -5,7 +5,7 @@ namespace PhysioLink.Application.Interfaces
 {
     public interface IAdminAppointmentService
     {
-        Task<PagedResult<AdminAppointmentDto>> GetAllAsync(int page, int pageSize, DateTime? from = null, DateTime? to = null, string? status = null);
+        Task<PagedResult<AdminAppointmentDto>> GetAllAsync(int page, int pageSize, DateTime? from = null, DateTime? to = null, string? status = null, string? therapistName = null);
 
         // Archive of appointments whose due date has passed (all terminal after the
         // sweep runs: Completed / Rejected / Expired / CancelledByClinic). Optional

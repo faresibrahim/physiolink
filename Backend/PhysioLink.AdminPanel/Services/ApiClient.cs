@@ -455,7 +455,7 @@ public class ApiClient
 
     public async Task<PagedResult<AppointmentSummaryResponse>?> GetAppointmentsAsync(
         int page, int pageSize, Guid? patientId = null, string? status = null,
-        DateTime? from = null, DateTime? to = null)
+        DateTime? from = null, DateTime? to = null, string? therapistName = null)
     {
         return await ExecuteWithRefreshAsync(async client =>
         {
@@ -468,6 +468,7 @@ public class ApiClient
             if (!string.IsNullOrEmpty(status)) qs.Add($"status={Uri.EscapeDataString(status)}");
             if (from.HasValue)               qs.Add($"from={Uri.EscapeDataString(from.Value.ToString("yyyy-MM-ddTHH:mm:ss"))}");
             if (to.HasValue)                 qs.Add($"to={Uri.EscapeDataString(to.Value.ToString("yyyy-MM-ddTHH:mm:ss"))}");
+            if (!string.IsNullOrEmpty(therapistName)) qs.Add($"therapistName={Uri.EscapeDataString(therapistName)}");
 
             var response = await client.GetAsync($"api/v1/admin/appointments?{string.Join("&", qs)}");
             if (!response.IsSuccessStatusCode) return null;

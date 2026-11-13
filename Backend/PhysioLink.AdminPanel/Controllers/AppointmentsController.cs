@@ -19,6 +19,7 @@ public class AppointmentsController : BaseController
     }
 
     private const int AppointmentsPageSize = 50;
+    private const int HistoryPageSize = 20;
 
     // GET /Appointment?weekStart=&page=1&status=&therapistFilter=&viewMode=list
     [HttpGet]
@@ -42,7 +43,8 @@ public class AppointmentsController : BaseController
         var to = computedWeekStart.AddDays(7);
 
         var appointmentsTask = _apiClient.GetAppointmentsAsync(
-            page, AppointmentsPageSize, status: status, from: ClinicTime.ToUtc(from), to: ClinicTime.ToUtc(to));
+            page, AppointmentsPageSize, status: status, from: ClinicTime.ToUtc(from), to: ClinicTime.ToUtc(to),
+            therapistName: therapistFilter);
         var therapistsTask = _apiClient.GetTherapistsAsync(1, 100);
         var patientsTask = _apiClient.GetPatientsAsync(1, 200, null);
 
@@ -211,7 +213,7 @@ public class AppointmentsController : BaseController
     [HttpGet]
     public async Task<IActionResult> History(int page = 1, string? status = null, string? therapistFilter = null)
     {
-        var historyTask    = _apiClient.GetAppointmentHistoryAsync(page, 20, status: status, therapistName: therapistFilter);
+        var historyTask    = _apiClient.GetAppointmentHistoryAsync(page, HistoryPageSize, status: status, therapistName: therapistFilter);
         var therapistsTask = _apiClient.GetTherapistsAsync(1, 100);
         await Task.WhenAll(historyTask, therapistsTask);
 
@@ -232,6 +234,7 @@ public class AppointmentsController : BaseController
         {
             Appointments    = history.Items,
             TotalCount      = history.TotalCount,
+            PageSize        = HistoryPageSize,
             StatusFilter    = status,
             TherapistFilter = therapistFilter,
             Therapists      = therapists?.Items ?? [],

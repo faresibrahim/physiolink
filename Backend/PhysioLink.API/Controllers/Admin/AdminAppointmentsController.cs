@@ -18,15 +18,17 @@ namespace PhysioLink.API.Controllers.Admin
             _adminAppointmentService = adminAppointmentService;
         }
 
+        // GET /api/v1/admin/appointments?page=&pageSize=&from=&to=&status=&therapistName=
         [HttpGet]
         public async Task<IActionResult> GetAll(
             int page = 1,
             int pageSize = 10,
             DateTime? from = null,
             DateTime? to = null,
-            string? status = null)
+            string? status = null,
+            string? therapistName = null)
         {
-            var result = await _adminAppointmentService.GetAllAsync(page, pageSize, from, to, status);
+            var result = await _adminAppointmentService.GetAllAsync(page, pageSize, from, to, status, therapistName);
             return Ok(result);
         }
 

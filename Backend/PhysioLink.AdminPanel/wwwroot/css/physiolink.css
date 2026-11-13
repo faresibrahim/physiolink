@@ -1315,10 +1315,6 @@ textarea.input {
         min-width: 720px;
     }
 
-    .table-scroll .data-table-wide {
-        min-width: 880px;
-    }
-
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -2633,27 +2629,6 @@ textarea.input {
 .filter-select {
     width: auto;
     min-width: 152px;
-}
-
-/* Date is the secondary label; time is the value admins actually scan for,
-   so it carries the visual weight (bold, near-black, larger) while the date
-   stays a small muted eyebrow above it. */
-.appt-date {
-    display: block;
-    font-size: var(--font-size-xs);
-    font-weight: 500;
-    color: var(--text-secondary);
-    white-space: nowrap;
-}
-
-.appt-time {
-    display: block;
-    margin-top: var(--space-1);
-    font-size: var(--font-size-sm);
-    font-weight: 700;
-    color: var(--text-primary);
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
 }
 
 /* =============================================================================

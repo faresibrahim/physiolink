@@ -15,61 +15,59 @@
     };
 }
 
-@* ── Page header ─────────────────────────────────────────────────────────── *@
-<div class="page-header">
-    <div>
-        <h1 class="page-title">@L["Appointment History"]</h1>
-        <p class="page-sub">@L[Model.TotalCount == 1 ? "{0} finished appointment on record" : "{0} finished appointments on record", Model.TotalCount]</p>
+@* Appointment history — same data-table card as Patients and Appointments
+   (datatable-export design). Read-only archive, so there is no actions column. *@
+<div class="dt-card">
+
+    <div class="dt-header">
+        <h1 class="dt-title">@L["Appointment History"]</h1>
+
+        <div class="dt-tools">
+            <form method="get" asp-action="History" class="dt-filters">
+                @* Status filter *@
+                <select name="status" class="dt-input dt-select" aria-label="@L["Filter by status"]" onchange="this.form.submit()">
+                    <option value="">@L["All outcomes"]</option>
+                    @foreach (var (value, label) in statusOptions)
+                    {
+                        if (Model.StatusFilter == value)
+                        {
+                            <option value="@value" selected>@L[label]</option>
+                        }
+                        else
+                        {
+                            <option value="@value">@L[label]</option>
+                        }
+                    }
+                </select>
+
+                @* Therapist filter *@
+                <select name="therapistFilter" class="dt-input dt-select" aria-label="@L["Filter by therapist"]" onchange="this.form.submit()">
+                    <option value="">@L["All therapists"]</option>
+                    @foreach (var t in Model.Therapists)
+                    {
+                        var tName = $"{t.FirstName.Trim()} {t.LastName.Trim()}";
+                        if (Model.TherapistFilter == tName)
+                        {
+                            <option value="@tName" selected>@tName</option>
+                        }
+                        else
+                        {
+                            <option value="@tName">@tName</option>
+                        }
+                    }
+                </select>
+
+                <input type="hidden" name="page" value="1" />
+            </form>
+
+            <a asp-action="Index" asp-controller="Appointments" class="dt-btn dt-btn-outline">
+                @L["← Back to appointments"]
+            </a>
+        </div>
     </div>
-</div>
 
-@* ── Filter bar ──────────────────────────────────────────────────────────── *@
-<form method="get" asp-action="History" class="toolbar">
-
-    @* Status filter *@
-    <select name="status" class="filter-select" aria-label="@L["Filter by status"]" onchange="this.form.submit()">
-        <option value="">@L["All outcomes"]</option>
-        @foreach (var (value, label) in statusOptions)
-        {
-            if (Model.StatusFilter == value)
-            {
-                <option value="@value" selected>@L[label]</option>
-            }
-            else
-            {
-                <option value="@value">@L[label]</option>
-            }
-        }
-    </select>
-
-    @* Therapist filter *@
-    <select name="therapistFilter" class="filter-select" aria-label="@L["Filter by therapist"]" onchange="this.form.submit()">
-        <option value="">@L["All therapists"]</option>
-        @foreach (var t in Model.Therapists)
-        {
-            var tName = $"{t.FirstName.Trim()} {t.LastName.Trim()}";
-            if (Model.TherapistFilter == tName)
-            {
-                <option value="@tName" selected>@tName</option>
-            }
-            else
-            {
-                <option value="@tName">@tName</option>
-            }
-        }
-    </select>
-
-    <input type="hidden" name="page" value="1" />
-
-    <a asp-action="Index" asp-controller="Appointments" class="btn btn-ghost ml-auto">
-        @L["← Back to appointments"]
-    </a>
-</form>
-
-@* ── History table ───────────────────────────────────────────────────────── *@
-<div class="card card-flush">
-    <div class="table-scroll">
-        <table class="data-table data-table-wide">
+    <div class="dt-scroll">
+        <table class="dt-table">
             <thead>
                 <tr>
                     <th>@L["Date & Time"]</th>
@@ -88,28 +86,42 @@
                 }
                 @foreach (var appt in Model.Appointments)
                 {
-                    var therapist = string.IsNullOrEmpty(appt.TherapistName) ? "—" : appt.TherapistName;
+                    var local = ClinicTime.ToLocal(appt.AppointmentTime);
                     <tr>
                         <td>
-                            <span class="appt-date">@ClinicTime.ToLocal(appt.AppointmentTime).ToString(DatePatterns.MonthDayYear)</span>
-                            <span class="appt-time">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("HH:mm")</span>
+                            <span class="dt-cell-main">@local.ToString(DatePatterns.MonthDayYear)</span>
+                            <span class="dt-cell-sub" dir="ltr">@local.ToString("HH:mm")</span>
                         </td>
                         <td>
                             <a asp-controller="Patients" asp-action="Detail"
                                asp-route-id="@appt.PatientId"
-                               class="cell-link">@appt.PatientName</a>
+                               class="dt-name">@appt.PatientName</a>
                         </td>
-                        <td class="muted-cell">@therapist</td>
-                        <td class="primary-cell">@appt.Title</td>
                         <td>
-                            @await Html.PartialAsync("_StatusBadge", appt.Status)
+                            @if (string.IsNullOrEmpty(appt.TherapistName))
+                            {
+                                <span class="unassigned-text">—</span>
+                            }
+                            else
+                            {
+                                @appt.TherapistName
+                            }
+                        </td>
+                        <td>@appt.Title</td>
+                        <td>
+                            @await Html.PartialAsync("_DataTableBadge", appt.Status)
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
-</div>
 
-@* ── Pagination ──────────────────────────────────────────────────────────── *@
-@await Html.PartialAsync("_Pagination", Model.Pagination)
+    @await Html.PartialAsync("_DataTableFooter", new PhysioLink.AdminPanel.ViewModels.Shared.DataTableFooterViewModel
+    {
+        TotalCount = Model.TotalCount,
+        PageSize = Model.PageSize,
+        ItemCount = Model.Appointments.Count,
+        Pagination = Model.Pagination
+    })
+</div>
