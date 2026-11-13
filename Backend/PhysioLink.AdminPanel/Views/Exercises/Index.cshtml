@@ -10,8 +10,8 @@
    ========================================================================= *@
 <div class="page-header">
     <div>
-        <h1 class="page-title">Exercise library</h1>
-        <p class="page-sub">@Model.TotalCount @(Model.TotalCount == 1 ? "exercise" : "exercises") available to assign</p>
+        <h1 class="page-title">@L["Exercise library"]</h1>
+        <p class="page-sub">@L[Model.TotalCount == 1 ? "{0} exercise available to assign" : "{0} exercises available to assign", Model.TotalCount]</p>
     </div>
 </div>
 
@@ -37,17 +37,17 @@
             <input type="text"
                    name="search"
                    value="@Model.SearchQuery"
-                   placeholder="Search exercises..."
+                   placeholder="@L["Search exercises..."]"
                    class="search-input"
                    autocomplete="off" />
         </div>
 
         <div class="select-field">
-            <select name="difficulty" class="filter-select" aria-label="Filter by difficulty" onchange="this.form.submit()">
-                <option value="" selected="@allSelected">All difficulties</option>
-                <option value="Easy" selected="@easySelected">Easy</option>
-                <option value="Moderate" selected="@moderateSelected">Moderate</option>
-                <option value="Hard" selected="@hardSelected">Hard</option>
+            <select name="difficulty" class="filter-select" aria-label="@L["Filter by difficulty"]" onchange="this.form.submit()">
+                <option value="" selected="@allSelected">@L["All difficulties"]</option>
+                <option value="Easy" selected="@easySelected">@L["Easy"]</option>
+                <option value="Moderate" selected="@moderateSelected">@L["Moderate"]</option>
+                <option value="Hard" selected="@hardSelected">@L["Hard"]</option>
             </select>
         </div>
     </form>
@@ -62,12 +62,12 @@
     var categories = new[] { "Shoulder", "Elbow", "Wrist", "Spine", "Core", "Hip", "Knee", "Ankle" };
     bool allActive = string.IsNullOrEmpty(Model.CategoryFilter);
 }
-<nav class="chip-row" aria-label="Filter by body region">
+<nav class="chip-row" aria-label="@L["Filter by body region"]">
     <a asp-action="Index"
        asp-route-search="@Model.SearchQuery"
        asp-route-difficulty="@Model.DifficultyFilter"
        class="chip @(allActive ? "chip-active" : "")">
-        All
+        @L["All"]
     </a>
     @foreach (var cat in categories)
     {
@@ -77,7 +77,7 @@
            asp-route-difficulty="@Model.DifficultyFilter"
            asp-route-category="@cat"
            class="chip @(isActive ? "chip-active" : "")">
-            @cat
+            @L[cat]
         </a>
     }
 </nav>
@@ -88,10 +88,10 @@
 @if (Model.Exercises.Count == 0)
 {
     <div class="card empty-state">
-        <h2 class="empty-state-title">No exercises match these filters</h2>
-        <p class="empty-state-subtitle">Try a different search term, region or difficulty.</p>
+        <h2 class="empty-state-title">@L["No exercises match these filters"]</h2>
+        <p class="empty-state-subtitle">@L["Try a different search term, region or difficulty."]</p>
         <div class="empty-state-action">
-            <a asp-action="Index" class="btn btn-ghost btn-sm">Clear filters</a>
+            <a asp-action="Index" class="btn btn-ghost btn-sm">@L["Clear filters"]</a>
         </div>
     </div>
 }
@@ -110,7 +110,7 @@ else
             string? thumbnailUrl = ExerciseMedia.ThumbnailUrl(exercise.VideoUrl, Model.MediaBaseUrl);
 
             <article class="exercise-card" onclick="openExerciseModal('@exercise.ExerciseId')" tabindex="0" role="button"
-                     aria-label="@exercise.Name — open details"
+                     aria-label="@L["{0} — open details", exercise.Name]"
                      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openExerciseModal('@exercise.ExerciseId');}">
                 @* Top visual — a still from the exercise's video. If the image is missing
                    (a new video whose thumbnail hasn't been generated yet), the whole
@@ -130,12 +130,12 @@ else
 
                 @* Body — region + title + difficulty + description *@
                 <div class="exercise-body">
-                    <p class="exercise-category">@exercise.Category</p>
+                    <p class="exercise-category">@L[exercise.Category]</p>
                     <div class="exercise-title-row">
                         <h3 class="exercise-name">@exercise.Name</h3>
                         <span class="difficulty-pill @difficultyClass">
                             <span class="difficulty-dot"></span>
-                            @exercise.Difficulty
+                            @L[exercise.Difficulty]
                         </span>
                     </div>
 

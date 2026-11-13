@@ -10,28 +10,28 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
             </div>
             <div>
-                <h2 class="card-title">Patient Created</h2>
-                <p class="card-subtitle">@Model.FullName has been added successfully.</p>
+                <h2 class="card-title">@L["Patient Created"]</h2>
+                <p class="card-subtitle">@L["{0} has been added successfully.", Model.FullName]</p>
             </div>
         </div>
 
         <div class="notice notice-warning">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            <p>Save this password now. It will not be shown again.</p>
+            <p>@L["Save this password now. It will not be shown again."]</p>
         </div>
 
         <div class="form-group">
-            <p class="info-label">Username</p>
+            <p class="info-label">@L["Username"]</p>
             <p class="info-value">@Model.Username</p>
         </div>
 
         <div class="form-group">
-            <p class="info-label">Temporary Password</p>
+            <p class="info-label">@L["Temporary Password"]</p>
             <div class="credential-box">@Model.TemporaryPassword</div>
         </div>
 
         <a asp-action="Index" class="btn btn-primary btn-block">
-            Done
+            @L["Done"]
         </a>
 
     </div>

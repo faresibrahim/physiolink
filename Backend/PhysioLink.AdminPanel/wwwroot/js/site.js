@@ -114,6 +114,12 @@
         banner.hidden = false;
     }
 
+    // "{0} is required." in the page's language (window.plI18n, set by _Layout).
+    function requiredMessage(label) {
+        var template = (window.plI18n && window.plI18n.required) || '{0} is required.';
+        return template.replace('{0}', label);
+    }
+
     // Validates a set of [field, label] pairs; returns true when all are filled.
     // Focuses the first offender so the keyboard lands where the fix is.
     function requireFields(scope, pairs) {
@@ -124,7 +130,7 @@
             var field = typeof pair[0] === 'string' ? document.getElementById(pair[0]) : pair[0];
             if (!field) return;
             if (!field.value.trim()) {
-                setFieldError(field, pair[1] + ' is required.');
+                setFieldError(field, requiredMessage(pair[1]));
                 if (!firstBad) firstBad = field;
             }
         });

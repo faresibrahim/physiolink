@@ -7,15 +7,15 @@
 
 <div class="page-header">
     <div>
-        <h1 class="page-title">Therapists</h1>
+        <h1 class="page-title">@L["Therapists"]</h1>
         <p class="page-sub">
-            @Model.TotalCount active @(Model.TotalCount == 1 ? "practitioner" : "practitioners")
+            @L[Model.TotalCount == 1 ? "{0} active practitioner" : "{0} active practitioners", Model.TotalCount]
         </p>
     </div>
 
     <button type="button" onclick="openTherapistModal()" class="btn btn-primary">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
-        Add therapist
+        @L["Add therapist"]
     </button>
 </div>
 
@@ -24,10 +24,10 @@
     @if (Model.Therapists.Count == 0)
     {
         <div class="card empty-state grid-span-all">
-            <h2 class="empty-state-title">No therapists yet</h2>
-            <p class="empty-state-subtitle">Add your first practitioner to get started.</p>
+            <h2 class="empty-state-title">@L["No therapists yet"]</h2>
+            <p class="empty-state-subtitle">@L["Add your first practitioner to get started."]</p>
             <div class="empty-state-action">
-                <button type="button" onclick="openTherapistModal()" class="btn btn-primary btn-sm">Add therapist</button>
+                <button type="button" onclick="openTherapistModal()" class="btn btn-primary btn-sm">@L["Add therapist"]</button>
             </div>
         </div>
     }
@@ -69,7 +69,7 @@
                 <a asp-action="Detail"
                    asp-route-id="@therapist.Id"
                    class="btn btn-secondary btn-sm">
-                    View
+                    @L["View"]
                 </a>
 
                 <button type="button" class="btn btn-ghost btn-sm edit-therapist-btn"
@@ -79,7 +79,7 @@
                         data-specialty="@therapist.Specialty"
                         data-phone-number="@therapist.PhoneNumber"
                         data-email="@therapist.Email">
-                    Edit
+                    @L["Edit"]
                 </button>
 
             </div>
@@ -97,10 +97,10 @@
 
         <div class="modal-header">
             <div>
-                <h2 class="modal-title" id="therapistModalTitle">Add Therapist</h2>
-                <p class="modal-subtitle">Add a new practitioner to your clinic.</p>
+                <h2 class="modal-title" id="therapistModalTitle">@L["Add therapist"]</h2>
+                <p class="modal-subtitle">@L["Add a new practitioner to your clinic."]</p>
             </div>
-            <button type="button" class="modal-close" onclick="closeTherapistModal()" aria-label="Close">
+            <button type="button" class="modal-close" onclick="closeTherapistModal()" aria-label="@L["Close"]">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -114,33 +114,33 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label" for="ther-FirstName">First Name</label>
-                    <input type="text" id="ther-FirstName" name="FirstName" class="form-input" placeholder="e.g. Sarah" />
+                    <label class="form-label" for="ther-FirstName">@L["First name"]</label>
+                    <input type="text" id="ther-FirstName" name="FirstName" class="form-input" placeholder="@L["e.g. Sarah"]" />
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="ther-LastName">Last Name</label>
-                    <input type="text" id="ther-LastName" name="LastName" class="form-input" placeholder="e.g. Connor" />
+                    <label class="form-label" for="ther-LastName">@L["Last name"]</label>
+                    <input type="text" id="ther-LastName" name="LastName" class="form-input" placeholder="@L["e.g. Connor"]" />
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="ther-Specialty">Specialty</label>
-                <input type="text" id="ther-Specialty" name="Specialty" class="form-input" placeholder="e.g. Sports Rehabilitation" />
+                <label class="form-label" for="ther-Specialty">@L["Specialty"]</label>
+                <input type="text" id="ther-Specialty" name="Specialty" class="form-input" placeholder="@L["e.g. Sports Rehabilitation"]" />
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="ther-PhoneNumber">Phone</label>
+                <label class="form-label" for="ther-PhoneNumber">@L["Phone"]</label>
                 <input type="text" id="ther-PhoneNumber" name="PhoneNumber" class="form-input" placeholder="+970 5XX XXX XXX" />
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="ther-Email">Email</label>
+                <label class="form-label" for="ther-Email">@L["Email"]</label>
                 <input type="email" id="ther-Email" name="Email" class="form-input" placeholder="therapist@example.com" />
             </div>
 
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="closeTherapistModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Add Therapist</button>
+                <button type="button" class="btn btn-ghost" onclick="closeTherapistModal()">@L["Cancel"]</button>
+                <button type="submit" class="btn btn-primary">@L["Add therapist"]</button>
             </div>
         </form>
 
@@ -178,11 +178,11 @@
         // Client-side validation — the message goes under the field it belongs to.
         therapistForm.addEventListener('submit', function (e) {
             var ok = window.plForm.requireFields(therapistForm, [
-                ['ther-FirstName', 'First name'],
-                ['ther-LastName', 'Last name'],
-                ['ther-Specialty', 'Specialty'],
-                ['ther-PhoneNumber', 'Phone'],
-                ['ther-Email', 'Email']
+                ['ther-FirstName', @Json.Serialize(L["First name"].Value)],
+                ['ther-LastName', @Json.Serialize(L["Last name"].Value)],
+                ['ther-Specialty', @Json.Serialize(L["Specialty"].Value)],
+                ['ther-PhoneNumber', @Json.Serialize(L["Phone"].Value)],
+                ['ther-Email', @Json.Serialize(L["Email"].Value)]
             ]);
             if (!ok) e.preventDefault();
         });
@@ -198,10 +198,10 @@
 
         <div class="modal-header">
             <div>
-                <h2 class="modal-title" id="editTherapistModalTitle">Edit Therapist</h2>
-                <p class="modal-subtitle">Update this practitioner's details.</p>
+                <h2 class="modal-title" id="editTherapistModalTitle">@L["Edit Therapist"]</h2>
+                <p class="modal-subtitle">@L["Update this practitioner's details."]</p>
             </div>
-            <button type="button" class="modal-close" onclick="closeEditTherapistModal()" aria-label="Close">
+            <button type="button" class="modal-close" onclick="closeEditTherapistModal()" aria-label="@L["Close"]">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -217,33 +217,33 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label" for="edit-ther-FirstName">First Name</label>
+                    <label class="form-label" for="edit-ther-FirstName">@L["First name"]</label>
                     <input type="text" id="edit-ther-FirstName" name="FirstName" class="form-input" />
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="edit-ther-LastName">Last Name</label>
+                    <label class="form-label" for="edit-ther-LastName">@L["Last name"]</label>
                     <input type="text" id="edit-ther-LastName" name="LastName" class="form-input" />
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="edit-ther-Specialty">Specialty</label>
+                <label class="form-label" for="edit-ther-Specialty">@L["Specialty"]</label>
                 <input type="text" id="edit-ther-Specialty" name="Specialty" class="form-input" />
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="edit-ther-PhoneNumber">Phone</label>
+                <label class="form-label" for="edit-ther-PhoneNumber">@L["Phone"]</label>
                 <input type="text" id="edit-ther-PhoneNumber" name="PhoneNumber" class="form-input" />
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="edit-ther-Email">Email</label>
+                <label class="form-label" for="edit-ther-Email">@L["Email"]</label>
                 <input type="email" id="edit-ther-Email" name="Email" class="form-input" />
             </div>
 
             <div class="modal-actions">
-                <button type="button" class="btn btn-ghost" onclick="closeEditTherapistModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-ghost" onclick="closeEditTherapistModal()">@L["Cancel"]</button>
+                <button type="submit" class="btn btn-primary">@L["Save Changes"]</button>
             </div>
         </form>
 
@@ -303,11 +303,11 @@
         // Client-side validation — the message goes under the field it belongs to.
         editTherapistForm.addEventListener('submit', function (e) {
             var ok = window.plForm.requireFields(editTherapistForm, [
-                ['edit-ther-FirstName', 'First name'],
-                ['edit-ther-LastName', 'Last name'],
-                ['edit-ther-Specialty', 'Specialty'],
-                ['edit-ther-PhoneNumber', 'Phone'],
-                ['edit-ther-Email', 'Email']
+                ['edit-ther-FirstName', @Json.Serialize(L["First name"].Value)],
+                ['edit-ther-LastName', @Json.Serialize(L["Last name"].Value)],
+                ['edit-ther-Specialty', @Json.Serialize(L["Specialty"].Value)],
+                ['edit-ther-PhoneNumber', @Json.Serialize(L["Phone"].Value)],
+                ['edit-ther-Email', @Json.Serialize(L["Email"].Value)]
             ]);
             if (!ok) e.preventDefault();
         });

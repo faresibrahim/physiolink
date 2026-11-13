@@ -1,0 +1,1101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Arabic UI strings for the admin panel. The name is the English text used in
+     code (L["..."]); English needs no file because a missing entry falls back
+     to its key. {0}, {1} are values filled in at runtime — keep them. -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Failed to load appointments. Please try again." xml:space="preserve">
+    <value>تعذّر تحميل المواعيد. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Please fill in all required fields." xml:space="preserve">
+    <value>يرجى تعبئة جميع الحقول المطلوبة.</value>
+  </data>
+  <data name="Failed to create a new appointment." xml:space="preserve">
+    <value>تعذّر إنشاء موعد جديد.</value>
+  </data>
+  <data name="Appointment is created successfully." xml:space="preserve">
+    <value>تم إنشاء الموعد بنجاح.</value>
+  </data>
+  <data name="Failed to update the appointment." xml:space="preserve">
+    <value>تعذّر تحديث الموعد.</value>
+  </data>
+  <data name="Appointment is updated successfully." xml:space="preserve">
+    <value>تم تحديث الموعد بنجاح.</value>
+  </data>
+  <data name="Failed to cancel this appointment." xml:space="preserve">
+    <value>تعذّر إلغاء هذا الموعد.</value>
+  </data>
+  <data name="Appointment cancelled successfully." xml:space="preserve">
+    <value>تم إلغاء الموعد بنجاح.</value>
+  </data>
+  <data name="Failed to load appointment history. Please try again." xml:space="preserve">
+    <value>تعذّر تحميل سجل المواعيد. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Failed to load the requests queue. Please try again." xml:space="preserve">
+    <value>تعذّر تحميل قائمة الطلبات. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Request accepted — the slot is now booked." xml:space="preserve">
+    <value>تم قبول الطلب — أصبحت الفترة محجوزة.</value>
+  </data>
+  <data name="Could not accept this request. It may have expired or already been decided." xml:space="preserve">
+    <value>تعذّر قبول هذا الطلب. ربما انتهت صلاحيته أو تم البتّ فيه مسبقًا.</value>
+  </data>
+  <data name="Request rejected — the slot is free again." xml:space="preserve">
+    <value>تم رفض الطلب — أصبحت الفترة متاحة مجددًا.</value>
+  </data>
+  <data name="Could not reject this request. It may have expired or already been decided." xml:space="preserve">
+    <value>تعذّر رفض هذا الطلب. ربما انتهت صلاحيته أو تم البتّ فيه مسبقًا.</value>
+  </data>
+  <data name="Appointment confirmed." xml:space="preserve">
+    <value>تم تأكيد الموعد.</value>
+  </data>
+  <data name="Could not confirm this appointment. It may have expired or already been decided." xml:space="preserve">
+    <value>تعذّر تأكيد هذا الموعد. ربما انتهت صلاحيته أو تم البتّ فيه مسبقًا.</value>
+  </data>
+  <data name="Could not reject this appointment. It may have expired or already been decided." xml:space="preserve">
+    <value>تعذّر رفض هذا الموعد. ربما انتهت صلاحيته أو تم البتّ فيه مسبقًا.</value>
+  </data>
+  <data name="Appointment cancelled — the slot is free again." xml:space="preserve">
+    <value>تم إلغاء الموعد — أصبحت الفترة متاحة مجددًا.</value>
+  </data>
+  <data name="Could not cancel this appointment. It may not be confirmed." xml:space="preserve">
+    <value>تعذّر إلغاء هذا الموعد. ربما لم يتم تأكيده.</value>
+  </data>
+  <data name="Failed to assign exercise. Please try again." xml:space="preserve">
+    <value>تعذّر تعيين التمرين. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Exercise assigned successfully." xml:space="preserve">
+    <value>تم تعيين التمرين بنجاح.</value>
+  </data>
+  <data name="Couldn't update the assigned exercise." xml:space="preserve">
+    <value>تعذّر تحديث التمرين المعيَّن.</value>
+  </data>
+  <data name="Assignment updated successfully." xml:space="preserve">
+    <value>تم تحديث التعيين بنجاح.</value>
+  </data>
+  <data name="Exercise unassigned successfully." xml:space="preserve">
+    <value>تم إلغاء تعيين التمرين بنجاح.</value>
+  </data>
+  <data name="Failed to unassign exercise. Please try again." xml:space="preserve">
+    <value>تعذّر إلغاء تعيين التمرين. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Invalid email or password" xml:space="preserve">
+    <value>البريد الإلكتروني أو كلمة المرور غير صحيحة</value>
+  </data>
+  <data name="Your session has expired. Please log in again." xml:space="preserve">
+    <value>انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.</value>
+  </data>
+  <data name="Failed to load patients. Please try again." xml:space="preserve">
+    <value>تعذّر تحميل المرضى. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Patient not found." xml:space="preserve">
+    <value>لم يتم العثور على المريض.</value>
+  </data>
+  <data name="Choose a file to upload." xml:space="preserve">
+    <value>اختر ملفًا لرفعه.</value>
+  </data>
+  <data name="Uploaded &quot;{0}&quot;." xml:space="preserve">
+    <value>تم رفع «{0}».</value>
+  </data>
+  <data name="Upload failed. Please try again." xml:space="preserve">
+    <value>فشل الرفع. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="That attachment could not be found." xml:space="preserve">
+    <value>تعذّر العثور على هذا المرفق.</value>
+  </data>
+  <data name="Failed to update patient. Please try again." xml:space="preserve">
+    <value>تعذّر تحديث بيانات المريض. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Patient updated successfully." xml:space="preserve">
+    <value>تم تحديث بيانات المريض بنجاح.</value>
+  </data>
+  <data name="Enter your account password to confirm deactivation." xml:space="preserve">
+    <value>أدخل كلمة مرور حسابك لتأكيد التعطيل.</value>
+  </data>
+  <data name="Incorrect password. The patient was not deactivated." xml:space="preserve">
+    <value>كلمة المرور غير صحيحة. لم يتم تعطيل المريض.</value>
+  </data>
+  <data name="Failed to deactivate patient. Please try again." xml:space="preserve">
+    <value>تعذّر تعطيل المريض. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Patient deactivated successfully." xml:space="preserve">
+    <value>تم تعطيل المريض بنجاح.</value>
+  </data>
+  <data name="Failed to create patient. Please try again." xml:space="preserve">
+    <value>تعذّر إنشاء المريض. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Failed to load therapists. Please try again." xml:space="preserve">
+    <value>تعذّر تحميل المعالجين. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="The details for this therapist don't exist" xml:space="preserve">
+    <value>بيانات هذا المعالج غير موجودة</value>
+  </data>
+  <data name="Failed to create therapist. Please try again." xml:space="preserve">
+    <value>تعذّر إنشاء المعالج. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Therapist created successfully." xml:space="preserve">
+    <value>تم إنشاء المعالج بنجاح.</value>
+  </data>
+  <data name="Therapist not found." xml:space="preserve">
+    <value>لم يتم العثور على المعالج.</value>
+  </data>
+  <data name="Failed to update therapist. Please try again." xml:space="preserve">
+    <value>تعذّر تحديث بيانات المعالج. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Therapist updated successfully." xml:space="preserve">
+    <value>تم تحديث بيانات المعالج بنجاح.</value>
+  </data>
+  <data name="Therapist deactivated successfully." xml:space="preserve">
+    <value>تم تعطيل المعالج بنجاح.</value>
+  </data>
+  <data name="Failed to deactivate therapist. Please try again." xml:space="preserve">
+    <value>تعذّر تعطيل المعالج. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Failed to load the schedule. Please try again." xml:space="preserve">
+    <value>تعذّر تحميل الجدول. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Slot opened." xml:space="preserve">
+    <value>تم فتح الفترة.</value>
+  </data>
+  <data name="Failed to open the slot. Please try again." xml:space="preserve">
+    <value>تعذّر فتح الفترة. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="Slot removed." xml:space="preserve">
+    <value>تمت إزالة الفترة.</value>
+  </data>
+  <data name="Could not remove the slot — it may have a live request or booking. Cancel that first." xml:space="preserve">
+    <value>تعذّرت إزالة الفترة — قد يكون عليها طلب أو حجز قائم. ألغِه أولًا.</value>
+  </data>
+  <data name="First name is required." xml:space="preserve">
+    <value>الاسم الأول مطلوب.</value>
+  </data>
+  <data name="First name cannot exceed 100 characters." xml:space="preserve">
+    <value>لا يمكن أن يتجاوز الاسم الأول 100 حرف.</value>
+  </data>
+  <data name="Last name is required." xml:space="preserve">
+    <value>اسم العائلة مطلوب.</value>
+  </data>
+  <data name="Last name cannot exceed 100 characters." xml:space="preserve">
+    <value>لا يمكن أن يتجاوز اسم العائلة 100 حرف.</value>
+  </data>
+  <data name="Username is required." xml:space="preserve">
+    <value>اسم المستخدم مطلوب.</value>
+  </data>
+  <data name="Username cannot exceed 50 characters." xml:space="preserve">
+    <value>لا يمكن أن يتجاوز اسم المستخدم 50 حرفًا.</value>
+  </data>
+  <data name="Email cannot exceed 100 characters." xml:space="preserve">
+    <value>لا يمكن أن يتجاوز البريد الإلكتروني 100 حرف.</value>
+  </data>
+  <data name="Phone number is required." xml:space="preserve">
+    <value>رقم الهاتف مطلوب.</value>
+  </data>
+  <data name="Phone number cannot exceed 100 characters." xml:space="preserve">
+    <value>لا يمكن أن يتجاوز رقم الهاتف 100 حرف.</value>
+  </data>
+  <data name="Diagnosis is required." xml:space="preserve">
+    <value>التشخيص مطلوب.</value>
+  </data>
+  <data name="Diagnosis cannot exceed 500 characters." xml:space="preserve">
+    <value>لا يمكن أن يتجاوز التشخيص 500 حرف.</value>
+  </data>
+  <data name="Email is required." xml:space="preserve">
+    <value>البريد الإلكتروني مطلوب.</value>
+  </data>
+  <data name="Specialty is required." xml:space="preserve">
+    <value>التخصص مطلوب.</value>
+  </data>
+  <data name="Specialty cannot exceed 100 characters." xml:space="preserve">
+    <value>لا يمكن أن يتجاوز التخصص 100 حرف.</value>
+  </data>
+  <data name="{0} is required." xml:space="preserve">
+    <value>{0} مطلوب.</value>
+  </data>
+  <data name="PhysioLink Admin" xml:space="preserve">
+    <value>إدارة PhysioLink</value>
+  </data>
+  <data name="Skip to content" xml:space="preserve">
+    <value>تخطَّ إلى المحتوى</value>
+  </data>
+  <data name="Main navigation" xml:space="preserve">
+    <value>التنقل الرئيسي</value>
+  </data>
+  <data name="Close menu" xml:space="preserve">
+    <value>إغلاق القائمة</value>
+  </data>
+  <data name="Open menu" xml:space="preserve">
+    <value>فتح القائمة</value>
+  </data>
+  <data name="Workspace" xml:space="preserve">
+    <value>مساحة العمل</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>لوحة التحكم</value>
+  </data>
+  <data name="Patients" xml:space="preserve">
+    <value>المرضى</value>
+  </data>
+  <data name="Therapists" xml:space="preserve">
+    <value>المعالجون</value>
+  </data>
+  <data name="Exercises" xml:space="preserve">
+    <value>التمارين</value>
+  </data>
+  <data name="Appointments" xml:space="preserve">
+    <value>المواعيد</value>
+  </data>
+  <data name="Requests" xml:space="preserve">
+    <value>الطلبات</value>
+  </data>
+  <data name="{0} pending requests" xml:space="preserve">
+    <value>طلبات معلّقة: {0}</value>
+  </data>
+  <data name="Online" xml:space="preserve">
+    <value>متصل</value>
+  </data>
+  <data name="Change language" xml:space="preserve">
+    <value>تغيير اللغة</value>
+  </data>
+  <data name="Log out" xml:space="preserve">
+    <value>تسجيل الخروج</value>
+  </data>
+  <data name="Dismiss" xml:space="preserve">
+    <value>إغلاق</value>
+  </data>
+  <data name="Pagination" xml:space="preserve">
+    <value>التنقل بين الصفحات</value>
+  </data>
+  <data name="Previous page" xml:space="preserve">
+    <value>الصفحة السابقة</value>
+  </data>
+  <data name="Prev" xml:space="preserve">
+    <value>السابق</value>
+  </data>
+  <data name="Next page" xml:space="preserve">
+    <value>الصفحة التالية</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>التالي</value>
+  </data>
+  <data name="Please sign in to your clinic account to manage patients, therapists and scheduling." xml:space="preserve">
+    <value>سجّل الدخول إلى حساب عيادتك لإدارة المرضى والمعالجين والمواعيد.</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+  </data>
+  <data name="Enter your email" xml:space="preserve">
+    <value>أدخل بريدك الإلكتروني</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>كلمة المرور</value>
+  </data>
+  <data name="Show password" xml:space="preserve">
+    <value>إظهار كلمة المرور</value>
+  </data>
+  <data name="Hide password" xml:space="preserve">
+    <value>إخفاء كلمة المرور</value>
+  </data>
+  <data name="Remember me" xml:space="preserve">
+    <value>تذكّرني</value>
+  </data>
+  <data name="Forgot password?" xml:space="preserve">
+    <value>نسيت كلمة المرور؟</value>
+  </data>
+  <data name="Sign in" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>إغلاق</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Save Changes" xml:space="preserve">
+    <value>حفظ التغييرات</value>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>تم</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>عرض</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>بحث</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>الكل</value>
+  </data>
+  <data name="(optional)" xml:space="preserve">
+    <value>(اختياري)</value>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>اختياري</value>
+  </data>
+  <data name="Loading..." xml:space="preserve">
+    <value>جارٍ التحميل...</value>
+  </data>
+  <data name="Clear filters" xml:space="preserve">
+    <value>مسح الفلاتر</value>
+  </data>
+  <data name="Filter by status" xml:space="preserve">
+    <value>التصفية حسب الحالة</value>
+  </data>
+  <data name="Filter by therapist" xml:space="preserve">
+    <value>التصفية حسب المعالج</value>
+  </data>
+  <data name="All therapists" xml:space="preserve">
+    <value>جميع المعالجين</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>الحالة</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>الإجراءات</value>
+  </data>
+  <data name="Patient" xml:space="preserve">
+    <value>المريض</value>
+  </data>
+  <data name="Therapist" xml:space="preserve">
+    <value>المعالج</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>العنوان</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>ملاحظات</value>
+  </data>
+  <data name="Date &amp; Time" xml:space="preserve">
+    <value>التاريخ والوقت</value>
+  </data>
+  <data name="Time" xml:space="preserve">
+    <value>الوقت</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>اليوم</value>
+  </data>
+  <data name="Tomorrow" xml:space="preserve">
+    <value>غدًا</value>
+  </data>
+  <data name="Previous week" xml:space="preserve">
+    <value>الأسبوع السابق</value>
+  </data>
+  <data name="Next week" xml:space="preserve">
+    <value>الأسبوع التالي</value>
+  </data>
+  <data name="First name" xml:space="preserve">
+    <value>الاسم الأول</value>
+  </data>
+  <data name="Last name" xml:space="preserve">
+    <value>اسم العائلة</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>اسم المستخدم</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>الهاتف</value>
+  </data>
+  <data name="Diagnosis" xml:space="preserve">
+    <value>التشخيص</value>
+  </data>
+  <data name="Specialty" xml:space="preserve">
+    <value>التخصص</value>
+  </data>
+  <data name="Assigned Therapist" xml:space="preserve">
+    <value>المعالج المسؤول</value>
+  </data>
+  <data name="— Unassigned —" xml:space="preserve">
+    <value>— غير معيَّن —</value>
+  </data>
+  <data name="Unassigned" xml:space="preserve">
+    <value>غير معيَّن</value>
+  </data>
+  <data name="Pending" xml:space="preserve">
+    <value>قيد الانتظار</value>
+  </data>
+  <data name="Requested" xml:space="preserve">
+    <value>قيد الطلب</value>
+  </data>
+  <data name="Confirmed" xml:space="preserve">
+    <value>مؤكَّد</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>مكتمل</value>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>ملغى</value>
+  </data>
+  <data name="Rejected" xml:space="preserve">
+    <value>مرفوض</value>
+  </data>
+  <data name="Expired" xml:space="preserve">
+    <value>منتهي الصلاحية</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>نشط</value>
+  </data>
+  <data name="Inactive" xml:space="preserve">
+    <value>غير نشط</value>
+  </data>
+  <data name="Paused" xml:space="preserve">
+    <value>متوقف مؤقتًا</value>
+  </data>
+  <data name="Booked" xml:space="preserve">
+    <value>محجوزة</value>
+  </data>
+  <data name="Available" xml:space="preserve">
+    <value>متاحة</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>مفتوحة</value>
+  </data>
+  <data name="Good morning" xml:space="preserve">
+    <value>صباح الخير</value>
+  </data>
+  <data name="Good afternoon" xml:space="preserve">
+    <value>مساء الخير</value>
+  </data>
+  <data name="Good evening" xml:space="preserve">
+    <value>مساء الخير</value>
+  </data>
+  <data name="{0}, {1}" xml:space="preserve">
+    <value>{0}، {1}</value>
+  </data>
+  <data name="Here's what's happening at your clinic today." xml:space="preserve">
+    <value>إليك ما يجري في عيادتك اليوم.</value>
+  </data>
+  <data name="Total Patients" xml:space="preserve">
+    <value>إجمالي المرضى</value>
+  </data>
+  <data name="Active Assignments" xml:space="preserve">
+    <value>التعيينات النشطة</value>
+  </data>
+  <data name="Today's Appointments" xml:space="preserve">
+    <value>مواعيد اليوم</value>
+  </data>
+  <data name="Total Therapists" xml:space="preserve">
+    <value>إجمالي المعالجين</value>
+  </data>
+  <data name="Upcoming Appointments" xml:space="preserve">
+    <value>المواعيد القادمة</value>
+  </data>
+  <data name="Recent Patients" xml:space="preserve">
+    <value>أحدث المرضى</value>
+  </data>
+  <data name="View all" xml:space="preserve">
+    <value>عرض الكل</value>
+  </data>
+  <data name="No upcoming appointments." xml:space="preserve">
+    <value>لا توجد مواعيد قادمة.</value>
+  </data>
+  <data name="No patients yet." xml:space="preserve">
+    <value>لا يوجد مرضى بعد.</value>
+  </data>
+  <data name="New patient" xml:space="preserve">
+    <value>مريض جديد</value>
+  </data>
+  <data name="Search by name..." xml:space="preserve">
+    <value>ابحث بالاسم...</value>
+  </data>
+  <data name="No patients match these filters" xml:space="preserve">
+    <value>لا يوجد مرضى يطابقون هذه الفلاتر</value>
+  </data>
+  <data name="Try a different name, or clear the filters to see everyone." xml:space="preserve">
+    <value>جرّب اسمًا مختلفًا، أو امسح الفلاتر لعرض الجميع.</value>
+  </data>
+  <data name="No patients yet" xml:space="preserve">
+    <value>لا يوجد مرضى بعد</value>
+  </data>
+  <data name="Add your first patient to start assigning exercises." xml:space="preserve">
+    <value>أضف مريضك الأول لبدء تعيين التمارين.</value>
+  </data>
+  <data name="Could not load this patient. Check your connection and try again." xml:space="preserve">
+    <value>تعذّر تحميل بيانات هذا المريض. تحقق من اتصالك وحاول مرة أخرى.</value>
+  </data>
+  <data name="Add Patient" xml:space="preserve">
+    <value>إضافة مريض</value>
+  </data>
+  <data name="Edit Patient" xml:space="preserve">
+    <value>تعديل المريض</value>
+  </data>
+  <data name="Update this patient's details." xml:space="preserve">
+    <value>حدّث بيانات هذا المريض.</value>
+  </data>
+  <data name="Update {0}'s details." xml:space="preserve">
+    <value>حدّث بيانات {0}.</value>
+  </data>
+  <data name="Register a new patient for your clinic." xml:space="preserve">
+    <value>سجّل مريضًا جديدًا في عيادتك.</value>
+  </data>
+  <data name="Register a new patient and generate their login credentials." xml:space="preserve">
+    <value>سجّل مريضًا جديدًا وأنشئ بيانات تسجيل الدخول الخاصة به.</value>
+  </data>
+  <data name="e.g. John" xml:space="preserve">
+    <value>مثال: أحمد</value>
+  </data>
+  <data name="e.g. Smith" xml:space="preserve">
+    <value>مثال: خليل</value>
+  </data>
+  <data name="e.g. john.smith" xml:space="preserve">
+    <value>مثال: ahmad.khalil</value>
+  </data>
+  <data name="e.g. Knee injury, post-op rehabilitation..." xml:space="preserve">
+    <value>مثال: إصابة في الركبة، تأهيل بعد الجراحة...</value>
+  </data>
+  <data name="Patient Created" xml:space="preserve">
+    <value>تم إنشاء المريض</value>
+  </data>
+  <data name="{0} has been added successfully." xml:space="preserve">
+    <value>تمت إضافة {0} بنجاح.</value>
+  </data>
+  <data name="Save this password now. It will not be shown again." xml:space="preserve">
+    <value>احفظ كلمة المرور هذه الآن. لن تظهر مرة أخرى.</value>
+  </data>
+  <data name="Save this password now — it will not be shown again." xml:space="preserve">
+    <value>احفظ كلمة المرور هذه الآن — لن تظهر مرة أخرى.</value>
+  </data>
+  <data name="Temporary Password" xml:space="preserve">
+    <value>كلمة المرور المؤقتة</value>
+  </data>
+  <data name="Patient Detail" xml:space="preserve">
+    <value>تفاصيل المريض</value>
+  </data>
+  <data name="Back to Patients" xml:space="preserve">
+    <value>العودة إلى المرضى</value>
+  </data>
+  <data name="Clinic" xml:space="preserve">
+    <value>العيادة</value>
+  </data>
+  <data name="Assigned Exercises" xml:space="preserve">
+    <value>التمارين المعيَّنة</value>
+  </data>
+  <data name="{0} active programs · personalized per patient" xml:space="preserve">
+    <value>البرامج النشطة: {0} · مخصّصة لكل مريض</value>
+  </data>
+  <data name="Assign Exercise" xml:space="preserve">
+    <value>تعيين تمرين</value>
+  </data>
+  <data name="No exercises assigned yet" xml:space="preserve">
+    <value>لم يتم تعيين أي تمارين بعد</value>
+  </data>
+  <data name="Assign an exercise to start this patient's program." xml:space="preserve">
+    <value>عيّن تمرينًا لبدء برنامج هذا المريض.</value>
+  </data>
+  <data name="Exercise" xml:space="preserve">
+    <value>التمرين</value>
+  </data>
+  <data name="Sets × Reps" xml:space="preserve">
+    <value>المجموعات × التكرارات</value>
+  </data>
+  <data name="Duration" xml:space="preserve">
+    <value>المدة</value>
+  </data>
+  <data name="Feedback" xml:space="preserve">
+    <value>التقييم</value>
+  </data>
+  <data name="{0} min" xml:space="preserve">
+    <value>{0} دقيقة</value>
+  </data>
+  <data name="Unassign" xml:space="preserve">
+    <value>إلغاء التعيين</value>
+  </data>
+  <data name="Attachments" xml:space="preserve">
+    <value>المرفقات</value>
+  </data>
+  <data name="{0} file · scans, referrals &amp; documents" xml:space="preserve">
+    <value>الملفات: {0} · صور أشعة وتحويلات ومستندات</value>
+  </data>
+  <data name="{0} files · scans, referrals &amp; documents" xml:space="preserve">
+    <value>الملفات: {0} · صور أشعة وتحويلات ومستندات</value>
+  </data>
+  <data name="Click to upload" xml:space="preserve">
+    <value>انقر للرفع</value>
+  </data>
+  <data name="or drag a file here" xml:space="preserve">
+    <value>أو اسحب ملفًا إلى هنا</value>
+  </data>
+  <data name="PDF, image, or document · up to 10 MB" xml:space="preserve">
+    <value>PDF أو صورة أو مستند · حتى 10 ميغابايت</value>
+  </data>
+  <data name="No attachments yet." xml:space="preserve">
+    <value>لا توجد مرفقات بعد.</value>
+  </data>
+  <data name="View {0}" xml:space="preserve">
+    <value>عرض {0}</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>تنزيل</value>
+  </data>
+  <data name="Download {0}" xml:space="preserve">
+    <value>تنزيل {0}</value>
+  </data>
+  <data name="Remove &quot;{0}&quot;?" xml:space="preserve">
+    <value>إزالة «{0}»؟</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>إزالة</value>
+  </data>
+  <data name="Remove {0}" xml:space="preserve">
+    <value>إزالة {0}</value>
+  </data>
+  <data name="Deactivate Patient" xml:space="preserve">
+    <value>تعطيل المريض</value>
+  </data>
+  <data name="Patient will lose access to the app and exercise programs. Data is retained." xml:space="preserve">
+    <value>سيفقد المريض إمكانية الوصول إلى التطبيق وبرامج التمارين. يتم الاحتفاظ بالبيانات.</value>
+  </data>
+  <data name="Deactivate Account" xml:space="preserve">
+    <value>تعطيل الحساب</value>
+  </data>
+  <data name="{0} will immediately lose access to the app and to all assigned exercise programs. Records and history are retained." xml:space="preserve">
+    <value>سيفقد {0} فورًا إمكانية الوصول إلى التطبيق وإلى جميع برامج التمارين المعيَّنة. يتم الاحتفاظ بالسجلات والتاريخ.</value>
+  </data>
+  <data name="Your account password" xml:space="preserve">
+    <value>كلمة مرور حسابك</value>
+  </data>
+  <data name="Confirm it's you — enter the password you sign in with." xml:space="preserve">
+    <value>أكّد هويتك — أدخل كلمة المرور التي تسجّل الدخول بها.</value>
+  </data>
+  <data name="Enter your password to continue." xml:space="preserve">
+    <value>أدخل كلمة المرور للمتابعة.</value>
+  </data>
+  <data name="Add an exercise from the library to {0}'s program." xml:space="preserve">
+    <value>أضف تمرينًا من المكتبة إلى برنامج {0}.</value>
+  </data>
+  <data name="Select an exercise" xml:space="preserve">
+    <value>اختر تمرينًا</value>
+  </data>
+  <data name="No exercises in the library yet." xml:space="preserve">
+    <value>لا توجد تمارين في المكتبة بعد.</value>
+  </data>
+  <data name="Search exercises by name" xml:space="preserve">
+    <value>ابحث عن التمارين بالاسم</value>
+  </data>
+  <data name="No exercises match your search." xml:space="preserve">
+    <value>لا توجد تمارين تطابق بحثك.</value>
+  </data>
+  <data name="View exercise details" xml:space="preserve">
+    <value>عرض تفاصيل التمرين</value>
+  </data>
+  <data name="View details for {0}" xml:space="preserve">
+    <value>عرض تفاصيل {0}</value>
+  </data>
+  <data name="Pick a joint, then choose an exercise from it." xml:space="preserve">
+    <value>اختر مفصلًا، ثم اختر تمرينًا منه.</value>
+  </data>
+  <data name="Sets" xml:space="preserve">
+    <value>المجموعات</value>
+  </data>
+  <data name="Reps" xml:space="preserve">
+    <value>التكرارات</value>
+  </data>
+  <data name="Default: {0} — adjust for this patient" xml:space="preserve">
+    <value>الافتراضي: {0} — عدّله لهذا المريض</value>
+  </data>
+  <data name="Duration (minutes)" xml:space="preserve">
+    <value>المدة (بالدقائق)</value>
+  </data>
+  <data name="Frequency Per Week" xml:space="preserve">
+    <value>عدد المرات أسبوعيًا</value>
+  </data>
+  <data name="Frequency Per Day" xml:space="preserve">
+    <value>عدد المرات يوميًا</value>
+  </data>
+  <data name="How many times per day — leave blank if not applicable" xml:space="preserve">
+    <value>كم مرة في اليوم — اتركه فارغًا إن لم ينطبق</value>
+  </data>
+  <data name="Edit Assignment" xml:space="preserve">
+    <value>تعديل التعيين</value>
+  </data>
+  <data name="Could not load this assignment. Check your connection and try again." xml:space="preserve">
+    <value>تعذّر تحميل هذا التعيين. تحقق من اتصالك وحاول مرة أخرى.</value>
+  </data>
+  <data name="Choose an exercise before saving." xml:space="preserve">
+    <value>اختر تمرينًا قبل الحفظ.</value>
+  </data>
+  <data name="Unassign &quot;{0}&quot; from this patient's program?" xml:space="preserve">
+    <value>إلغاء تعيين «{0}» من برنامج هذا المريض؟</value>
+  </data>
+  <data name="Very Easy" xml:space="preserve">
+    <value>سهل جدًا</value>
+  </data>
+  <data name="Fairly Easy" xml:space="preserve">
+    <value>سهل نسبيًا</value>
+  </data>
+  <data name="Somewhat Easy" xml:space="preserve">
+    <value>سهل إلى حدٍّ ما</value>
+  </data>
+  <data name="Somewhat Hard" xml:space="preserve">
+    <value>صعب إلى حدٍّ ما</value>
+  </data>
+  <data name="Fairly Hard" xml:space="preserve">
+    <value>صعب نسبيًا</value>
+  </data>
+  <data name="Very Hard" xml:space="preserve">
+    <value>صعب جدًا</value>
+  </data>
+  <data name="Maximum Effort" xml:space="preserve">
+    <value>أقصى مجهود</value>
+  </data>
+  <data name="Level {0}" xml:space="preserve">
+    <value>المستوى {0}</value>
+  </data>
+  <data name="{0} active practitioner" xml:space="preserve">
+    <value>المعالجون النشطون: {0}</value>
+  </data>
+  <data name="{0} active practitioners" xml:space="preserve">
+    <value>المعالجون النشطون: {0}</value>
+  </data>
+  <data name="Add therapist" xml:space="preserve">
+    <value>إضافة معالج</value>
+  </data>
+  <data name="Edit Therapist" xml:space="preserve">
+    <value>تعديل المعالج</value>
+  </data>
+  <data name="No therapists yet" xml:space="preserve">
+    <value>لا يوجد معالجون بعد</value>
+  </data>
+  <data name="Add your first practitioner to get started." xml:space="preserve">
+    <value>أضف معالجك الأول للبدء.</value>
+  </data>
+  <data name="Add a new practitioner to your clinic." xml:space="preserve">
+    <value>أضف معالجًا جديدًا إلى عيادتك.</value>
+  </data>
+  <data name="Update this practitioner's details." xml:space="preserve">
+    <value>حدّث بيانات هذا المعالج.</value>
+  </data>
+  <data name="e.g. Sarah" xml:space="preserve">
+    <value>مثال: سارة</value>
+  </data>
+  <data name="e.g. Connor" xml:space="preserve">
+    <value>مثال: عودة</value>
+  </data>
+  <data name="e.g. Sports Rehabilitation" xml:space="preserve">
+    <value>مثال: إعادة التأهيل الرياضي</value>
+  </data>
+  <data name="Therapist Detail" xml:space="preserve">
+    <value>تفاصيل المعالج</value>
+  </data>
+  <data name="Back to Therapists" xml:space="preserve">
+    <value>العودة إلى المعالجين</value>
+  </data>
+  <data name="Manage schedule" xml:space="preserve">
+    <value>إدارة الجدول</value>
+  </data>
+  <data name="Deactivate" xml:space="preserve">
+    <value>تعطيل</value>
+  </data>
+  <data name="Assigned Patients" xml:space="preserve">
+    <value>المرضى المعيَّنون</value>
+  </data>
+  <data name="{0} patient under this therapist's care" xml:space="preserve">
+    <value>المرضى تحت رعاية هذا المعالج: {0}</value>
+  </data>
+  <data name="{0} patients under this therapist's care" xml:space="preserve">
+    <value>المرضى تحت رعاية هذا المعالج: {0}</value>
+  </data>
+  <data name="No patients assigned to this therapist yet." xml:space="preserve">
+    <value>لم يُعيَّن أي مريض لهذا المعالج بعد.</value>
+  </data>
+  <data name="Therapist Schedule" xml:space="preserve">
+    <value>جدول المعالج</value>
+  </data>
+  <data name="Back to {0}" xml:space="preserve">
+    <value>العودة إلى {0}</value>
+  </data>
+  <data name="{0} — weekly schedule" xml:space="preserve">
+    <value>{0} — الجدول الأسبوعي</value>
+  </data>
+  <data name="Week of {0} · operating hours {1}:00–{2}:00" xml:space="preserve">
+    <value>أسبوع {0} · ساعات العمل {1}:00–{2}:00</value>
+  </data>
+  <data name="Click an empty cell to open a slot, or an open cell to withdraw it. Requested and booked cells are locked — decide or cancel them from the" xml:space="preserve">
+    <value>انقر على خانة فارغة لفتح فترة، أو على فترة مفتوحة لسحبها. الخانات المطلوبة والمحجوزة مقفلة — قرّر بشأنها أو ألغِها من</value>
+  </data>
+  <data name="requests queue" xml:space="preserve">
+    <value>قائمة الطلبات</value>
+  </data>
+  <data name="first." xml:space="preserve">
+    <value>أولًا.</value>
+  </data>
+  <data name="Free to open" xml:space="preserve">
+    <value>متاحة للفتح</value>
+  </data>
+  <data name="Open to patients" xml:space="preserve">
+    <value>مفتوحة للمرضى</value>
+  </data>
+  <data name="Weekly availability for {0}" xml:space="preserve">
+    <value>التوفّر الأسبوعي لـ {0}</value>
+  </data>
+  <data name="Open a slot on {0}" xml:space="preserve">
+    <value>فتح فترة في {0}</value>
+  </data>
+  <data name="Withdraw the open slot on {0}?" xml:space="preserve">
+    <value>سحب الفترة المفتوحة في {0}؟</value>
+  </data>
+  <data name="Withdraw the open slot on {0}" xml:space="preserve">
+    <value>سحب الفترة المفتوحة في {0}</value>
+  </data>
+  <data name="Locked — decide this from the requests queue" xml:space="preserve">
+    <value>مقفلة — قرّر بشأنها من قائمة الطلبات</value>
+  </data>
+  <data name="Exercise library" xml:space="preserve">
+    <value>مكتبة التمارين</value>
+  </data>
+  <data name="{0} exercise available to assign" xml:space="preserve">
+    <value>تمارين متاحة للتعيين: {0}</value>
+  </data>
+  <data name="{0} exercises available to assign" xml:space="preserve">
+    <value>تمارين متاحة للتعيين: {0}</value>
+  </data>
+  <data name="Search exercises..." xml:space="preserve">
+    <value>ابحث عن تمرين...</value>
+  </data>
+  <data name="Filter by difficulty" xml:space="preserve">
+    <value>التصفية حسب الصعوبة</value>
+  </data>
+  <data name="All difficulties" xml:space="preserve">
+    <value>جميع المستويات</value>
+  </data>
+  <data name="Easy" xml:space="preserve">
+    <value>سهل</value>
+  </data>
+  <data name="Moderate" xml:space="preserve">
+    <value>متوسط</value>
+  </data>
+  <data name="Hard" xml:space="preserve">
+    <value>صعب</value>
+  </data>
+  <data name="Filter by body region" xml:space="preserve">
+    <value>التصفية حسب منطقة الجسم</value>
+  </data>
+  <data name="No exercises match these filters" xml:space="preserve">
+    <value>لا توجد تمارين تطابق هذه الفلاتر</value>
+  </data>
+  <data name="Try a different search term, region or difficulty." xml:space="preserve">
+    <value>جرّب كلمة بحث أو منطقة أو مستوى صعوبة مختلفًا.</value>
+  </data>
+  <data name="{0} — open details" xml:space="preserve">
+    <value>{0} — عرض التفاصيل</value>
+  </data>
+  <data name="Exercise Detail" xml:space="preserve">
+    <value>تفاصيل التمرين</value>
+  </data>
+  <data name="Exercise demonstration" xml:space="preserve">
+    <value>عرض توضيحي للتمرين</value>
+  </data>
+  <data name="No demonstration video for this exercise yet." xml:space="preserve">
+    <value>لا يوجد فيديو توضيحي لهذا التمرين بعد.</value>
+  </data>
+  <data name="Could not load exercise." xml:space="preserve">
+    <value>تعذّر تحميل التمرين.</value>
+  </data>
+  <data name="Shoulder" xml:space="preserve">
+    <value>الكتف</value>
+  </data>
+  <data name="Elbow" xml:space="preserve">
+    <value>المرفق</value>
+  </data>
+  <data name="Wrist" xml:space="preserve">
+    <value>الرسغ</value>
+  </data>
+  <data name="Spine" xml:space="preserve">
+    <value>العمود الفقري</value>
+  </data>
+  <data name="Core" xml:space="preserve">
+    <value>الجذع</value>
+  </data>
+  <data name="Hip" xml:space="preserve">
+    <value>الورك</value>
+  </data>
+  <data name="Knee" xml:space="preserve">
+    <value>الركبة</value>
+  </data>
+  <data name="Ankle" xml:space="preserve">
+    <value>الكاحل</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>أخرى</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>السجل</value>
+  </data>
+  <data name="New appointment" xml:space="preserve">
+    <value>موعد جديد</value>
+  </data>
+  <data name="Edit appointment" xml:space="preserve">
+    <value>تعديل الموعد</value>
+  </data>
+  <data name="View patient" xml:space="preserve">
+    <value>عرض المريض</value>
+  </data>
+  <data name="Nothing booked this week" xml:space="preserve">
+    <value>لا توجد حجوزات هذا الأسبوع</value>
+  </data>
+  <data name="Use the week arrows to look around, or book an appointment." xml:space="preserve">
+    <value>استخدم أسهم الأسبوع للتنقل، أو احجز موعدًا.</value>
+  </data>
+  <data name="Book a new appointment for a patient." xml:space="preserve">
+    <value>احجز موعدًا جديدًا لمريض.</value>
+  </data>
+  <data name="Update appointment details." xml:space="preserve">
+    <value>حدّث تفاصيل الموعد.</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>تأكيد</value>
+  </data>
+  <data name="Reject" xml:space="preserve">
+    <value>رفض</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>قبول</value>
+  </data>
+  <data name="Reject this request and free the slot?" xml:space="preserve">
+    <value>رفض هذا الطلب وإتاحة الفترة؟</value>
+  </data>
+  <data name="Cancel this confirmed appointment and free the slot?" xml:space="preserve">
+    <value>إلغاء هذا الموعد المؤكَّد وإتاحة الفترة؟</value>
+  </data>
+  <data name="No further actions available." xml:space="preserve">
+    <value>لا توجد إجراءات أخرى متاحة.</value>
+  </data>
+  <data name="— Select a patient —" xml:space="preserve">
+    <value>— اختر مريضًا —</value>
+  </data>
+  <data name="— Select a therapist —" xml:space="preserve">
+    <value>— اختر معالجًا —</value>
+  </data>
+  <data name="e.g. Follow-up, Initial Assessment, Discharge" xml:space="preserve">
+    <value>مثال: متابعة، تقييم أولي، خروج</value>
+  </data>
+  <data name="Select a date &amp; time" xml:space="preserve">
+    <value>اختر التاريخ والوقت</value>
+  </data>
+  <data name="Available times" xml:space="preserve">
+    <value>الأوقات المتاحة</value>
+  </data>
+  <data name="No open times on this day." xml:space="preserve">
+    <value>لا توجد أوقات متاحة في هذا اليوم.</value>
+  </data>
+  <data name="Loading available times…" xml:space="preserve">
+    <value>جارٍ تحميل الأوقات المتاحة…</value>
+  </data>
+  <data name="No open slots for this therapist. Open times in" xml:space="preserve">
+    <value>لا توجد فترات متاحة لهذا المعالج. افتح أوقاتًا من</value>
+  </data>
+  <data name="Therapist and date are locked once an appointment is confirmed, completed, or cancelled — you can still edit the title and notes." xml:space="preserve">
+    <value>يُقفَل المعالج والتاريخ بمجرد تأكيد الموعد أو إكماله أو إلغائه — ولا يزال بإمكانك تعديل العنوان والملاحظات.</value>
+  </data>
+  <data name="Any additional notes..." xml:space="preserve">
+    <value>أي ملاحظات إضافية...</value>
+  </data>
+  <data name="Cancel appointment" xml:space="preserve">
+    <value>إلغاء الموعد</value>
+  </data>
+  <data name="Book Appointment" xml:space="preserve">
+    <value>حجز الموعد</value>
+  </data>
+  <data name="Search patients..." xml:space="preserve">
+    <value>ابحث عن مريض...</value>
+  </data>
+  <data name="Could not load this appointment. Check your connection and try again." xml:space="preserve">
+    <value>تعذّر تحميل هذا الموعد. تحقق من اتصالك وحاول مرة أخرى.</value>
+  </data>
+  <data name="Please select a patient." xml:space="preserve">
+    <value>يرجى اختيار مريض.</value>
+  </data>
+  <data name="Please enter a title for the appointment." xml:space="preserve">
+    <value>يرجى إدخال عنوان للموعد.</value>
+  </data>
+  <data name="Please select an available time slot." xml:space="preserve">
+    <value>يرجى اختيار فترة زمنية متاحة.</value>
+  </data>
+  <data name="Please select a date and time." xml:space="preserve">
+    <value>يرجى اختيار التاريخ والوقت.</value>
+  </data>
+  <data name="Appointment History" xml:space="preserve">
+    <value>سجل المواعيد</value>
+  </data>
+  <data name="All outcomes" xml:space="preserve">
+    <value>جميع النتائج</value>
+  </data>
+  <data name="← Back to appointments" xml:space="preserve">
+    <value>→ العودة إلى المواعيد</value>
+  </data>
+  <data name="Outcome" xml:space="preserve">
+    <value>النتيجة</value>
+  </data>
+  <data name="No finished appointments match these filters yet." xml:space="preserve">
+    <value>لا توجد مواعيد منتهية تطابق هذه الفلاتر بعد.</value>
+  </data>
+  <data name="{0} request waiting on a decision — expired requests are hidden automatically." xml:space="preserve">
+    <value>طلبات بانتظار القرار: {0} — تُخفى الطلبات المنتهية تلقائيًا.</value>
+  </data>
+  <data name="{0} requests waiting on a decision — expired requests are hidden automatically." xml:space="preserve">
+    <value>طلبات بانتظار القرار: {0} — تُخفى الطلبات المنتهية تلقائيًا.</value>
+  </data>
+  <data name="All appointments" xml:space="preserve">
+    <value>جميع المواعيد</value>
+  </data>
+  <data name="All caught up" xml:space="preserve">
+    <value>لا شيء بانتظارك</value>
+  </data>
+  <data name="No pending requests right now." xml:space="preserve">
+    <value>لا توجد طلبات معلّقة حاليًا.</value>
+  </data>
+  <data name="Requested {0}" xml:space="preserve">
+    <value>طُلب في {0}</value>
+  </data>
+  <data name="Mon" xml:space="preserve">
+    <value>إثنين</value>
+  </data>
+  <data name="Tue" xml:space="preserve">
+    <value>ثلاثاء</value>
+  </data>
+  <data name="Wed" xml:space="preserve">
+    <value>أربعاء</value>
+  </data>
+  <data name="Thu" xml:space="preserve">
+    <value>خميس</value>
+  </data>
+  <data name="Fri" xml:space="preserve">
+    <value>جمعة</value>
+  </data>
+  <data name="Sat" xml:space="preserve">
+    <value>سبت</value>
+  </data>
+  <data name="Sun" xml:space="preserve">
+    <value>أحد</value>
+  </data>
+  <data name="{0} patient" xml:space="preserve">
+    <value>عدد المرضى: {0}</value>
+  </data>
+  <data name="{0} patients" xml:space="preserve">
+    <value>عدد المرضى: {0}</value>
+  </data>
+  <data name="{0} appointment this week" xml:space="preserve">
+    <value>مواعيد هذا الأسبوع: {0}</value>
+  </data>
+  <data name="{0} appointments this week" xml:space="preserve">
+    <value>مواعيد هذا الأسبوع: {0}</value>
+  </data>
+  <data name="{0} finished appointment on record" xml:space="preserve">
+    <value>المواعيد المنتهية في السجل: {0}</value>
+  </data>
+  <data name="{0} finished appointments on record" xml:space="preserve">
+    <value>المواعيد المنتهية في السجل: {0}</value>
+  </data>
+</root>

@@ -12,16 +12,16 @@
 @* ── Page header ─────────────────────────────────────────────────────────── *@
 <div class="page-header">
     <div>
-        <h1 class="page-title">Appointments</h1>
-        <p class="page-sub">@Model.TotalAppointmentCount appointment@(Model.TotalAppointmentCount == 1 ? "" : "s") this week</p>
+        <h1 class="page-title">@L["Appointments"]</h1>
+        <p class="page-sub">@L[Model.TotalAppointmentCount == 1 ? "{0} appointment this week" : "{0} appointments this week", Model.TotalAppointmentCount]</p>
     </div>
     <div class="page-actions">
         <a asp-action="History" asp-controller="Appointments" class="btn btn-ghost">
-            History
+            @L["History"]
         </a>
         <button type="button" onclick="openAppointmentModal()" class="btn btn-primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
-            New appointment
+            @L["New appointment"]
         </button>
     </div>
 </div>
@@ -36,12 +36,12 @@
            asp-route-status="@Model.StatusFilter"
            asp-route-therapistFilter="@Model.TherapistFilter"
            asp-route-viewMode="@Model.ViewMode"
-           class="appt-week-arrow" aria-label="Previous week">
+           class="appt-week-arrow" aria-label="@L["Previous week"]">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </a>
 
         <span class="appt-week-label">
-            @Model.WeekStart.ToString("MMM d") – @weekEnd.ToString("MMM d, yyyy")
+            @Model.WeekStart.ToString(DatePatterns.MonthDay) – @weekEnd.ToString(DatePatterns.MonthDayYear)
         </span>
 
         <a asp-action="Index"
@@ -49,7 +49,7 @@
            asp-route-status="@Model.StatusFilter"
            asp-route-therapistFilter="@Model.TherapistFilter"
            asp-route-viewMode="@Model.ViewMode"
-           class="appt-week-arrow" aria-label="Next week">
+           class="appt-week-arrow" aria-label="@L["Next week"]">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </a>
     </div>
@@ -59,11 +59,11 @@
        asp-route-status="@Model.StatusFilter"
        asp-route-therapistFilter="@Model.TherapistFilter"
        asp-route-viewMode="@Model.ViewMode"
-       class="appt-today-btn">Today</a>
+       class="appt-today-btn">@L["Today"]</a>
 
     @* Status filter *@
-    <select name="status" class="filter-select" aria-label="Filter by status" onchange="this.form.submit()">
-        <option value="">Status</option>
+    <select name="status" class="filter-select" aria-label="@L["Filter by status"]" onchange="this.form.submit()">
+        <option value="">@L["Status"]</option>
         @{
             // Values must match PhysioLink.Domain.Enums.AppointmentStatus member
             // names exactly — the API parses this filter with Enum.TryParse.
@@ -82,18 +82,18 @@
         {
             if (Model.StatusFilter == value)
             {
-                <option value="@value" selected>@label</option>
+                <option value="@value" selected>@L[label]</option>
             }
             else
             {
-                <option value="@value">@label</option>
+                <option value="@value">@L[label]</option>
             }
         }
     </select>
 
     @* Therapist filter *@
-    <select name="therapistFilter" class="filter-select" aria-label="Filter by therapist" onchange="this.form.submit()">
-        <option value="">All Therapists</option>
+    <select name="therapistFilter" class="filter-select" aria-label="@L["Filter by therapist"]" onchange="this.form.submit()">
+        <option value="">@L["All therapists"]</option>
         @foreach (var t in Model.Therapists)
         {
             var tName = $"{t.FirstName.Trim()} {t.LastName.Trim()}";
@@ -119,12 +119,12 @@
         <table class="data-table data-table-wide">
             <thead>
                 <tr>
-                    <th>Date &amp; Time</th>
-                    <th>Patient</th>
-                    <th>Therapist</th>
-                    <th>Title</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>@L["Date & Time"]</th>
+                    <th>@L["Patient"]</th>
+                    <th>@L["Therapist"]</th>
+                    <th>@L["Title"]</th>
+                    <th>@L["Status"]</th>
+                    <th>@L["Actions"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -133,8 +133,8 @@
                 <tr>
                     <td colspan="6" class="empty-row">
                         <div class="empty-state">
-                            <h2 class="empty-state-title">Nothing booked this week</h2>
-                            <p class="empty-state-subtitle">Use the week arrows to look around, or book an appointment.</p>
+                            <h2 class="empty-state-title">@L["Nothing booked this week"]</h2>
+                            <p class="empty-state-subtitle">@L["Use the week arrows to look around, or book an appointment."]</p>
                         </div>
                     </td>
                 </tr>
@@ -144,7 +144,7 @@
                 var therapist = string.IsNullOrEmpty(appt.TherapistName) ? "—" : appt.TherapistName;
                 <tr>
                     <td>
-                        <span class="appt-date">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("MMM d")</span>
+                        <span class="appt-date">@ClinicTime.ToLocal(appt.AppointmentTime).ToString(DatePatterns.MonthDay)</span>
                         <span class="appt-time">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("HH:mm")</span>
                     </td>
                     <td class="primary-cell">@appt.PatientName</td>
@@ -156,14 +156,14 @@
                     <td>
                         <div class="row-actions">
                             @* Edit is the priority action on this page — full-size text button, first. *@
-                            <button type="button" class="btn btn-ghost btn-sm" aria-label="Edit appointment"
+                            <button type="button" class="btn btn-ghost btn-sm" aria-label="@L["Edit appointment"]"
                                     onclick="openEditAppointmentModal('@appt.AppointmentId')">
-                                Edit
+                                @L["Edit"]
                             </button>
                             @* View patient is secondary here — icon-only. *@
                             <a asp-controller="Patients" asp-action="Detail"
                                asp-route-id="@appt.PatientId"
-                               class="icon-btn" aria-label="View patient">
+                               class="icon-btn" aria-label="@L["View patient"]">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
                                     <circle cx="12" cy="12" r="3"></circle>
@@ -188,10 +188,10 @@
 
         <div class="modal-header">
             <div>
-                <h2 class="modal-title" id="appointmentModalTitle">New Appointment</h2>
-                <p class="modal-subtitle" id="appointmentModalSubtitle">Book a new appointment for a patient.</p>
+                <h2 class="modal-title" id="appointmentModalTitle">@L["New appointment"]</h2>
+                <p class="modal-subtitle" id="appointmentModalSubtitle">@L["Book a new appointment for a patient."]</p>
             </div>
-            <button type="button" class="modal-close" onclick="closeAppointmentModal()" aria-label="Close">
+            <button type="button" class="modal-close" onclick="closeAppointmentModal()" aria-label="@L["Close"]">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -206,7 +206,7 @@
            are valid for the loaded appointment's current status. *@
         <div class="modal-status-bar" id="statusActions" style="display:none;">
             <div class="modal-status-current">
-                <span class="modal-status-label">Status</span>
+                <span class="modal-status-label">@L["Status"]</span>
                 <span id="statusActionBadge"></span>
             </div>
             <div class="modal-status-buttons">
@@ -216,28 +216,28 @@
                     <input type="hidden" name="weekStart" value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
                     <input type="hidden" name="status" value="@Model.StatusFilter" />
                     <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
-                    <button type="submit" class="btn btn-success btn-sm">Confirm</button>
+                    <button type="submit" class="btn btn-success btn-sm">@L["Confirm"]</button>
                 </form>
                 <form asp-action="Reject" method="post" class="inline-form" id="rejectForm" style="display:none;"
-                      onsubmit="return confirm('Reject this request and free the slot?');">
+                      data-confirm="@L["Reject this request and free the slot?"]" onsubmit="return confirm(this.dataset.confirm);">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" id="rejectId" />
                     <input type="hidden" name="weekStart" value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
                     <input type="hidden" name="status" value="@Model.StatusFilter" />
                     <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
-                    <button type="submit" class="btn btn-danger-outline btn-sm">Reject</button>
+                    <button type="submit" class="btn btn-danger-outline btn-sm">@L["Reject"]</button>
                 </form>
                 @* Backing form for the footer "Cancel appointment" button (submitted
                    via its form="cancelForm" attribute). Inputs only — no visible content. *@
                 <form asp-action="CancelConfirmed" method="post" class="inline-form" id="cancelForm" style="display:none;"
-                      onsubmit="return confirm('Cancel this confirmed appointment and free the slot?');">
+                      data-confirm="@L["Cancel this confirmed appointment and free the slot?"]" onsubmit="return confirm(this.dataset.confirm);">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" id="cancelId" />
                     <input type="hidden" name="weekStart" value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
                     <input type="hidden" name="status" value="@Model.StatusFilter" />
                     <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
                 </form>
-                <span id="statusActionNone" class="modal-status-note" style="display:none;">No further actions available.</span>
+                <span id="statusActionNone" class="modal-status-note" style="display:none;">@L["No further actions available."]</span>
             </div>
         </div>
 
@@ -254,9 +254,9 @@
 
             @* --- Patient picker (create mode only) --- *@
             <div class="form-group" id="patientPickerGroup">
-                <label class="form-label" for="PatientId">Patient</label>
+                <label class="form-label" for="PatientId">@L["Patient"]</label>
                 <select id="PatientId" name="PatientId" class="form-input">
-                    <option value="">— Select a patient —</option>
+                    <option value="">@L["— Select a patient —"]</option>
                     @foreach (var patient in Model.Patients)
                     {
                         <option value="@patient.PatientId">
@@ -268,22 +268,22 @@
 
             @* --- Patient name display (edit mode only) --- *@
             <div class="form-group" id="patientNameGroup" style="display:none;">
-                <label class="form-label">Patient</label>
+                <label class="form-label">@L["Patient"]</label>
                 <p id="EditPatientName" class="static-value"></p>
             </div>
 
             @* --- Title --- *@
             <div class="form-group">
-                <label class="form-label" for="ApptTitle">Title</label>
+                <label class="form-label" for="ApptTitle">@L["Title"]</label>
                 <input type="text" id="ApptTitle" name="Title" class="form-input"
-                       placeholder="e.g. Follow-up, Initial Assessment, Discharge" />
+                       placeholder="@L["e.g. Follow-up, Initial Assessment, Discharge"]" />
             </div>
 
             @* --- Therapist name --- *@
             <div class="form-group">
-                <label class="form-label" for="ApptTherapistName">Therapist</label>
+                <label class="form-label" for="ApptTherapistName">@L["Therapist"]</label>
                 <select id="ApptTherapistName" name="TherapistName" class="form-input">
-                    <option value="">— Select a therapist —</option>
+                    <option value="">@L["— Select a therapist —"]</option>
                     @foreach (var therapist in Model.Therapists)
                     {
                         <option value="@therapist.FirstName.Trim() @therapist.LastName.Trim()" data-id="@therapist.Id">
@@ -298,42 +298,42 @@
                therapist is chosen). Edit mode: the raw datetime field. The hidden
                AppointmentTime carries whichever value is chosen. *@
             <div class="form-group" id="dateTimeGroup">
-                <label class="form-label" for="AppointmentTime">Date &amp; Time</label>
+                <label class="form-label" for="AppointmentTime">@L["Date & Time"]</label>
                 <input type="datetime-local" id="AppointmentTime" name="AppointmentTime" class="form-input" />
             </div>
 
             <div class="form-group" id="slotPickerGroup" style="display:none;">
-                <label class="form-label">Select a date &amp; time</label>
+                <label class="form-label">@L["Select a date & time"]</label>
 
                 <div id="slotCalendar" class="slot-cal"></div>
 
                 <div id="slotDaySection" style="display:none;">
                     <div class="slot-day-head">
-                        <span class="slot-day-title">Available times</span>
+                        <span class="slot-day-title">@L["Available times"]</span>
                     </div>
                     <p class="slot-day-date" id="slotDayDate"></p>
                     <div id="slotDayBody" class="slot-chips"></div>
-                    <p class="form-hint" id="slotDayEmpty" style="display:none;">No open times on this day.</p>
+                    <p class="form-hint" id="slotDayEmpty" style="display:none;">@L["No open times on this day."]</p>
                 </div>
 
-                <p class="form-hint" id="slotPickerLoading" style="display:none;">Loading available times…</p>
+                <p class="form-hint" id="slotPickerLoading" style="display:none;">@L["Loading available times…"]</p>
                 <p class="form-hint" id="slotPickerEmpty" style="display:none;">
-                    No open slots for this therapist. Open times in
-                    <a asp-action="Schedule" asp-controller="Therapists">Manage Schedule</a>.
+                    @L["No open slots for this therapist. Open times in"]
+                    <a asp-action="Schedule" asp-controller="Therapists">@L["Manage schedule"]</a>.
                 </p>
             </div>
             <input type="hidden" id="SelectedSlotId" name="SlotId" value="" />
 
             @* Shown in edit mode once the appointment is no longer pending. *@
             <p id="lockedFieldsNote" class="form-hint" style="display:none;">
-                Therapist and date are locked once an appointment is confirmed, completed, or cancelled — you can still edit the title and notes.
+                @L["Therapist and date are locked once an appointment is confirmed, completed, or cancelled — you can still edit the title and notes."]
             </p>
 
             @* --- Notes --- *@
             <div class="form-group">
-                <label class="form-label" for="ApptNotes">Notes <span class="label-optional">(optional)</span></label>
+                <label class="form-label" for="ApptNotes">@L["Notes"] <span class="label-optional">@L["(optional)"]</span></label>
                 <textarea id="ApptNotes" name="Notes" class="form-input" rows="3"
-                          placeholder="Any additional notes..."></textarea>
+                          placeholder="@L["Any additional notes..."]"></textarea>
             </div>
 
             @* Status is never edited from this form — it changes only through the
@@ -343,10 +343,10 @@
 
             <div class="modal-actions">
                 @* Modal-dismiss — create mode only; hidden in edit mode (the header X still closes). *@
-                <button type="button" id="ghostCancelBtn" class="btn btn-ghost" onclick="closeAppointmentModal()">Cancel</button>
+                <button type="button" id="ghostCancelBtn" class="btn btn-ghost" onclick="closeAppointmentModal()">@L["Cancel"]</button>
                 @* Cancel the appointment — edit mode, Confirmed only. Submits #cancelForm. *@
-                <button type="submit" form="cancelForm" id="footerCancelApptBtn" class="btn btn-danger-outline" style="display:none;">Cancel appointment</button>
-                <button type="submit" id="appointmentSubmitBtn" class="btn btn-primary">Book Appointment</button>
+                <button type="submit" form="cancelForm" id="footerCancelApptBtn" class="btn btn-danger-outline" style="display:none;">@L["Cancel appointment"]</button>
+                <button type="submit" id="appointmentSubmitBtn" class="btn btn-primary">@L["Book Appointment"]</button>
             </div>
         </form>
     </div>
@@ -399,9 +399,8 @@
             var minKey = null, maxKey = null; // first / last available day (yyyy-MM-dd)
             var selectedDate = null;
 
-            var WD = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-                          'July', 'August', 'September', 'October', 'November', 'December'];
+            var WD = @Json.Serialize(new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" }.Select(d => L[d].Value));
+            var MONTHS = @Json.Serialize(System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.Take(12));
 
             function selectedTherapistId() {
                 var sel = document.getElementById('ApptTherapistName');
@@ -584,7 +583,7 @@
             if (typeof TomSelect !== 'undefined') {
                 try {
                     patientTomSelect = new TomSelect('#PatientId', {
-                        placeholder: 'Search patients...',
+                        placeholder: @Json.Serialize(L["Search patients..."].Value),
                         searchField: 'text',
                         maxOptions: 300,
                         onChange: function (value) {
@@ -604,7 +603,7 @@
                 document.getElementById('rejectId').value  = appointmentId;
                 document.getElementById('cancelId').value  = appointmentId;
 
-                var labels = { 'Requested': 'Pending', 'CancelledByClinic': 'Cancelled' };
+                var labels = @Json.Serialize(new[] { "Requested", "Confirmed", "Completed", "CancelledByClinic", "Rejected", "Expired" }.ToDictionary(s => s, s => L[s == "Requested" ? "Pending" : s == "CancelledByClinic" ? "Cancelled" : s].Value));
                 var badge = document.getElementById('statusActionBadge');
                 badge.className = 'status-pill status-' + String(status).toLowerCase();
                 badge.textContent = labels[status] || status;
@@ -640,11 +639,11 @@
                 document.getElementById('AppointmentId').disabled           = !isEdit;
 
                 document.getElementById('appointmentModalTitle').textContent =
-                    isEdit ? 'Edit Appointment' : 'New Appointment';
+                    isEdit ? @Json.Serialize(L["Edit appointment"].Value) : @Json.Serialize(L["New appointment"].Value);
                 document.getElementById('appointmentModalSubtitle').textContent =
-                    isEdit ? 'Update appointment details.' : 'Book a new appointment for a patient.';
+                    isEdit ? @Json.Serialize(L["Update appointment details."].Value) : @Json.Serialize(L["Book a new appointment for a patient."].Value);
                 document.getElementById('appointmentSubmitBtn').textContent =
-                    isEdit ? 'Save Changes' : 'Book Appointment';
+                    isEdit ? @Json.Serialize(L["Save Changes"].Value) : @Json.Serialize(L["Book Appointment"].Value);
 
                 // Footer buttons: the ghost dismiss shows only in create mode; the
                 // "Cancel appointment" action is edit-only and driven by applyStatusActions
@@ -699,7 +698,7 @@
                 setModalMode('edit');
                 modalEl.classList.add('modal-visible');
                 window.plModal.opened(modalEl);
-                showFormError('Could not load this appointment. Check your connection and try again.');
+                showFormError(@Json.Serialize(L["Could not load this appointment. Check your connection and try again."].Value));
             }
 
             // --- Open edit mode ------------------------------------------
@@ -766,24 +765,24 @@
 
                 if (!isEdit && !document.getElementById('PatientId').value) {
                     e.preventDefault();
-                    showFormError('Please select a patient.');
+                    showFormError(@Json.Serialize(L["Please select a patient."].Value));
                     return;
                 }
                 if (!document.getElementById('ApptTitle').value.trim()) {
                     e.preventDefault();
-                    showFormError('Please enter a title for the appointment.');
+                    showFormError(@Json.Serialize(L["Please enter a title for the appointment."].Value));
                     return;
                 }
                 if (!isEdit) {
                     // Create requires picking one of the therapist's open slots.
                     if (!document.getElementById('SelectedSlotId').value) {
                         e.preventDefault();
-                        showFormError('Please select an available time slot.');
+                        showFormError(@Json.Serialize(L["Please select an available time slot."].Value));
                         return;
                     }
                 } else if (!document.getElementById('AppointmentTime').value) {
                     e.preventDefault();
-                    showFormError('Please select a date and time.');
+                    showFormError(@Json.Serialize(L["Please select a date and time."].Value));
                     return;
                 }
                 // Locked fields are disabled so they can't be changed, but disabled

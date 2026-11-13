@@ -5,8 +5,8 @@
 
 <div class="card form-card">
 
-    <h2 class="card-title">@(Model.IsEdit ? "Edit Patient" : "Add Patient")</h2>
-    <p class="card-subtitle">@(Model.IsEdit ? "Update this patient's details." : "Register a new patient for your clinic.")</p>
+    <h2 class="card-title">@(Model.IsEdit ? L["Edit Patient"] : L["Add Patient"])</h2>
+    <p class="card-subtitle">@(Model.IsEdit ? L["Update this patient's details."] : L["Register a new patient for your clinic."])</p>
     <div class="profile-divider"></div>
 
     <form asp-action="@formAction" asp-route-id="@Model.PatientId" method="post" class="form-stack">
@@ -20,45 +20,45 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label class="form-label" asp-for="FirstName">First Name</label>
+                <label class="form-label" asp-for="FirstName">@L["First name"]</label>
                 <input asp-for="FirstName" class="form-input" />
                 <span asp-validation-for="FirstName" class="field-error"></span>
             </div>
             <div class="form-group">
-                <label class="form-label" asp-for="LastName">Last Name</label>
+                <label class="form-label" asp-for="LastName">@L["Last name"]</label>
                 <input asp-for="LastName" class="form-input" />
                 <span asp-validation-for="LastName" class="field-error"></span>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label" asp-for="Username">Username</label>
+            <label class="form-label" asp-for="Username">@L["Username"]</label>
             <input asp-for="Username" class="form-input" autocomplete="off" />
             <span asp-validation-for="Username" class="field-error"></span>
         </div>
 
         <div class="form-group">
-            <label class="form-label" asp-for="Email">Email <span class="label-optional">(optional)</span></label>
+            <label class="form-label" asp-for="Email">@L["Email"] <span class="label-optional">@L["(optional)"]</span></label>
             <input asp-for="Email" class="form-input" />
             <span asp-validation-for="Email" class="field-error"></span>
         </div>
 
         <div class="form-group">
-            <label class="form-label" asp-for="PhoneNumber">Phone</label>
+            <label class="form-label" asp-for="PhoneNumber">@L["Phone"]</label>
             <input asp-for="PhoneNumber" class="form-input" />
             <span asp-validation-for="PhoneNumber" class="field-error"></span>
         </div>
 
         <div class="form-group">
-            <label class="form-label" asp-for="Diagnosis">Diagnosis</label>
+            <label class="form-label" asp-for="Diagnosis">@L["Diagnosis"]</label>
             <textarea asp-for="Diagnosis" rows="4" class="form-input"></textarea>
             <span asp-validation-for="Diagnosis" class="field-error"></span>
         </div>
 
         <div class="form-group">
-            <label class="form-label" asp-for="TherapistId">Assigned Therapist <span class="label-optional">(optional)</span></label>
+            <label class="form-label" asp-for="TherapistId">@L["Assigned Therapist"] <span class="label-optional">@L["(optional)"]</span></label>
             <select asp-for="TherapistId" class="form-input">
-                <option value="">— Unassigned —</option>
+                <option value="">@L["— Unassigned —"]</option>
                 @foreach (var t in Model.Therapists)
                 {
                     <option value="@t.Id">@t.FirstName @t.LastName</option>
@@ -68,10 +68,10 @@
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
-                @(Model.IsEdit ? "Save Changes" : "Add Patient")
+                @(Model.IsEdit ? L["Save Changes"] : L["Add Patient"])
             </button>
             <a asp-action="Index" class="btn btn-ghost">
-                Cancel
+                @L["Cancel"]
             </a>
         </div>
 

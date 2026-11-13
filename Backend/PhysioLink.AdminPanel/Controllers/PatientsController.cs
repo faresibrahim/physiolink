@@ -128,7 +128,7 @@ public class PatientsController : BaseController
 
         var (success, error) = await _apiClient.UploadPatientAttachmentAsync(patientId, file);
         if (success)
-            TempData["SuccessMessage"] = $"Uploaded \"{file.FileName}\".";
+            TempData["SuccessMessage"] = L["Uploaded \"{0}\".", file.FileName].Value;
         else
             TempData["ErrorMessage"] = error ?? "Upload failed. Please try again.";
 

@@ -18,8 +18,8 @@
 @* ── Page header ─────────────────────────────────────────────────────────── *@
 <div class="page-header">
     <div>
-        <h1 class="page-title">Appointment History</h1>
-        <p class="page-sub">@Model.TotalCount finished appointment@(Model.TotalCount == 1 ? "" : "s") on record</p>
+        <h1 class="page-title">@L["Appointment History"]</h1>
+        <p class="page-sub">@L[Model.TotalCount == 1 ? "{0} finished appointment on record" : "{0} finished appointments on record", Model.TotalCount]</p>
     </div>
 </div>
 
@@ -27,24 +27,24 @@
 <form method="get" asp-action="History" class="toolbar">
 
     @* Status filter *@
-    <select name="status" class="filter-select" aria-label="Filter by status" onchange="this.form.submit()">
-        <option value="">All outcomes</option>
+    <select name="status" class="filter-select" aria-label="@L["Filter by status"]" onchange="this.form.submit()">
+        <option value="">@L["All outcomes"]</option>
         @foreach (var (value, label) in statusOptions)
         {
             if (Model.StatusFilter == value)
             {
-                <option value="@value" selected>@label</option>
+                <option value="@value" selected>@L[label]</option>
             }
             else
             {
-                <option value="@value">@label</option>
+                <option value="@value">@L[label]</option>
             }
         }
     </select>
 
     @* Therapist filter *@
-    <select name="therapistFilter" class="filter-select" aria-label="Filter by therapist" onchange="this.form.submit()">
-        <option value="">All Therapists</option>
+    <select name="therapistFilter" class="filter-select" aria-label="@L["Filter by therapist"]" onchange="this.form.submit()">
+        <option value="">@L["All therapists"]</option>
         @foreach (var t in Model.Therapists)
         {
             var tName = $"{t.FirstName.Trim()} {t.LastName.Trim()}";
@@ -62,7 +62,7 @@
     <input type="hidden" name="page" value="1" />
 
     <a asp-action="Index" asp-controller="Appointments" class="btn btn-ghost ml-auto">
-        ← Back to appointments
+        @L["← Back to appointments"]
     </a>
 </form>
 
@@ -72,18 +72,18 @@
         <table class="data-table data-table-wide">
             <thead>
                 <tr>
-                    <th>Date &amp; Time</th>
-                    <th>Patient</th>
-                    <th>Therapist</th>
-                    <th>Title</th>
-                    <th>Outcome</th>
+                    <th>@L["Date & Time"]</th>
+                    <th>@L["Patient"]</th>
+                    <th>@L["Therapist"]</th>
+                    <th>@L["Title"]</th>
+                    <th>@L["Outcome"]</th>
                 </tr>
             </thead>
             <tbody>
                 @if (!Model.Appointments.Any())
                 {
                     <tr>
-                        <td colspan="5" class="empty-row">No finished appointments match these filters yet.</td>
+                        <td colspan="5" class="empty-row">@L["No finished appointments match these filters yet."]</td>
                     </tr>
                 }
                 @foreach (var appt in Model.Appointments)
@@ -91,7 +91,7 @@
                     var therapist = string.IsNullOrEmpty(appt.TherapistName) ? "—" : appt.TherapistName;
                     <tr>
                         <td>
-                            <span class="appt-date">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("MMM d, yyyy")</span>
+                            <span class="appt-date">@ClinicTime.ToLocal(appt.AppointmentTime).ToString(DatePatterns.MonthDayYear)</span>
                             <span class="appt-time">@ClinicTime.ToLocal(appt.AppointmentTime).ToString("HH:mm")</span>
                         </td>
                         <td>
