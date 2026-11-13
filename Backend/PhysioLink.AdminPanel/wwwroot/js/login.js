@@ -15,4 +15,12 @@
                 : (button.dataset.labelShow || 'Show password'));
         });
     });
+
+    // Close (×) on the sign-in error alert
+    document.querySelectorAll('.alert-dismiss').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var alertEl = btn.closest('.alert');
+            if (alertEl) alertEl.hidden = true;
+        });
+    });
 })();

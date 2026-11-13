@@ -110,7 +110,7 @@
 
         <form method="post" asp-action="Create" asp-controller="Therapists" class="modal-form" id="therapistForm" novalidate>
             @Html.AntiForgeryToken()
-            <div class="alert alert-error form-error-banner" role="alert" hidden></div>
+            <div class="alert alert-danger form-error-banner" role="alert" hidden></div>
 
             <div class="form-row">
                 <div class="form-group">
@@ -211,7 +211,7 @@
 
         <form method="post" asp-action="Edit" asp-controller="Therapists" class="modal-form" id="editTherapistForm" novalidate>
             @Html.AntiForgeryToken()
-            <div class="alert alert-error form-error-banner" role="alert" hidden></div>
+            <div class="alert alert-danger form-error-banner" role="alert" hidden></div>
             <input type="hidden" id="edit-ther-Id" name="id" value="" />
             <input type="hidden" name="TherapistId" value="" id="edit-ther-TherapistId" />
 

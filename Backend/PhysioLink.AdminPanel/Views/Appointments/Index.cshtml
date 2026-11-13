@@ -263,7 +263,7 @@
             @* Inline validation banner — populated by JS when a required field is
                missing so the warning appears where the user is looking instead of a
                native alert() or a redirect that closes the modal. Hidden by default. *@
-            <div class="alert alert-error" id="appointmentFormError" style="display:none;"></div>
+            <div class="alert alert-danger" id="appointmentFormError" role="alert" style="display:none;"></div>
 
             @* Hidden fields *@
             <input type="hidden" id="AppointmentId" name="AppointmentId" value="" disabled />
@@ -690,7 +690,7 @@
             function showFormError(message) {
                 var el = document.getElementById('appointmentFormError');
                 el.textContent = message;
-                el.style.display = 'flex';
+                el.style.display = 'block';
                 el.scrollIntoView({ block: 'nearest' });
             }
 

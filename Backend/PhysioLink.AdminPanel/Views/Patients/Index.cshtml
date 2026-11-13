@@ -193,7 +193,7 @@
 
         <form method="post" asp-action="Edit" asp-controller="Patients" class="modal-form" id="editPatientForm" novalidate>
             @Html.AntiForgeryToken()
-            <div class="alert alert-error form-error-banner" role="alert" hidden></div>
+            <div class="alert alert-danger form-error-banner" role="alert" hidden></div>
             <input type="hidden" id="editPatientRouteId" name="id" value="" />
             <input type="hidden" id="editPatientId" name="PatientId" value="" />
             <input type="hidden" id="editPatientIsActive" name="IsActive" value="true" />
@@ -350,9 +350,8 @@
 
         <div class="modal-form">
 
-            <div class="notice notice-warning">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                <p>@L["Save this password now — it will not be shown again."]</p>
+            <div class="alert alert-warning" role="note">
+                @L["Save this password now — it will not be shown again."]
             </div>
 
             <div class="form-group">
