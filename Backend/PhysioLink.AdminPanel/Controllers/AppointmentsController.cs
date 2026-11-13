@@ -18,6 +18,8 @@ public class AppointmentsController : BaseController
         _apiClient = apiClient;
     }
 
+    private const int AppointmentsPageSize = 50;
+
     // GET /Appointment?weekStart=&page=1&status=&therapistFilter=&viewMode=list
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -40,7 +42,7 @@ public class AppointmentsController : BaseController
         var to = computedWeekStart.AddDays(7);
 
         var appointmentsTask = _apiClient.GetAppointmentsAsync(
-            page, 50, status: status, from: ClinicTime.ToUtc(from), to: ClinicTime.ToUtc(to));
+            page, AppointmentsPageSize, status: status, from: ClinicTime.ToUtc(from), to: ClinicTime.ToUtc(to));
         var therapistsTask = _apiClient.GetTherapistsAsync(1, 100);
         var patientsTask = _apiClient.GetPatientsAsync(1, 200, null);
 
@@ -70,6 +72,7 @@ public class AppointmentsController : BaseController
             CurrentPage = page,
             TotalPages = appointments.TotalPages,
             TotalAppointmentCount = appointments.TotalCount,
+            PageSize = AppointmentsPageSize,
             WeekStart = computedWeekStart,
             StatusFilter = status,
             TherapistFilter = therapistFilter,
