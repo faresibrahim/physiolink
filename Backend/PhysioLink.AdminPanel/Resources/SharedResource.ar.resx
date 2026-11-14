@@ -1095,6 +1095,12 @@
   <data name="Sun" xml:space="preserve">
     <value>أحد</value>
   </data>
+  <data name="Deactivate Therapist" xml:space="preserve">
+    <value>تعطيل المعالج</value>
+  </data>
+  <data name="{0} will immediately lose access to PhysioLink. Records and history are retained." xml:space="preserve">
+    <value>سيفقد {0} الوصول إلى PhysioLink فورًا. يتم الاحتفاظ بالسجلات والسجل التاريخي.</value>
+  </data>
   <data name="Patient deactivated" xml:space="preserve">
     <value>تم تعطيل المريض</value>
   </data>

@@ -181,15 +181,33 @@ public class TherapistsController : BaseController
     }
 
     // POST /Therapists/Deactivate/{id}
+    // Destructive, so the admin re-enters their own account password to confirm
+    // (same gate as deactivating a patient). Failures return to Detail — the
+    // therapist is still there and the user stays in context.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Deactivate(Guid id)
+    public async Task<IActionResult> Deactivate(Guid id, string? password)
     {
-        var success = await _apiClient.DeactivateTherapistAsync(id);
-        TempData[success ? "SuccessMessage" : "ErrorMessage"] = success
-            ? "Therapist deactivated successfully."
-            : "Failed to deactivate therapist. Please try again.";
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            TempData["ErrorMessage"] = "Enter your account password to confirm deactivation.";
+            return RedirectToAction(nameof(Detail), new { id });
+        }
 
+        if (!await _apiClient.VerifyPasswordAsync(password))
+        {
+            TempData["ErrorMessage"] = "Incorrect password. The therapist was not deactivated.";
+            return RedirectToAction(nameof(Detail), new { id });
+        }
+
+        var success = await _apiClient.DeactivateTherapistAsync(id);
+        if (!success)
+        {
+            TempData["ErrorMessage"] = "Failed to deactivate therapist. Please try again.";
+            return RedirectToAction(nameof(Detail), new { id });
+        }
+
+        TempData["SuccessMessage"] = "Therapist deactivated successfully.";
         return RedirectToAction(nameof(Index));
     }
 
