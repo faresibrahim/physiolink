@@ -17,12 +17,14 @@ public class TherapistsController : BaseController
         _apiClient = apiClient;
     }
 
+    private const int TherapistsPageSize = 10;
+
     // GET /Therapists?page=1
     [HttpGet]
     public async Task<IActionResult> Index(int page = 1)
     {
         //if there are no therapists, the call will return an empty list, not null
-        var therapists = await _apiClient.GetTherapistsAsync(page, 10);
+        var therapists = await _apiClient.GetTherapistsAsync(page, TherapistsPageSize);
         if (therapists == null)
         {
             TempData["ErrorMessage"] = "Failed to load therapists. Please try again.";
@@ -37,6 +39,7 @@ public class TherapistsController : BaseController
             Therapists = therapists.Items,
             TotalCount = therapists.TotalCount,
             TotalPages = therapists.TotalPages,
+            PageSize = TherapistsPageSize,
             CurrentPage = page,
             Pagination = new PaginationViewModel
             {
