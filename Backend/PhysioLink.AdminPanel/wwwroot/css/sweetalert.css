@@ -493,6 +493,26 @@
   letter-spacing: 0.02em;
 }
 
+/* Status pill + footnote inside a summary popup (e.g. patient deactivated) */
+.swal-pill {
+  display: inline-block;
+  padding: 0.125em 0.75em;
+  border-radius: 50rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.swal-pill-inactive {
+  background: #ebeef0;
+  color: #646e78;
+}
+.swal-note {
+  margin: 0.875em 0 0;
+  color: #8592a3;
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
 /* Lock page scroll while a popup is open */
 .swal-open {
   overflow: hidden;

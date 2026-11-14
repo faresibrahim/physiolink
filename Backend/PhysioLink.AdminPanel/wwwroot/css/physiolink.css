@@ -792,31 +792,59 @@ select,
 }
 
 /* =============================================================================
-   BUTTONS — one system: fixed 40px / 32px heights, horizontal padding only.
-   Primary = the one solid CTA. Secondary/danger-outline = tonal fills.
-   Ghost = quiet neutral. No heavy outlines anywhere.
+   BUTTONS — one system, adapted from buttons-export/ (Sneat rounded buttons):
+   pill shape, a soft shadow tinted with the button's own colour, a 1px lift on
+   hover and a press-down on active. Fixed 40px / 32px heights (44px on touch).
+   Each variant sets --btn-* tokens; the .btn base reads them, so a new colour
+   only needs a new variant block.
+     Primary / Success / Danger = solid, tinted shadow
+     Secondary / Danger-outline = tonal fill, no shadow (quiet next to a solid)
+     Ghost                      = neutral outline
    ============================================================================= */
 
 .btn {
+    --btn-bg: var(--surface);
+    --btn-color: var(--text-primary);
+    --btn-border: transparent;
+    --btn-hover-bg: var(--surface-sunken);
+    --btn-hover-color: var(--btn-color);
+    --btn-hover-border: var(--btn-border);
+    --btn-shadow: none;
+    --btn-shadow-rgb: 34, 48, 62;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
     height: var(--control-h);
     padding: 0 var(--btn-pad-x);
-    border-radius: var(--radius-sm);
-    border: 1px solid transparent;
-    font-weight: 600;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--btn-border);
+    background: var(--btn-bg);
+    color: var(--btn-color);
+    box-shadow: var(--btn-shadow);
+    font-family: inherit;
+    font-weight: 500;
     font-size: var(--font-size-sm);
     line-height: 1;
     white-space: nowrap;
     text-decoration: none;
     cursor: pointer;
-    transition: background 150ms, border-color 150ms, color 150ms, box-shadow 150ms, transform 100ms;
+    user-select: none;
+    transition: background-color 200ms ease-in-out, border-color 200ms ease-in-out,
+                color 200ms ease-in-out, box-shadow 200ms ease-in-out, transform 200ms ease-in-out;
 }
 
+    .btn:hover {
+        background: var(--btn-hover-bg);
+        color: var(--btn-hover-color);
+        border-color: var(--btn-hover-border);
+        transform: translateY(-1px);
+    }
+
     .btn:active {
-        transform: translateY(1px);
+        transform: translateY(0);
+        box-shadow: none;
     }
 
 .btn-sm {
@@ -831,67 +859,53 @@ select,
 
 /* Primary — the one isolated CTA per screen */
 .btn-primary {
-    background: var(--primary);
-    color: #fff;
-    box-shadow: var(--shadow-xs);
+    --btn-bg: var(--primary);
+    --btn-color: #fff;
+    --btn-hover-bg: var(--primary-hover);
+    --btn-shadow-rgb: 0, 74, 173;
+    --btn-shadow: 0 2px 4px 0 rgba(var(--btn-shadow-rgb), 0.4);
 }
-
-    .btn-primary:hover {
-        background: var(--primary-hover);
-    }
 
 /* Secondary — tonal brand action */
 .btn-secondary {
-    background: var(--primary-soft);
-    color: var(--primary);
+    --btn-bg: var(--primary-soft);
+    --btn-color: var(--primary);
+    --btn-hover-bg: var(--primary-soft-hover);
 }
-
-    .btn-secondary:hover {
-        background: var(--primary-soft-hover);
-    }
 
 /* Ghost — quiet neutral action */
 .btn-ghost {
-    background: var(--surface);
-    color: var(--text-primary);
-    border-color: var(--divider);
-    box-shadow: var(--shadow-xs);
+    --btn-bg: var(--surface);
+    --btn-color: var(--text-primary);
+    --btn-border: var(--divider);
+    --btn-hover-bg: var(--surface-sunken);
+    --btn-hover-border: #D5D9E0;
 }
-
-    .btn-ghost:hover {
-        background: var(--surface-sunken);
-        border-color: #D5D9E0;
-    }
 
 /* Danger — destructive, visually separated */
 .btn-danger {
-    background: var(--danger-strong);
-    color: #fff;
-    box-shadow: var(--shadow-xs);
+    --btn-bg: var(--danger-strong);
+    --btn-color: #fff;
+    --btn-hover-bg: var(--danger-text);
+    --btn-shadow-rgb: 217, 45, 32;
+    --btn-shadow: 0 2px 4px 0 rgba(var(--btn-shadow-rgb), 0.4);
 }
-
-    .btn-danger:hover {
-        background: var(--danger-text);
-    }
 
 .btn-danger-outline {
-    background: var(--danger-soft);
-    color: var(--danger-text);
+    --btn-bg: var(--danger-soft);
+    --btn-color: var(--danger-text);
+    --btn-hover-bg: var(--danger-soft-hover);
 }
 
-    .btn-danger-outline:hover {
-        background: var(--danger-soft-hover);
-    }
-
-/* Success — tonal positive action (e.g. confirm a request) */
+/* Success — positive action (e.g. confirm a request). Solid, so it reads as the
+   affirmative choice beside a tonal Reject. */
 .btn-success {
-    background: var(--success-soft);
-    color: var(--success-text);
+    --btn-bg: var(--success-strong);
+    --btn-color: #fff;
+    --btn-hover-bg: #246641;
+    --btn-shadow-rgb: 44, 122, 79;
+    --btn-shadow: 0 2px 4px 0 rgba(var(--btn-shadow-rgb), 0.4);
 }
-
-    .btn-success:hover {
-        background: #D9EFE2;
-    }
 
 .inline-form {
     display: inline-flex;
@@ -910,7 +924,7 @@ select,
     width: var(--control-h-sm);
     height: var(--control-h-sm);
     border: 1px solid transparent;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
     background: transparent;
     color: var(--text-secondary);
     display: inline-flex;
@@ -3882,54 +3896,63 @@ textarea.input {
 }
 
 .dt-btn {
+    --dt-btn-bg: transparent;
+    --dt-btn-color: var(--text-primary);
+    --dt-btn-border: transparent;
+    --dt-btn-hover-bg: var(--dt-btn-bg);
+    --dt-btn-hover-color: var(--dt-btn-color);
+    --dt-btn-hover-border: var(--dt-btn-border);
+    --dt-btn-shadow: none;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
     height: 38px;
     padding: 0 20px;
-    border: 1px solid transparent;
-    border-radius: var(--dt-radius);
+    border: 1px solid var(--dt-btn-border);
+    border-radius: var(--radius-full);
+    background: var(--dt-btn-bg);
+    color: var(--dt-btn-color);
+    box-shadow: var(--dt-btn-shadow);
     font: inherit;
     font-size: 15px;
     font-weight: 500;
     line-height: 1;
     white-space: nowrap;
     cursor: pointer;
-    transition: background-color 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+    transition: background-color 200ms ease-in-out, border-color 200ms ease-in-out,
+                color 200ms ease-in-out, box-shadow 200ms ease-in-out, transform 200ms ease-in-out;
 }
 
     .dt-btn:hover {
+        background: var(--dt-btn-hover-bg);
+        border-color: var(--dt-btn-hover-border);
+        color: var(--dt-btn-hover-color);
         transform: translateY(-1px);
     }
 
     .dt-btn:active {
-        transform: none;
+        transform: translateY(0);
+        box-shadow: none;
     }
 
 .dt-btn-primary {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: #fff;
-    box-shadow: var(--dt-focus-shadow);
+    --dt-btn-bg: var(--primary);
+    --dt-btn-color: #fff;
+    --dt-btn-border: var(--primary);
+    --dt-btn-hover-bg: var(--primary-hover);
+    --dt-btn-hover-border: var(--primary-hover);
+    --dt-btn-shadow: var(--dt-focus-shadow);
 }
-
-    .dt-btn-primary:hover {
-        background: var(--primary-hover);
-        border-color: var(--primary-hover);
-    }
 
 .dt-btn-outline {
-    background: transparent;
-    border-color: #A1AAB6;
-    color: #5F6B7A;
+    --dt-btn-border: #A1AAB6;
+    --dt-btn-color: #5F6B7A;
+    --dt-btn-hover-bg: #5F6B7A;
+    --dt-btn-hover-border: #5F6B7A;
+    --dt-btn-hover-color: #fff;
 }
-
-    .dt-btn-outline:hover {
-        background: #5F6B7A;
-        border-color: #5F6B7A;
-        color: #fff;
-    }
 
 /* ---- Table ---- */
 .dt-scroll {
@@ -4061,6 +4084,11 @@ textarea.input {
     }
 
 /* ---- Footer: entry count + pagination ---- */
+/* Pager card under the exercise card grid */
+.exercise-pager {
+    margin-top: var(--space-4);
+}
+
 .dt-footer {
     display: flex;
     flex-wrap: wrap;

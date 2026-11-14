@@ -1095,4 +1095,16 @@
   <data name="Sun" xml:space="preserve">
     <value>أحد</value>
   </data>
+  <data name="Patient deactivated" xml:space="preserve">
+    <value>تم تعطيل المريض</value>
+  </data>
+  <data name="App access" xml:space="preserve">
+    <value>الوصول إلى التطبيق</value>
+  </data>
+  <data name="Revoked" xml:space="preserve">
+    <value>ملغى</value>
+  </data>
+  <data name="Records and history are retained." xml:space="preserve">
+    <value>يتم الاحتفاظ بالسجلات والسجل التاريخي.</value>
+  </data>
 </root>

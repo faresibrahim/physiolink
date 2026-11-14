@@ -9,6 +9,10 @@
     var createdPassword = TempData["PatientCreatedPassword"] as string;
     var showCredentials = !string.IsNullOrEmpty(createdPassword);
 
+    // Set after a patient is deactivated from their detail page (empty = name unknown).
+    var deactivatedName = TempData["PatientDeactivatedName"] as string;
+    var showDeactivated = deactivatedName != null;
+
     var isFiltered = !string.IsNullOrWhiteSpace(Model.SearchQuery) || Model.SelectedTherapistId != null;
 }
 
@@ -356,6 +360,45 @@
                 // Close only on purpose (Done or Esc), not on a stray click
                 // while the password still needs to be copied.
                 allowOutsideClick: false
+            });
+        });
+    </script>
+}
+
+@* ── Patient deactivated (success popup, sweetalert-export/) ────────────────
+   Shown once after a patient is deactivated: animated success check, "Patient
+   deactivated", then a summary of what changed. Values are rendered by Razor
+   (HTML-encoded) into a template, then shown with Swal.fire. *@
+@if (showDeactivated)
+{
+    <template id="patientDeactivatedSummary">
+        <dl class="swal-credentials">
+            @if (deactivatedName!.Length > 0)
+            {
+                <div class="swal-credential">
+                    <dt>@L["Patient"]</dt>
+                    <dd>@deactivatedName</dd>
+                </div>
+            }
+            <div class="swal-credential">
+                <dt>@L["Status"]</dt>
+                <dd><span class="swal-pill swal-pill-inactive">@L["Inactive"]</span></dd>
+            </div>
+            <div class="swal-credential">
+                <dt>@L["App access"]</dt>
+                <dd>@L["Revoked"]</dd>
+            </div>
+        </dl>
+        <p class="swal-note">@L["Records and history are retained."]</p>
+    </template>
+    <script>
+        // Runs after the deferred sweetalert.js has loaded.
+        document.addEventListener('DOMContentLoaded', function () {
+            window.Swal.fire({
+                icon: 'success',
+                title: @Json.Serialize(L["Patient deactivated"].Value),
+                html: document.getElementById('patientDeactivatedSummary').innerHTML,
+                confirmButtonText: @Json.Serialize(L["Done"].Value)
             });
         });
     </script>

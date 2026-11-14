@@ -40,11 +40,15 @@
                     @L["Manage schedule"]
                 </a>
 
-                <a asp-action="Edit"
-                   asp-route-id="@Model.Therapist.Id"
-                   class="btn btn-ghost btn-sm">
+                <button type="button" class="btn btn-ghost btn-sm edit-therapist-btn"
+                        data-id="@Model.Therapist.Id"
+                        data-first-name="@Model.Therapist.FirstName"
+                        data-last-name="@Model.Therapist.LastName"
+                        data-specialty="@Model.Therapist.Specialty"
+                        data-phone-number="@Model.Therapist.PhoneNumber"
+                        data-email="@Model.Therapist.Email">
                     @L["Edit"]
-                </a>
+                </button>
 
                 <form asp-action="Deactivate"
                       asp-route-id="@Model.Therapist.Id"
@@ -140,3 +144,6 @@
     Therapists = Model.Therapists,
     PreselectedTherapistId = Model.Therapist.Id
 })
+
+@* Edit Therapist dialog — shared with the Therapists list *@
+@await Html.PartialAsync("_EditTherapistModal", "Detail")

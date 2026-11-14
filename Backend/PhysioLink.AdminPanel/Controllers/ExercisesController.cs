@@ -51,6 +51,7 @@ namespace PhysioLink.AdminPanel.Controllers
             {
                 Exercises = pageItems,
                 TotalCount = totalCount,
+                PageSize = PageSize,
                 SearchQuery = search,
                 DifficultyFilter = difficulty,
                 CategoryFilter = category,

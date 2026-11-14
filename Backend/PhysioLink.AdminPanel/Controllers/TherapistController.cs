@@ -142,17 +142,22 @@ public class TherapistsController : BaseController
     }
 
     // POST /Therapists/Edit/{id}
-    // Submitted by the Edit Therapist dialog (Therapists list), so failures
-    // redirect back to Index with a TempData message rather than re-rendering
-    // a form view — the dialog has no full page to redisplay with inline errors.
+    // Submitted by the Edit Therapist dialog (Therapists list or Therapist detail
+    // page; returnTo says which), so failures redirect back there with a TempData
+    // message rather than re-rendering a form view — the dialog has no full page
+    // to redisplay with inline errors.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Guid id, TherapistFormViewModel model)
+    public async Task<IActionResult> Edit(Guid id, TherapistFormViewModel model, string? returnTo)
     {
+        IActionResult Back() => returnTo == nameof(Detail)
+            ? RedirectToAction(nameof(Detail), new { id })
+            : RedirectToAction(nameof(Index));
+
         if (!ModelState.IsValid)
         {
             TempData["ErrorMessage"] = "Please fill in all required fields.";
-            return RedirectToAction(nameof(Index));
+            return Back();
         }
 
         var request = new UpdateTherapistRequest
@@ -168,11 +173,11 @@ public class TherapistsController : BaseController
         if (!success)
         {
             TempData["ErrorMessage"] = "Failed to update therapist. Please try again.";
-            return RedirectToAction(nameof(Index));
+            return Back();
         }
 
         TempData["SuccessMessage"] = "Therapist updated successfully.";
-        return RedirectToAction(nameof(Index));
+        return Back();
     }
 
     // POST /Therapists/Deactivate/{id}

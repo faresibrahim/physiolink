@@ -318,6 +318,9 @@ public class PatientsController : BaseController
             return RedirectToAction(nameof(Detail), new { id });
         }
 
+        // Grab the name first, for the confirmation popup on the list page.
+        var patient = await _apiClient.GetPatientByIdAsync(id);
+
         var success = await _apiClient.DeactivatePatientAsync(id);
         if (!success)
         {
@@ -325,7 +328,8 @@ public class PatientsController : BaseController
             return RedirectToAction(nameof(Detail), new { id });
         }
 
-        TempData["SuccessMessage"] = "Patient deactivated successfully.";
+        // Shown as a success popup on the list (not the banner); empty name = unknown.
+        TempData["PatientDeactivatedName"] = patient == null ? string.Empty : $"{patient.FirstName} {patient.LastName}";
         return RedirectToAction(nameof(Index));
     }
 

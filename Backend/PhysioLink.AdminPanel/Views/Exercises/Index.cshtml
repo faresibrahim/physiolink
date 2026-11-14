@@ -147,10 +147,18 @@ else
 }
 
 @* =========================================================================
-   PAGINATION — uses the shared _Pagination partial so it matches every
-   other listing page byte-for-byte.
+   PAGINATION — the same data-table footer as Patients and Appointments
+   (entry count + first/prev/numbers/next/last), in its own card under the grid.
    ========================================================================= *@
-@await Html.PartialAsync("_Pagination", Model.Pagination)
+<div class="dt-card exercise-pager">
+    @await Html.PartialAsync("_DataTableFooter", new PhysioLink.AdminPanel.ViewModels.Shared.DataTableFooterViewModel
+    {
+        TotalCount = Model.TotalCount,
+        PageSize = Model.PageSize,
+        ItemCount = Model.Exercises.Count,
+        Pagination = Model.Pagination
+    })
+</div>
 
 @* Exercise detail modal (video + description) — shared partial *@
 @await Html.PartialAsync("_ExerciseDetailModal")
