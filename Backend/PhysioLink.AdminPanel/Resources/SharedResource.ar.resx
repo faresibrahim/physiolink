@@ -567,7 +567,7 @@
   <data name="e.g. Knee injury, post-op rehabilitation..." xml:space="preserve">
     <value>مثال: إصابة في الركبة، تأهيل بعد الجراحة...</value>
   </data>
-  <data name="Patient Created" xml:space="preserve">
+  <data name="Patient created" xml:space="preserve">
     <value>تم إنشاء المريض</value>
   </data>
   <data name="{0} has been added successfully." xml:space="preserve">

@@ -1,0 +1,511 @@
+/**
+ * sweetalert.css
+ * ---------------------------------------------------------------------------
+ * SweetAlert-style popups (success, error, warning, info, question) in Sneat's colours.
+ * Self-contained: needs no Bootstrap and no other stylesheet. Recreated to match the look and the animations
+ * of the SweetAlert2 popup used in Sneat's Pro demo (the free template does not ship SweetAlert).
+ *
+ * Change the look through the variables below.
+ *
+ * PhysioLink: copied from sweetalert-export/ with three theme changes: the panel's
+ * own font (DM Sans / IBM Plex Sans Arabic), the PhysioLink blue for the button,
+ * and the credentials block at the end (patient-created popup).
+ */
+
+.swal-container {
+  /* ----- theme (Sneat) ----- */
+  --swal-font: inherit;
+  --swal-bg: #fff;
+  --swal-backdrop: rgba(0, 0, 0, 0.4);
+  --swal-title-color: #566a7f;
+  --swal-text-color: #566a7f;
+  --swal-radius: 0.375rem;
+  --swal-primary: var(--primary, #004aad);
+  --swal-primary-hover: var(--primary-hover, #003c8c);
+  --swal-success: #71dd37;
+  --swal-error: #ff3e1d;
+  --swal-warning: #ffab00;
+  --swal-info: #03c3ec;
+  --swal-question: #8592a3;
+
+  position: fixed;
+  z-index: 1100;
+  inset: 0;
+  display: grid;
+  box-sizing: border-box;
+  padding: 0.625em;
+  place-items: center;
+  background: var(--swal-backdrop);
+  font-family: var(--swal-font);
+  -webkit-tap-highlight-color: transparent;
+  animation: swal-backdrop-show 0.15s ease-out;
+}
+.swal-container *,
+.swal-container *::before,
+.swal-container *::after {
+  box-sizing: border-box;
+}
+.swal-container.swal-closing {
+  animation: swal-backdrop-hide 0.15s ease-in forwards;
+}
+
+/* ===== Popup ===== */
+.swal-popup {
+  display: grid;
+  width: 32em;
+  max-width: 100%;
+  padding: 0 0 1.25em;
+  border-radius: var(--swal-radius);
+  background: var(--swal-bg);
+  box-shadow: 0 0.25rem 1.25rem rgba(34, 48, 62, 0.3);
+  color: var(--swal-text-color);
+  font-size: 1rem;
+  justify-items: center;
+  animation: swal-show 0.3s;
+}
+.swal-popup:focus {
+  outline: none;
+}
+.swal-closing .swal-popup {
+  animation: swal-hide 0.15s forwards;
+}
+
+.swal-title {
+  max-width: 100%;
+  margin: 0;
+  padding: 0.8em 1em 0;
+  color: var(--swal-title-color);
+  font-size: 1.875em;
+  font-weight: 400;
+  line-height: 1.25;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+.swal-icon + .swal-title {
+  margin-top: 1.1em;
+}
+
+.swal-title + .swal-text {
+  margin-top: 2.2em;
+}
+
+.swal-text {
+  margin: 1em 1.6em 0.3em;
+  color: var(--swal-text-color);
+  font-size: 1.125em;
+  line-height: 1.5;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+/* ===== Buttons ===== */
+.swal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  margin: 1.25em auto 0;
+  gap: 0.5em;
+}
+.swal-btn {
+  padding: 0.4375rem 1.25rem;
+  border: 0;
+  border-radius: 0.375rem;
+  background: var(--swal-primary);
+  box-shadow: 0 0.125rem 0.25rem 0 rgba(0, 74, 173, 0.4);
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.53;
+  transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.swal-btn:hover {
+  background: var(--swal-primary-hover);
+}
+.swal-btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 74, 173, 0.35);
+}
+.swal-btn-cancel {
+  background: rgba(133, 146, 163, 0.16);
+  box-shadow: none;
+  color: #8592a3;
+}
+.swal-btn-cancel:hover {
+  background: rgba(133, 146, 163, 0.28);
+}
+
+/* ===== Icons ===== */
+.swal-icon {
+  --swal-icon-color: var(--swal-question);
+  position: relative;
+  display: flex;
+  box-sizing: content-box;
+  width: 5em;
+  height: 5em;
+  align-items: center;
+  justify-content: center;
+  margin: 2.5em auto 0.6em;
+  border: 0.25em solid transparent;
+  border-radius: 50%;
+  border-color: var(--swal-icon-color);
+  color: var(--swal-icon-color);
+  cursor: default;
+  font-family: inherit;
+  line-height: 5em;
+  user-select: none;
+}
+.swal-icon-content {
+  font-size: 3.75em;
+  line-height: 1;
+}
+.swal-icon-info {
+  --swal-icon-color: var(--swal-info);
+}
+.swal-icon-warning {
+  --swal-icon-color: var(--swal-warning);
+}
+.swal-icon-question {
+  --swal-icon-color: var(--swal-question);
+}
+.swal-icon-error {
+  --swal-icon-color: var(--swal-error);
+}
+.swal-icon-success {
+  --swal-icon-color: var(--swal-success);
+}
+
+/* info / warning / question: character "i", "!", "?" */
+.swal-icon-info.swal-icon-show,
+.swal-icon-warning.swal-icon-show,
+.swal-icon-question.swal-icon-show {
+  animation: swal-animate-i-mark 0.8s;
+}
+
+/* ----- error ----- */
+.swal-icon-error.swal-icon-show {
+  animation: swal-animate-error-icon 0.5s;
+}
+.swal-x-mark {
+  position: relative;
+  flex-grow: 1;
+  align-self: stretch;
+}
+.swal-icon-error.swal-icon-show .swal-x-mark {
+  animation: swal-animate-error-x-mark 0.5s;
+}
+.swal-x-mark-line-left,
+.swal-x-mark-line-right {
+  position: absolute;
+  top: 2.3125em;
+  display: block;
+  width: 2.9375em;
+  height: 0.3125em;
+  border-radius: 0.125em;
+  background-color: var(--swal-icon-color);
+}
+.swal-x-mark-line-left {
+  left: 1.0625em;
+  transform: rotate(45deg);
+}
+.swal-x-mark-line-right {
+  right: 1em;
+  transform: rotate(-45deg);
+}
+
+/* ----- success ----- */
+.swal-icon-success [class^='swal-success-circular-line'] {
+  position: absolute;
+  width: 3.75em;
+  height: 7.5em;
+  border-radius: 50%;
+  background: var(--swal-bg);
+  transform: rotate(45deg);
+}
+.swal-icon-success [class^='swal-success-circular-line'][class$='left'] {
+  top: -0.4375em;
+  left: -2.0635em;
+  border-radius: 7.5em 0 0 7.5em;
+  transform: rotate(-45deg);
+  transform-origin: 3.75em 3.75em;
+}
+.swal-icon-success [class^='swal-success-circular-line'][class$='right'] {
+  top: -0.6875em;
+  left: 1.875em;
+  border-radius: 0 7.5em 7.5em 0;
+  transform: rotate(-45deg);
+  transform-origin: 0 3.75em;
+}
+.swal-icon-success .swal-success-ring {
+  position: absolute;
+  z-index: 2;
+  top: -0.25em;
+  left: -0.25em;
+  box-sizing: content-box;
+  width: 100%;
+  height: 100%;
+  border: 0.25em solid color-mix(in srgb, var(--swal-icon-color) 30%, transparent);
+  border-radius: 50%;
+}
+.swal-icon-success .swal-success-fix {
+  position: absolute;
+  z-index: 1;
+  top: 0.5em;
+  left: 1.625em;
+  width: 0.4375em;
+  height: 5.625em;
+  background: var(--swal-bg);
+  transform: rotate(-45deg);
+}
+.swal-icon-success [class^='swal-success-line'] {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  height: 0.3125em;
+  border-radius: 0.125em;
+  background-color: var(--swal-icon-color);
+}
+.swal-icon-success [class^='swal-success-line'][class$='tip'] {
+  top: 2.875em;
+  left: 0.8125em;
+  width: 1.5625em;
+  transform: rotate(45deg);
+}
+.swal-icon-success [class^='swal-success-line'][class$='long'] {
+  top: 2.375em;
+  right: 0.5em;
+  width: 2.9375em;
+  transform: rotate(-45deg);
+}
+.swal-icon-success.swal-icon-show .swal-success-line-tip {
+  animation: swal-animate-success-line-tip 0.75s;
+}
+.swal-icon-success.swal-icon-show .swal-success-line-long {
+  animation: swal-animate-success-line-long 0.75s;
+}
+.swal-icon-success.swal-icon-show .swal-success-circular-line-right {
+  animation: swal-rotate-success-circular-line 4.25s ease-in;
+}
+
+/* ===== Keyframes ===== */
+@keyframes swal-show {
+  0% {
+    transform: scale(0.7);
+  }
+  45% {
+    transform: scale(1.05);
+  }
+  80% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes swal-hide {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+@keyframes swal-backdrop-show {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes swal-backdrop-hide {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes swal-animate-success-line-tip {
+  0% {
+    top: 1.1875em;
+    left: 0.0625em;
+    width: 0;
+  }
+  54% {
+    top: 1.0625em;
+    left: 0.125em;
+    width: 0;
+  }
+  70% {
+    top: 2.1875em;
+    left: -0.375em;
+    width: 3.125em;
+  }
+  84% {
+    top: 3em;
+    left: 1.3125em;
+    width: 1.0625em;
+  }
+  100% {
+    top: 2.8125em;
+    left: 0.8125em;
+    width: 1.5625em;
+  }
+}
+@keyframes swal-animate-success-line-long {
+  0% {
+    top: 3.375em;
+    right: 2.875em;
+    width: 0;
+  }
+  65% {
+    top: 3.375em;
+    right: 2.875em;
+    width: 0;
+  }
+  84% {
+    top: 2.1875em;
+    right: 0;
+    width: 3.4375em;
+  }
+  100% {
+    top: 2.375em;
+    right: 0.5em;
+    width: 2.9375em;
+  }
+}
+@keyframes swal-rotate-success-circular-line {
+  0% {
+    transform: rotate(-45deg);
+  }
+  5% {
+    transform: rotate(-45deg);
+  }
+  12% {
+    transform: rotate(-405deg);
+  }
+  100% {
+    transform: rotate(-405deg);
+  }
+}
+@keyframes swal-animate-error-x-mark {
+  0% {
+    margin-top: 1.625em;
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  50% {
+    margin-top: 1.625em;
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  80% {
+    margin-top: -0.375em;
+    transform: scale(1.15);
+  }
+  100% {
+    margin-top: 0;
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes swal-animate-error-icon {
+  0% {
+    opacity: 0;
+    transform: rotateX(100deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
+}
+@keyframes swal-animate-i-mark {
+  0% {
+    opacity: 0;
+    transform: rotateZ(45deg);
+  }
+  25% {
+    opacity: 0.4;
+    transform: rotateZ(-25deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: rotateZ(15deg);
+  }
+  75% {
+    opacity: 1;
+    transform: rotateZ(-5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0);
+  }
+}
+
+/* ===== Credentials (patient created) =====
+   Label / value rows under the title: username and temporary password. Values
+   are always left-to-right, also in Arabic. */
+.swal-title + .swal-text:has(.swal-credentials) {
+  justify-self: stretch;
+  margin-top: 1.25em;
+}
+.swal-credentials {
+  display: grid;
+  width: 100%;
+  margin: 0;
+  border-radius: var(--swal-radius);
+  background: #f5f5f9;
+  font-size: 0.9375rem;
+  text-align: start;
+}
+.swal-credential {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25em 1em;
+  padding: 0.75em 1em;
+}
+.swal-credential + .swal-credential {
+  border-top: 1px solid #e4e6e8;
+}
+.swal-credential dt {
+  color: #8592a3;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.swal-credential dd {
+  margin: 0;
+  color: #384551;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.swal-credential-password {
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  letter-spacing: 0.02em;
+}
+
+/* Lock page scroll while a popup is open */
+.swal-open {
+  overflow: hidden;
+}
+
+/* Respect "reduce motion": show the final state without animation */
+@media (prefers-reduced-motion: reduce) {
+  .swal-container,
+  .swal-popup,
+  .swal-icon,
+  .swal-icon *,
+  .swal-closing .swal-popup {
+    animation-duration: 1ms !important;
+    animation-delay: 0s !important;
+  }
+}

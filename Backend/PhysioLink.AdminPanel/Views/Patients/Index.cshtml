@@ -5,7 +5,6 @@
     ViewData["ActivePage"] = "Patients";
 
 
-    var createdName     = TempData["PatientCreatedName"]     as string;
     var createdUsername = TempData["PatientCreatedUsername"] as string;
     var createdPassword = TempData["PatientCreatedPassword"] as string;
     var showCredentials = !string.IsNullOrEmpty(createdPassword);
@@ -328,80 +327,36 @@
     })();
 </script>
 
-@* ── Patient Credentials Modal (shown after successful create) ────────────── *@
-<div class="modal-overlay @(showCredentials ? "modal-visible" : "")" id="credentialsModal"
-     aria-modal="true" role="dialog" aria-labelledby="credentialsModalTitle">
-    <div class="modal">
-
-        <div class="modal-header">
-            <div class="row-lead">
-                <div class="success-icon-disc">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-                </div>
-                <div>
-                    <h2 class="modal-title" id="credentialsModalTitle">@L["Patient Created"]</h2>
-                    <p class="modal-subtitle">@L["{0} has been added successfully.", createdName ?? ""]</p>
-                </div>
+@* ── Patient created (success popup, sweetalert-export/) ────────────────────
+   Shown once after a patient is created: animated success icon, "Patient
+   created", then the username and temporary password. The values are rendered
+   by Razor (HTML-encoded) into a template, then shown with Swal.fire. *@
+@if (showCredentials)
+{
+    <template id="patientCreatedCredentials">
+        <dl class="swal-credentials">
+            <div class="swal-credential">
+                <dt>@L["Username"]</dt>
+                <dd dir="ltr">@createdUsername</dd>
             </div>
-            <button type="button" class="modal-close" onclick="closeCredentialsModal()" aria-label="@L["Close"]">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        </div>
-
-        <div class="modal-form">
-
-            <div class="alert alert-warning" role="note">
-                @L["Save this password now — it will not be shown again."]
+            <div class="swal-credential">
+                <dt>@L["Temporary Password"]</dt>
+                <dd dir="ltr" class="swal-credential-password">@createdPassword</dd>
             </div>
-
-            <div class="form-group">
-                <label class="form-label">@L["Username"]</label>
-                <p class="static-value">@createdUsername</p>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">@L["Temporary Password"]</label>
-                <div class="credential-box">
-                    @createdPassword
-                </div>
-            </div>
-
-            <div class="modal-actions">
-                <button type="button" class="btn btn-primary" onclick="closeCredentialsModal()">@L["Done"]</button>
-            </div>
-
-        </div>
-
-    </div>
-</div>
-
-@* The New Patient dialog and its JS live in _CreatePatientModal.
-   This script only drives the post-create credentials modal. *@
-<script>
-    (function () {
-        var credentialsModal = document.getElementById('credentialsModal');
-        if (!credentialsModal) return;
-
-        function closeCredentialsModal() {
-            credentialsModal.classList.remove('modal-visible');
-            window.plModal.closed(credentialsModal);
-        }
-
-        // Deliberately no overlay-click-to-close: closing should be an explicit
-        // choice (Done), not a stray click while the credentials are still visible.
-
-        window.closeCredentialsModal = closeCredentialsModal;
-
-        // This modal is open from first paint, but this inline script runs while the
-        // page is still parsing — before the deferred site.js defines plModal.
-        // Calling it here threw and left Done / × unwired, so wait until it exists.
-        if (credentialsModal.classList.contains('modal-visible')) {
-            document.addEventListener('DOMContentLoaded', function () {
-                window.plModal.opened(credentialsModal);
+        </dl>
+    </template>
+    <script>
+        // Runs after the deferred sweetalert.js has loaded.
+        document.addEventListener('DOMContentLoaded', function () {
+            window.Swal.fire({
+                icon: 'success',
+                title: @Json.Serialize(L["Patient created"].Value),
+                html: document.getElementById('patientCreatedCredentials').innerHTML,
+                confirmButtonText: @Json.Serialize(L["Done"].Value),
+                // Close only on purpose (Done or Esc), not on a stray click
+                // while the password still needs to be copied.
+                allowOutsideClick: false
             });
-        }
-    })();
-</script>
+        });
+    </script>
+}

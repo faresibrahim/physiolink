@@ -358,7 +358,6 @@ public class PatientsController : BaseController
             return RedirectToAction(nameof(Index));
         }
 
-        TempData["PatientCreatedName"]     = $"{result.FirstName} {result.LastName}";
         TempData["PatientCreatedUsername"] = result.Username;
         TempData["PatientCreatedPassword"] = result.TemporaryPassword ?? string.Empty;
         return RedirectToAction(nameof(Index));
