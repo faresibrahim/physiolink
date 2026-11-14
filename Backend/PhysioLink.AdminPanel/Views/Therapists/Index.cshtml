@@ -5,25 +5,32 @@
     ViewData["ActivePage"] = "Therapists";
 }
 
-<div class="page-header">
+@* Same data-table card as the Patients page (title and controls in the header,
+   entry count + pagination in the footer) — the body is a grid of therapist
+   cards instead of table rows. *@
+<div class="dt-card">
+
+<div class="dt-header">
     <div>
-        <h1 class="page-title">@L["Therapists"]</h1>
-        <p class="page-sub">
+        <h1 class="dt-title">@L["Therapists"]</h1>
+        <p class="dt-subtitle">
             @L[Model.TotalCount == 1 ? "{0} active practitioner" : "{0} active practitioners", Model.TotalCount]
         </p>
     </div>
 
-    <button type="button" onclick="openTherapistModal()" class="btn btn-primary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
-        @L["Add therapist"]
-    </button>
+    <div class="dt-tools">
+        <button type="button" onclick="openTherapistModal()" class="dt-btn dt-btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
+            @L["Add therapist"]
+        </button>
+    </div>
 </div>
 
-<div class="therapist-grid">
+<div class="therapist-grid dt-cards">
 
     @if (Model.Therapists.Count == 0)
     {
-        <div class="card empty-state grid-span-all">
+        <div class="empty-state grid-span-all">
             <h2 class="empty-state-title">@L["No therapists yet"]</h2>
             <p class="empty-state-subtitle">@L["Add your first practitioner to get started."]</p>
             <div class="empty-state-action">
@@ -89,7 +96,15 @@
 
 </div>
 
-@await Html.PartialAsync("_Pagination", Model.Pagination)
+@await Html.PartialAsync("_DataTableFooter", new PhysioLink.AdminPanel.ViewModels.Shared.DataTableFooterViewModel
+{
+    TotalCount = Model.TotalCount,
+    PageSize = Model.PageSize,
+    ItemCount = Model.Therapists.Count,
+    Pagination = Model.Pagination
+})
+
+</div>
 
 @* ── Add Therapist Modal ──────────────────────────────────────────────── *@
 <div class="modal-overlay" id="therapistModal" aria-modal="true" role="dialog" aria-labelledby="therapistModalTitle">

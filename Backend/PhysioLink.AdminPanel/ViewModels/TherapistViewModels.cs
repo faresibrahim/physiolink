@@ -8,6 +8,7 @@ public class TherapistListViewModel
 {
     public List<TherapistResponse> Therapists { get; set; } = [];
     public int TotalCount { get; set; }
+    public int PageSize { get; set; }
     public int CurrentPage { get; set; }
     public int TotalPages { get; set; }
     public PaginationViewModel Pagination { get; set; } = new();
