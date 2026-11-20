@@ -39,6 +39,10 @@ namespace PhysioLink.Infrastructure.Data.Configurations
                 .IsUnique()
                 .HasFilter("\"IsDeleted\" = false");
 
+            // Refresh-token rotation looks users up by token (UserRepository.GetUserByTokenAsync);
+            // without this every refresh/logout is a full scan of Users.
+            builder.HasIndex(p => p.RefreshToken);
+
             builder.Property(p=>p.PasswordHash)
             .IsRequired();
 

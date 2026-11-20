@@ -87,6 +87,8 @@ namespace PhysioLink.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("\"IsDeleted\" = false");
 
+                    b.HasIndex("RefreshToken");
+
                     b.HasIndex("Username")
                         .IsUnique()
                         .HasFilter("\"IsDeleted\" = false");
