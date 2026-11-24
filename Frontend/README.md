@@ -24,7 +24,7 @@ Not fully covered in the root README:
 ### Prerequisites
 
 - Flutter SDK `>=3.x` / Dart `>=3.x`
-- Android emulator or physical device (see [Known Limitations](#known-limitations--deferred) — iOS isn't buildable yet)
+- Android emulator or physical device (iOS builds need a Mac with Xcode and CocoaPods)
 
 ### Run
 
@@ -34,7 +34,7 @@ dart run build_runner build --delete-conflicting-outputs
 flutter run --dart-define=BASE_URL=https://physiolink-production.up.railway.app
 ```
 
-`BASE_URL` is read in [`lib/core/network/api_config.dart`](lib/core/network/api_config.dart) via `String.fromEnvironment`. If omitted, it defaults to `http://10.0.2.2:5218` — the Android emulator's alias for the host machine's `localhost`, for running against a locally-hosted copy of the API. For a physical device use the host machine's LAN IP instead; for iOS (once buildable) use `http://localhost:5218`.
+`BASE_URL` is read in [`lib/core/network/api_config.dart`](lib/core/network/api_config.dart) via `String.fromEnvironment`. If omitted, it defaults to the **production** API (`https://physiolink-production.up.railway.app`), so a plain `flutter build` can never ship a build pointing at a dev machine. To run against a local API pass `--dart-define=BASE_URL=http://10.0.2.2:5218` (Android emulator's alias for the host's `localhost`), the host's LAN IP for a physical device, or `http://localhost:5218` for the iOS simulator.
 
 ### Lint
 
@@ -71,6 +71,8 @@ flutter build apk --release --dart-define=BASE_URL=https://physiolink-production
 
 Output: `build/app/outputs/flutter-apk/app-release.apk`.
 
+For the Play Store build an app bundle instead: `flutter build appbundle --release`. If `android/key.properties` is absent (e.g. a fresh clone — it and the keystore are gitignored) the release build is produced **unsigned**; sign it with your own upload key or let Play App Signing handle it. To sign locally, create `android/key.properties` with `storePassword`, `keyPassword`, `keyAlias` and `storeFile` (path relative to `android/app/`).
+
 **Application ID:** `com.physiolink.patient` (`android/app/build.gradle.kts`, `namespace` + `applicationId`). This was renamed from Flutter's default template identifier, `com.example.practice`, the day before Play Store submission planning began — the applicationId becomes permanent once an app is published, and `com.example.practice` is one of the most common placeholder identifiers in existence, both wrong as a permanent production identity and a real collision risk. Anyone with a previously sideloaded build under the old identity must uninstall it first — a different `applicationId` is a different app to Android, not an in-place update.
 
 ### Distribution
@@ -87,7 +89,7 @@ See the [root README](../README.md#demo-credentials).
 
 ## Known Limitations / Deferred
 
-- **iOS**: `ios/` is untouched default Flutter scaffolding — no signing configured, bundle identifier still `com.example.practice`. Not started; tracked in the [root README's Roadmap](../README.md#roadmap).
+- **iOS**: bundle identifier is `com.physiolink.patient`, deployment target is **iOS 15.0** (required by Firebase iOS SDK 12 / `firebase_core` 4.x), and push is wired via `Runner.entitlements` + `remote-notification` background mode. Not yet verified with a real iOS build, no signing team configured (set in Xcode), and the APNs auth key must be uploaded to the Firebase project before iOS pushes arrive.
 - **No CI**: linting and tests are run manually, not gated by a pipeline.
 - **Test coverage**: see [Tests](#tests) above — four files, core auth/exercise/appointment paths only.
 
