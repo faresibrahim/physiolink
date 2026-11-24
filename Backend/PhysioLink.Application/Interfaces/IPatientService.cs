@@ -17,5 +17,10 @@ namespace PhysioLink.Application.Interfaces
         Task<Guid?> ResolvePatientIdAsync(Guid applicationUserId);
 
         Task<bool> RegisterDeviceTokenAsync(Guid patientId, string deviceToken);
+
+        // Daily exercise reminder for the patient. Both return null only when the
+        // patient record doesn't exist.
+        Task<ReminderDto?> GetReminderAsync(Guid patientId);
+        Task<ReminderDto?> UpdateReminderAsync(Guid patientId, UpdateReminderDto request);
     }
 }

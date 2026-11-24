@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using PhysioLink.API.BackgroundServices;
 using PhysioLink.API.Middleware;
 using PhysioLink.API.RateLimiting;
 using PhysioLink.Application.Interfaces;
@@ -153,6 +154,11 @@ builder.Services.AddScoped<IPatientSlotService, PatientSlotService>();
 builder.Services.AddScoped<IAdminExerciseService, AdminExerciseService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddSingleton<IPushNotificationSender, FirebasePushNotificationSender>();
+
+// Daily exercise reminders: a once-a-minute timer that runs one dispatcher pass
+// per tick in its own scope.
+builder.Services.AddScoped<IReminderDispatcher, ReminderDispatcher>();
+builder.Services.AddHostedService<ExerciseReminderBackgroundService>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

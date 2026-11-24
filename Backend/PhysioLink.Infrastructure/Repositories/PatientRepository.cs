@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PhysioLink.Application.Common;
 using PhysioLink.Application.DTOs;
 using PhysioLink.Application.DTOs.Patients;
 using PhysioLink.Application.DTOs.Profile;
@@ -140,6 +141,47 @@ namespace PhysioLink.Infrastructure.Repositories
 
         patient.DeviceToken = null;
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<ReminderDto?> GetReminderAsync(Guid patientId)
+    {
+        var reminder = await _dbContext.Patients
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(p => p.PatientId == patientId)
+            .Select(p => new { p.ReminderEnabled, p.ReminderTime })
+            .FirstOrDefaultAsync();
+
+        if (reminder is null)
+            return null;
+
+        return new ReminderDto
+        {
+            Enabled = reminder.ReminderEnabled,
+            Time = ReminderTimeFormat.Format(reminder.ReminderTime),
+        };
+    }
+
+    public async Task<bool> UpdateReminderAsync(Guid patientId, bool enabled, TimeOnly time, DateOnly? markHandledOn)
+    {
+        var patient = await _dbContext.Patients
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(p => p.PatientId == patientId);
+
+        if (patient is null)
+            return false;
+
+        patient.ReminderEnabled = enabled;
+        patient.ReminderTime = time;
+
+        // Never cleared here: if today's reminder already went out and the patient
+        // moves the time later, "already sent today" still holds and the next one
+        // goes tomorrow. At most one reminder per clinic day beats a second ping.
+        if (markHandledOn is { } day)
+            patient.LastReminderSentOn = day;
+
+        await _dbContext.SaveChangesAsync();
+        return true;
     }
     }
 }
