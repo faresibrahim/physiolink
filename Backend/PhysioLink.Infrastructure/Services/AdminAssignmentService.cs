@@ -110,7 +110,7 @@ namespace PhysioLink.Infrastructure.Services
             _dbContext.ExerciseAssignments.Add(assignment);
             await _dbContext.SaveChangesAsync();
 
-            await SendAssignmentPushAsync(patientId, assignment, exerciseName);
+            await SendAssignmentPushAsync(patientId, assignment, "New exercise assigned", exerciseName);
 
             return new AssignmentDto
             {
@@ -132,8 +132,8 @@ namespace PhysioLink.Infrastructure.Services
         }
 
         // Best-effort — a dead token or FCM outage must never fail the assignment
-        // itself, which already committed above.
-        private async Task SendAssignmentPushAsync(Guid patientId, ExerciseAssignment assignment, string exerciseName)
+        // change itself, which already committed before this is called.
+        private async Task SendAssignmentPushAsync(Guid patientId, ExerciseAssignment assignment, string title, string body)
         {
             var patient = await _dbContext.Patients.FirstOrDefaultAsync(p => p.PatientId == patientId);
             if (string.IsNullOrWhiteSpace(patient?.DeviceToken)) return;
@@ -142,8 +142,8 @@ namespace PhysioLink.Infrastructure.Services
             {
                 await _pushSender.SendAsync(
                     patient.DeviceToken,
-                    "New exercise assigned",
-                    exerciseName,
+                    title,
+                    body,
                     new Dictionary<string, string>
                     {
                         ["type"] = "exercise",
@@ -173,6 +173,11 @@ namespace PhysioLink.Infrastructure.Services
                 .Select(e => e.Name)
                 .FirstOrDefaultAsync() ?? string.Empty;
 
+            // Only fields the patient sees count — a TherapistName-only edit (or an
+            // unchanged re-save) must not push.
+            var before = (assignment.Sets, assignment.Reps, assignment.DurationMinutes,
+                assignment.FrequencyPerWeek, assignment.FrequencyPerDay, assignment.Status);
+
             assignment.TherapistName = dto.TherapistName;
             assignment.Sets = dto.Sets;
             assignment.Reps = dto.Reps;
@@ -181,7 +186,17 @@ namespace PhysioLink.Infrastructure.Services
             assignment.FrequencyPerDay = dto.FrequencyPerDay;
             assignment.Status = dto.Status;
 
+            var after = (assignment.Sets, assignment.Reps, assignment.DurationMinutes,
+                assignment.FrequencyPerWeek, assignment.FrequencyPerDay, assignment.Status);
+
             await _dbContext.SaveChangesAsync();
+
+            if (before != after)
+                await SendAssignmentPushAsync(
+                    assignment.PatientId,
+                    assignment,
+                    "Exercise updated",
+                    $"{exerciseName} was updated by your therapist.");
 
             return new AssignmentDto
             {

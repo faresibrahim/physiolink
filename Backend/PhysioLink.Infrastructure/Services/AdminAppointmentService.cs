@@ -224,6 +224,10 @@ namespace PhysioLink.Infrastructure.Services
                 await _dbContext.SaveChangesAsync();
                 await tx.CommitAsync();
 
+                // Booked straight to Confirmed, so there is no later Accept step to
+                // notify the patient — tell them now.
+                await SendAppointmentConfirmedPushAsync(booked, CancellationToken.None);
+
                 return new AdminAppointmentDto
                 {
                     AppointmentId = booked.AppointmentId,
@@ -390,12 +394,20 @@ namespace PhysioLink.Infrastructure.Services
         public async Task<AppointmentActionOutcome> RejectAsync(Guid appointmentId, CancellationToken ct = default)
         {
             // Reject -> slot back in the pool (spec 4.3 / D6).
-            var (outcome, _) = await TransitionAsync(
+            var (outcome, appointment) = await TransitionAsync(
                 appointmentId,
                 required: AppointmentStatus.Requested,
                 next: AppointmentStatus.Rejected,
                 slotNext: SlotStatus.Available,
                 ct);
+
+            if (outcome == AppointmentActionOutcome.Ok && appointment != null)
+                await SendAppointmentPushAsync(
+                    appointment,
+                    "Appointment request declined",
+                    $"Your request for {ClinicTime.ToLocal(appointment.AppointmentTime):MMM d 'at' h:mm tt} couldn't be accepted. Please pick another time.",
+                    ct);
+
             return outcome;
         }
 
@@ -404,19 +416,27 @@ namespace PhysioLink.Infrastructure.Services
             // Cancel a confirmed booking -> CancelledByClinic / slot freed (spec 4.4 / D8).
             // Default to freeing the slot; taking the therapist off entirely is a
             // separate concern left to the toggle-off grid.
-            var (outcome, _) = await TransitionAsync(
+            var (outcome, appointment) = await TransitionAsync(
                 appointmentId,
                 required: AppointmentStatus.Confirmed,
                 next: AppointmentStatus.CancelledByClinic,
                 slotNext: SlotStatus.Available,
                 ct);
+
+            if (outcome == AppointmentActionOutcome.Ok && appointment != null)
+                await SendAppointmentPushAsync(
+                    appointment,
+                    "Appointment cancelled",
+                    $"Your appointment on {ClinicTime.ToLocal(appointment.AppointmentTime):MMM d 'at' h:mm tt} has been cancelled by the clinic.",
+                    ct);
+
             return outcome;
         }
 
         // Shared guarded transition: load the appointment (clinic-scoped) with its
         // slot, verify the required current state, then flip appointment + slot in one
         // SaveChanges (a single transaction). Also loads Patient so a successful
-        // Accept can push-notify without a second round trip.
+        // transition can push-notify without a second round trip.
         private async Task<(AppointmentActionOutcome Outcome, Appointment? Appointment)> TransitionAsync(
             Guid appointmentId,
             AppointmentStatus required,
@@ -440,19 +460,29 @@ namespace PhysioLink.Infrastructure.Services
             return (AppointmentActionOutcome.Ok, appointment);
         }
 
-        // Best-effort — a dead token or FCM outage must never fail the accept
-        // action itself, which already committed above.
-        private async Task SendAppointmentConfirmedPushAsync(Appointment appointment, CancellationToken ct)
+        private Task SendAppointmentConfirmedPushAsync(Appointment appointment, CancellationToken ct) =>
+            SendAppointmentPushAsync(
+                appointment,
+                "Appointment confirmed",
+                $"Your appointment on {ClinicTime.ToLocal(appointment.AppointmentTime):MMM d 'at' h:mm tt} has been confirmed.",
+                ct);
+
+        // Best-effort — a dead token or FCM outage must never fail the appointment
+        // action itself, which already committed before this is called.
+        private async Task SendAppointmentPushAsync(Appointment appointment, string title, string body, CancellationToken ct)
         {
-            var deviceToken = appointment.Patient?.DeviceToken;
+            // A freshly created appointment has no Patient navigation loaded.
+            var patient = appointment.Patient
+                ?? await _dbContext.Patients.FirstOrDefaultAsync(p => p.PatientId == appointment.PatientId, ct);
+            var deviceToken = patient?.DeviceToken;
             if (string.IsNullOrWhiteSpace(deviceToken)) return;
 
             try
             {
                 await _pushSender.SendAsync(
                     deviceToken,
-                    "Appointment confirmed",
-                    $"Your appointment on {ClinicTime.ToLocal(appointment.AppointmentTime):MMM d 'at' h:mm tt} has been confirmed.",
+                    title,
+                    body,
                     new Dictionary<string, string>
                     {
                         ["type"] = "appointment",
@@ -462,7 +492,7 @@ namespace PhysioLink.Infrastructure.Services
             }
             catch (FirebaseMessagingException ex) when (ex.MessagingErrorCode == MessagingErrorCode.Unregistered)
             {
-                appointment.Patient!.DeviceToken = null;
+                patient!.DeviceToken = null;
                 await _dbContext.SaveChangesAsync(ct);
             }
             catch (Exception ex)

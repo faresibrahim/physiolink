@@ -220,6 +220,20 @@ internal class FakePatientService : IPatientService
 
     public Task<bool> RegisterDeviceTokenAsync(Guid patientId, string deviceToken) =>
         Task.FromResult(true);
+
+    public Guid? LastReminderPatientId { get; private set; }
+
+    public Task<ReminderDto?> GetReminderAsync(Guid patientId)
+    {
+        LastReminderPatientId = patientId;
+        return Task.FromResult<ReminderDto?>(new ReminderDto());
+    }
+
+    public Task<ReminderDto?> UpdateReminderAsync(Guid patientId, UpdateReminderDto request)
+    {
+        LastReminderPatientId = patientId;
+        return Task.FromResult<ReminderDto?>(new ReminderDto { Enabled = request.Enabled, Time = request.Time });
+    }
 }
 
 internal class FakeExerciseService : IExerciseService

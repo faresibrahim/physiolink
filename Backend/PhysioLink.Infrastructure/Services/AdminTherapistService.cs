@@ -20,12 +20,15 @@ namespace PhysioLink.Infrastructure.Services //should live in infrastructure bec
 
         public async Task<PagedResult<TherapistDto>> GetAllAsync(int page, int pageSize)
         {
-            var clinicId = _currentClinicService.GetCurrentClinicId();
-            Console.WriteLine($"ClinicId from service: {clinicId}");
-
             var totalCount = await _dbContext.Therapists.CountAsync();
 
+            // Stable ordering is required for correct pagination (same as patients):
+            // without it Postgres may return rows in any order, so a therapist can
+            // show up on two pages or none.
             var result = await _dbContext.Therapists.AsNoTracking()
+                .OrderBy(t => t.FirstName)
+                .ThenBy(t => t.LastName)
+                .ThenBy(t => t.TherapistId)
                 .Select(ea => new TherapistDto
             {
                 TherapistId = ea.TherapistId,

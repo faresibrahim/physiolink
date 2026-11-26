@@ -64,6 +64,34 @@ namespace PhysioLink.API.Controllers
             return NoContent();
         }
 
+        // Daily exercise reminder. Like device-token, the patient comes only from the
+        // JWT. A patient who never set one gets the defaults (disabled, 18:00), not 404.
+        [HttpGet("patients/me/reminder")]
+        public async Task<IActionResult> GetReminder()
+        {
+            if (User.GetApplicationUserId() is not { } userId) return Forbid();
+            var patientId = await _patientService.ResolvePatientIdAsync(userId);
+            if (patientId is not { } pid) return Forbid();
+
+            var reminder = await _patientService.GetReminderAsync(pid);
+            if (reminder is null) return NotFound();
+            return Ok(reminder);
+        }
+
+        // Time is "HH:mm" in clinic local time; UpdateReminderValidator returns 400
+        // for anything else.
+        [HttpPut("patients/me/reminder")]
+        public async Task<IActionResult> UpdateReminder([FromBody] UpdateReminderDto request)
+        {
+            if (User.GetApplicationUserId() is not { } userId) return Forbid();
+            var patientId = await _patientService.ResolvePatientIdAsync(userId);
+            if (patientId is not { } pid) return Forbid();
+
+            var saved = await _patientService.UpdateReminderAsync(pid, request);
+            if (saved is null) return NotFound();
+            return Ok(saved);
+        }
+
         // Ensures the {id} in the route is the caller's own PatientId. The patient is
         // resolved from the JWT identity — never trusted from the URL — closing the
         // IDOR where any patient could read/edit another's record by swapping the GUID.

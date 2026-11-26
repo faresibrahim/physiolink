@@ -23,6 +23,18 @@ public class Patient : ClinicScopedEntity
 
     public string? DeviceToken { get; set; }
 
+    // Daily exercise reminder. ReminderTime is a CLINIC-local wall-clock time
+    // (see Application/Common/ClinicTime), never UTC — the patient picks "18:00"
+    // meaning 18:00 in the clinic, whatever the DST offset is that day.
+    public static readonly TimeOnly DefaultReminderTime = new(18, 0);
+
+    public bool ReminderEnabled { get; set; }
+    public TimeOnly ReminderTime { get; set; } = DefaultReminderTime;
+
+    // CLINIC-local date the reminder was last handled (sent, or deliberately
+    // skipped). Guarantees at most one reminder per patient per clinic day.
+    public DateOnly? LastReminderSentOn { get; set; }
+
     public Patient(string firstName, string lastName, string phoneNumber, Guid applicationUserId, string username, string? email, string diagnosis)
         {
             PatientId = Guid.NewGuid();

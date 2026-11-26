@@ -403,10 +403,19 @@ namespace PhysioLink.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<DateOnly?>("LastReminderSentOn")
+                        .HasColumnType("date");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("ReminderEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<TimeOnly>("ReminderTime")
+                        .HasColumnType("time without time zone");
 
                     b.Property<Guid?>("TherapistId")
                         .HasColumnType("uuid");
@@ -425,6 +434,10 @@ namespace PhysioLink.Infrastructure.Migrations
                         .IsUnique();
 
                     b.HasIndex("ClinicId");
+
+                    b.HasIndex("ReminderTime")
+                        .HasDatabaseName("IX_Patients_ReminderTime_Enabled")
+                        .HasFilter("\"ReminderEnabled\" = true");
 
                     b.HasIndex("TherapistId");
 

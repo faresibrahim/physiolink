@@ -39,18 +39,29 @@ android {
         versionName = flutter.versionName
     }
 
-    signingConfigs {
-        create("release") {
-            keyAlias = keyProperties["keyAlias"] as String?
-            keyPassword = keyProperties["keyPassword"] as String?
-            storeFile = keyProperties["storeFile"]?.let { file(it) }
-            storePassword = keyProperties["storePassword"] as String?
+    // key.properties and the keystore are gitignored, so a fresh clone has neither.
+    // Sign only when they exist; otherwise the release build is produced unsigned
+    // (sign it with your own upload key, or let the Play Console re-sign it).
+    val hasReleaseSigning = keyPropertiesFile.exists()
+
+    if (hasReleaseSigning) {
+        signingConfigs {
+            create("release") {
+                keyAlias = keyProperties["keyAlias"] as String?
+                keyPassword = keyProperties["keyPassword"] as String?
+                storeFile = keyProperties["storeFile"]?.let { file(it) }
+                storePassword = keyProperties["storePassword"] as String?
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            } else {
+                logger.warn("key.properties not found: building UNSIGNED release")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
         }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:practice/core/network/core_providers.dart';
 import 'package:practice/core/notifications/dio_notification_repository.dart';
@@ -20,11 +21,23 @@ Future<void> registerDeviceToken(
 ) async {
   try {
     final granted = await service.requestPermission();
-    if (!granted) return;
+    if (!granted) {
+      debugPrint('[push] notification permission not granted');
+      return;
+    }
 
     final token = await service.getToken();
-    if (token == null) return;
+    if (token == null) {
+      debugPrint('[push] no FCM token available');
+      return;
+    }
 
-    await repository.registerDeviceToken(token);
-  } catch (_) {}
+    final result = await repository.registerDeviceToken(token);
+    result.fold(
+      (failure) => debugPrint('[push] token registration failed: $failure'),
+      (_) => debugPrint('[push] device token registered'),
+    );
+  } catch (ex) {
+    debugPrint('[push] device token registration error: $ex');
+  }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,7 +27,29 @@ class NotificationService {
         settings.authorizationStatus == AuthorizationStatus.provisional;
   }
 
-  Future<String?> getToken() => _messaging.getToken();
+  // On iOS the FCM token is derived from the APNs token, which Apple hands
+  // over asynchronously after the permission prompt. Asking for the FCM token
+  // before that throws `apns-token-not-set`, so wait for the APNs token first.
+  Future<String?> getToken() async {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      final apnsToken = await _waitForApnsToken();
+      if (apnsToken == null) {
+        debugPrint('[push] APNs token never arrived; skipping FCM token');
+        return null;
+      }
+    }
+    return _messaging.getToken();
+  }
+
+  Future<String?> _waitForApnsToken() async {
+    const attempts = 15;
+    for (var i = 0; i < attempts; i++) {
+      final token = await _messaging.getAPNSToken();
+      if (token != null) return token;
+      await Future<void>.delayed(const Duration(seconds: 2));
+    }
+    return null;
+  }
 
   Stream<String> get onTokenRefresh => _messaging.onTokenRefresh;
 
