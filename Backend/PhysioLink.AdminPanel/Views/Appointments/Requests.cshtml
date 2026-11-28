@@ -8,107 +8,135 @@
     var count = Model.Requests.Count;
 }
 
-@* =========================================================================
-   PAGE HEADER
-   ========================================================================= *@
-<div class="page-header">
-    <div>
-        <h1 class="page-title">@L["Requests"]</h1>
-        <p class="page-sub">@L[count == 1 ? "{0} request waiting on a decision — expired requests are hidden automatically." : "{0} requests waiting on a decision — expired requests are hidden automatically.", count]</p>
+@* Pending-request queue — same data-table card as Appointments, History and
+   Patients (datatable-export design). Accept / Reject stay visible on every row
+   rather than behind the "⋮" menu, since deciding is this page's whole job. *@
+<div class="dt-card">
+
+    <div class="dt-header">
+        <div>
+            <h1 class="dt-title">@L["Requests"]</h1>
+            <p class="dt-subtitle">@L[count == 1 ? "{0} request waiting on a decision — expired requests are hidden automatically." : "{0} requests waiting on a decision — expired requests are hidden automatically.", count]</p>
+        </div>
+
+        <div class="dt-tools">
+            <form method="get" asp-action="Requests" class="dt-filters">
+                @* Therapist filter *@
+                <select name="therapistFilter" class="dt-input dt-select" aria-label="@L["Filter by therapist"]" onchange="this.form.submit()">
+                    <option value="" selected="@(Model.TherapistFilter == null)">@L["All therapists"]</option>
+                    @foreach (var t in Model.Therapists)
+                    {
+                        bool active = Model.TherapistFilter == t.Id;
+                        <option value="@t.Id" selected="@active">@t.FirstName @t.LastName</option>
+                    }
+                </select>
+            </form>
+
+            <a asp-action="Index" asp-controller="Appointments" class="dt-btn dt-btn-outline">
+                @L["← Back to appointments"]
+            </a>
+        </div>
     </div>
-    <a asp-action="Index" asp-controller="Appointments" class="btn btn-ghost">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" /></svg>
-        @L["All appointments"]
-    </a>
-</div>
 
-@* =========================================================================
-   THERAPIST FILTER — dropdown list, auto-submits on change
-   ========================================================================= *@
-<form method="get" asp-action="Requests" class="toolbar toolbar-bare">
-    <select name="therapistFilter" class="filter-select" aria-label="@L["Filter by therapist"]" onchange="this.form.submit()">
-        <option value="" selected="@(Model.TherapistFilter == null)">@L["All therapists"]</option>
-        @foreach (var t in Model.Therapists)
-        {
-            bool active = Model.TherapistFilter == t.Id;
-            <option value="@t.Id" selected="@active">@t.FirstName @t.LastName</option>
-        }
-    </select>
-</form>
-
-@* =========================================================================
-   QUEUE
-   ========================================================================= *@
-@if (count == 0)
-{
-    <div class="card empty-state">
-        <svg class="empty-state-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M9 11l3 3L22 4" />
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-        </svg>
-        <h3 class="empty-state-title">@L["All caught up"]</h3>
-        <p class="empty-state-subtitle">@L["No pending requests right now."]</p>
-    </div>
-}
-else
-{
-    <div class="request-list">
-        @foreach (var r in Model.Requests)
-        {
-            var scheduledLocal = ClinicTime.ToLocal(r.ScheduledAt);
-            <div class="request-card">
-                <div class="appt-when request-when">
-                    <span class="appt-when-time">@scheduledLocal.ToString("HH:mm")</span>
-                    <span class="appt-when-day">@L[ClinicTime.DayLabel(scheduledLocal)]</span>
-                </div>
-
-                <div class="request-body">
-                    <div class="request-top">
-                        <div>
-                            <p class="request-patient">@r.PatientName</p>
-                            <div class="request-meta">
-                                <svg class="request-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                                <span>@r.TherapistName</span>
-                            </div>
+    <div class="dt-scroll">
+        <table class="dt-table">
+            <thead>
+                <tr>
+                    <th>@L["Date & Time"]</th>
+                    <th>@L["Patient"]</th>
+                    <th>@L["Therapist"]</th>
+                    <th>@L["Title"]</th>
+                    <th>@L["Requested"]</th>
+                    <th>@L["Status"]</th>
+                    <th class="dt-col-actions">@L["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (count == 0)
+            {
+                <tr>
+                    <td colspan="7" class="empty-row">
+                        <div class="empty-state">
+                            <h2 class="empty-state-title">@L["All caught up"]</h2>
+                            <p class="empty-state-subtitle">@L["No pending requests right now."]</p>
                         </div>
-                        <span class="status-pill status-requested">@L["Pending"]</span>
-                    </div>
-
-                    @if (!string.IsNullOrWhiteSpace(r.Type))
-                    {
-                        <span class="request-type-chip">@r.Type</span>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(r.Notes))
-                    {
-                        <p class="request-notes">&ldquo;@r.Notes&rdquo;</p>
-                    }
-
-                    <p class="request-requested-meta">@L["Requested {0}", ClinicTime.ToLocal(r.RequestedAt).ToString(DatePatterns.MonthDayTime)]</p>
-                </div>
-
-                <div class="request-actions">
-                    <form asp-action="AcceptRequest" method="post" class="inline-form">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@r.AppointmentId" />
-                        <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
-                        <button type="submit" class="btn btn-success btn-sm">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                            @L["Accept"]
-                        </button>
-                    </form>
-                    <form asp-action="RejectRequest" method="post" class="inline-form"
-                          data-confirm="@L["Reject this request and free the slot?"]" onsubmit="return confirm(this.dataset.confirm);">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@r.AppointmentId" />
-                        <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
-                        <button type="submit" class="btn btn-danger-outline btn-sm">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                            @L["Reject"]
-                        </button>
-                    </form>
-                </div>
-            </div>
-        }
+                    </td>
+                </tr>
+            }
+            @foreach (var r in Model.Requests)
+            {
+                var scheduledLocal = ClinicTime.ToLocal(r.ScheduledAt);
+                var requestedLocal = ClinicTime.ToLocal(r.RequestedAt);
+                <tr>
+                    <td>
+                        <span class="dt-cell-main">@scheduledLocal.ToString(DatePatterns.MonthDay)</span>
+                        <span class="dt-cell-sub" dir="ltr">@scheduledLocal.ToString("HH:mm")</span>
+                    </td>
+                    <td>
+                        <a asp-controller="Patients" asp-action="Detail" asp-route-id="@r.PatientId" class="dt-name">@r.PatientName</a>
+                        @if (!string.IsNullOrWhiteSpace(r.Notes))
+                        {
+                            <span class="dt-cell-sub dt-cell-note" title="@r.Notes">&ldquo;@r.Notes&rdquo;</span>
+                        }
+                    </td>
+                    <td>
+                        @if (string.IsNullOrEmpty(r.TherapistName))
+                        {
+                            <span class="unassigned-text">—</span>
+                        }
+                        else
+                        {
+                            @r.TherapistName
+                        }
+                    </td>
+                    <td>
+                        @if (string.IsNullOrWhiteSpace(r.Type))
+                        {
+                            <span class="unassigned-text">—</span>
+                        }
+                        else
+                        {
+                            @r.Type
+                        }
+                        @if (r.RescheduleFrom is DateTime rescheduleFrom)
+                        {
+                            <span class="dt-cell-sub">@L["Reschedule · was {0}", ClinicTime.ToLocal(rescheduleFrom).ToString(DatePatterns.MonthDayTime)]</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="dt-cell-main">@requestedLocal.ToString(DatePatterns.MonthDay)</span>
+                        <span class="dt-cell-sub" dir="ltr">@requestedLocal.ToString("HH:mm")</span>
+                    </td>
+                    <td>
+                        @if (r.RescheduleFrom is not null)
+                        {
+                            <span class="dt-badge dt-badge-warning">@L["Rescheduled"]</span>
+                        }
+                        else
+                        {
+                            @await Html.PartialAsync("_DataTableBadge", "Requested")
+                        }
+                    </td>
+                    <td class="dt-col-actions">
+                        <div class="dt-row-actions">
+                            <form asp-action="AcceptRequest" method="post" class="inline-form">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@r.AppointmentId" />
+                                <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
+                                <button type="submit" class="dt-btn dt-btn-sm dt-btn-primary">@L["Accept"]</button>
+                            </form>
+                            <form asp-action="RejectRequest" method="post" class="inline-form"
+                                  data-confirm="@L["Reject this request and free the slot?"]" onsubmit="return confirm(this.dataset.confirm);">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@r.AppointmentId" />
+                                <input type="hidden" name="therapistFilter" value="@Model.TherapistFilter" />
+                                <button type="submit" class="dt-btn dt-btn-sm dt-btn-danger-outline">@L["Reject"]</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
     </div>
-}
+</div>

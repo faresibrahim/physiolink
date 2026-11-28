@@ -1451,7 +1451,8 @@ textarea.input {
     color: var(--text-secondary);
 }
 
-.status-expired {
+.status-expired,
+.status-rescheduled {
     background: var(--divider-soft);
     color: var(--text-tertiary);
 }
@@ -2839,118 +2840,6 @@ textarea.input {
     }
 
 /* =============================================================================
-   REQUEST QUEUE — pending-request cards (Appointments/Requests)
-   ============================================================================= */
-
-.request-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-}
-
-.request-card {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-3);
-    background: var(--surface);
-    border: 1px solid var(--divider);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-xs);
-    padding: var(--space-4);
-}
-
-/* The card's lines are a size up from a dashboard row (16px name, 14px meta),
-   so its when-column steps up with them to keep the shared baselines. */
-.request-when {
-    width: 96px;
-}
-
-    .request-when .appt-when-time {
-        font-size: var(--font-size-base);
-    }
-
-    .request-when .appt-when-day {
-        font-size: var(--font-size-sm);
-        margin-top: var(--space-1);
-    }
-
-.request-body {
-    flex: 1;
-    min-width: 0;
-}
-
-.request-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-2);
-    flex-wrap: wrap;
-}
-
-.request-patient {
-    font-size: var(--font-size-base);
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-}
-
-.request-meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin: var(--space-1) 0 0;
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
-    flex-wrap: wrap;
-}
-
-.request-meta-icon {
-    width: var(--icon-sm);
-    height: var(--icon-sm);
-    color: var(--text-tertiary);
-    flex-shrink: 0;
-}
-
-.request-type-chip {
-    display: inline-flex;
-    align-items: center;
-    margin-top: var(--space-2);
-    padding: var(--space-1) var(--space-2);
-    background: var(--primary-soft);
-    color: var(--primary);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    border-radius: var(--radius-full);
-}
-
-.request-notes {
-    margin: var(--space-2) 0 0;
-    padding-inline-start: var(--space-3);
-    border-inline-start: 1px solid var(--divider);
-    font-size: var(--font-size-sm);
-    font-style: italic;
-    color: var(--text-secondary);
-    line-height: var(--line-height-normal);
-}
-
-.request-requested-meta {
-    margin: var(--space-2) 0 0;
-    font-size: var(--font-size-xs);
-    color: var(--text-tertiary);
-}
-
-.request-actions {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    flex-shrink: 0;
-}
-
-    .request-actions .btn {
-        width: 112px;
-    }
-
-/* =============================================================================
    WEEKLY SCHEDULE GRID (therapist availability)
    Every cell is one of three states — free to open, open, or locked — and each
    reads from the status palette the rest of the app already uses.
@@ -4190,6 +4079,35 @@ textarea.input {
     font-weight: 500;
     text-align: center;
     color: var(--dt-heading);
+}
+
+/* Compact buttons for inline row actions (Requests: Accept / Reject) */
+.dt-row-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.dt-btn-sm {
+    height: 32px;
+    padding: 0 14px;
+    font-size: 14px;
+}
+
+.dt-btn-danger-outline {
+    --dt-btn-border: var(--danger);
+    --dt-btn-color: var(--danger-text);
+    --dt-btn-hover-bg: var(--danger);
+    --dt-btn-hover-border: var(--danger);
+    --dt-btn-hover-color: #fff;
+}
+
+/* Patient's note under their name — one line, full text on hover */
+.dt-cell-note {
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-style: italic;
 }
 
 /* Two-line cell: main value over a muted secondary one (date over time) */
