@@ -11,6 +11,7 @@ namespace PhysioLink.Domain.Enums
         Completed = 2,         // session happened
         Rejected = 3,          // therapist declined the request
         Expired = 4,           // 48h / slot-start passed with no decision
-        CancelledByClinic = 5  // clinic cancelled a previously-confirmed appointment
+        CancelledByClinic = 5, // clinic cancelled a previously-confirmed appointment
+        Rescheduled = 6        // patient moved it; the clinic accepted the replacement request
     }
 }

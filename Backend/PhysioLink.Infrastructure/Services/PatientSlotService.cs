@@ -121,6 +121,111 @@ namespace PhysioLink.Infrastructure.Services
             return RequestSlotResult.Created(ToDto(appointment));
         }
 
+        public async Task<RescheduleResult> RescheduleAsync(Guid applicationUserId, Guid appointmentId, RescheduleAppointmentDto request, CancellationToken ct = default)
+        {
+            var patient = await _dbContext.Patients.AsNoTracking()
+                .Where(p => p.ApplicationUserId == applicationUserId)
+                .Select(p => new { p.PatientId, p.ClinicId, p.TherapistId })
+                .FirstOrDefaultAsync(ct);
+
+            if (patient == null)
+                return RescheduleResult.Of(RescheduleOutcome.NotFound);
+
+            // Settle stale requests first so an expired one can't be moved.
+            await _expiryService.SweepAsync(ct);
+
+            // Ownership is part of the lookup: another patient's id reads as 404.
+            var appointment = await _dbContext.Appointments
+                .Include(a => a.AppointmentSlot)
+                .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId && a.PatientId == patient.PatientId, ct);
+
+            if (appointment == null)
+                return RescheduleResult.Of(RescheduleOutcome.NotFound);
+
+            if (appointment.Status is not (AppointmentStatus.Confirmed or AppointmentStatus.Requested))
+                return RescheduleResult.Of(RescheduleOutcome.NotReschedulable);
+
+            var now = DateTime.UtcNow;
+            if (appointment.AppointmentTime - now < RescheduleResult.Cutoff)
+                return RescheduleResult.Of(RescheduleOutcome.TooLate);
+
+            if (appointment.Status == AppointmentStatus.Confirmed)
+            {
+                // One open reschedule request per confirmed session; the patient
+                // moves that request instead of stacking another.
+                var pending = await _dbContext.Appointments.AnyAsync(a =>
+                    a.RescheduleOfAppointmentId == appointment.AppointmentId
+                    && a.Status == AppointmentStatus.Requested, ct);
+                if (pending)
+                    return RescheduleResult.Of(RescheduleOutcome.NotReschedulable);
+            }
+
+            if (patient.TherapistId == null || request.SlotId == appointment.AppointmentSlotId)
+                return RescheduleResult.Of(RescheduleOutcome.SlotUnavailable);
+
+            await using var tx = await _dbContext.Database.BeginTransactionAsync(ct);
+
+            // Same race-safe claim as RequestSlotAsync (spec 3.2).
+            var rows = await _dbContext.AppointmentSlots
+                .Where(s => s.Id == request.SlotId
+                            && s.TherapistId == patient.TherapistId
+                            && s.Status == SlotStatus.Available
+                            && s.ScheduledAt > now)
+                .ExecuteUpdateAsync(set => set.SetProperty(s => s.Status, SlotStatus.Requested), ct);
+
+            if (rows == 0)
+            {
+                await tx.RollbackAsync(ct);
+                return RescheduleResult.Of(RescheduleOutcome.SlotUnavailable);
+            }
+
+            // Tracked, loaded after the claim so it carries the new status.
+            var newSlot = await _dbContext.AppointmentSlots.FirstAsync(s => s.Id == request.SlotId, ct);
+
+            if (appointment.Status == AppointmentStatus.Requested)
+            {
+                // Still undecided: move the request itself. The old slot goes back
+                // in the pool and the request re-enters the queue as of now, so the
+                // 48h decision window restarts for the new time.
+                if (appointment.AppointmentSlot is { Status: SlotStatus.Requested })
+                    appointment.AppointmentSlot.Status = SlotStatus.Available;
+
+                appointment.AppointmentSlot = newSlot; // FK follows the navigation
+                appointment.AppointmentTime = newSlot.ScheduledAt;
+                appointment.CreatedAt = now;
+
+                await _dbContext.SaveChangesAsync(ct);
+                await tx.CommitAsync(ct);
+                return RescheduleResult.Of(RescheduleOutcome.Moved, ToDto(appointment));
+            }
+
+            // Confirmed: keep it booked and ask for the new time alongside it.
+            var therapistName = await _dbContext.Therapists.AsNoTracking()
+                .Where(t => t.TherapistId == patient.TherapistId)
+                .Select(t => t.FirstName + " " + t.LastName)
+                .FirstAsync(ct);
+
+            var replacement = new Appointment
+            {
+                PatientId = patient.PatientId,
+                ClinicId = patient.ClinicId,
+                TherapistId = patient.TherapistId.Value,
+                TherapistName = therapistName,
+                AppointmentSlotId = newSlot.Id,
+                AppointmentTime = newSlot.ScheduledAt,
+                Title = appointment.Title,
+                Notes = appointment.Notes,
+                Status = AppointmentStatus.Requested,
+                RescheduleOfAppointmentId = appointment.AppointmentId
+            };
+
+            _dbContext.Appointments.Add(replacement);
+            await _dbContext.SaveChangesAsync(ct);
+            await tx.CommitAsync(ct);
+
+            return RescheduleResult.Of(RescheduleOutcome.Requested, ToDto(replacement));
+        }
+
         public async Task<List<PatientAppointmentDto>> GetMyAppointmentsAsync(Guid applicationUserId, CancellationToken ct = default)
         {
             var patientId = await _dbContext.Patients.AsNoTracking()
@@ -135,7 +240,10 @@ namespace PhysioLink.Infrastructure.Services
             await _expiryService.SweepAsync(ct);
 
             var appointments = await _dbContext.Appointments.AsNoTracking()
-                .Where(a => a.PatientId == patientId)
+                // A replaced appointment is history the patient doesn't need: its
+                // successor is in the list. Hiding it also keeps older app builds,
+                // which don't know the Rescheduled status, from failing to parse.
+                .Where(a => a.PatientId == patientId && a.Status != AppointmentStatus.Rescheduled)
                 .OrderByDescending(a => a.AppointmentTime)
                 .ToListAsync(ct);
 
@@ -151,7 +259,8 @@ namespace PhysioLink.Infrastructure.Services
             Notes = a.Notes,
             Status = a.Status.ToString(),
             StatusLabel = a.Status.ToLabel(),
-            SlotId = a.AppointmentSlotId
+            SlotId = a.AppointmentSlotId,
+            RescheduleOfAppointmentId = a.RescheduleOfAppointmentId
         };
     }
 }

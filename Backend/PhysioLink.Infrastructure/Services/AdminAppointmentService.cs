@@ -370,38 +370,72 @@ namespace PhysioLink.Infrastructure.Services
                     Type = a.Title,
                     Notes = a.Notes,
                     RequestedAt = a.CreatedAt,
-                    Status = a.Status
+                    Status = a.Status,
+                    RescheduleFrom = _dbContext.Appointments
+                        .Where(o => o.AppointmentId == a.RescheduleOfAppointmentId)
+                        .Select(o => (DateTime?)o.AppointmentTime)
+                        .FirstOrDefault()
                 })
                 .ToListAsync(ct);
         }
 
         public async Task<AppointmentActionOutcome> AcceptAsync(Guid appointmentId, CancellationToken ct = default)
         {
-            // Accept -> Confirmed / slot Booked (spec 4.2).
+            // Accept -> Confirmed / slot Booked (spec 4.2). Accepting a reschedule
+            // request also retires the session it replaces and frees that slot, in
+            // the same SaveChanges.
+            var replacedOriginal = false;
             var (outcome, appointment) = await TransitionAsync(
                 appointmentId,
                 required: AppointmentStatus.Requested,
                 next: AppointmentStatus.Confirmed,
                 slotNext: SlotStatus.Booked,
-                ct);
+                ct,
+                beforeSave: async accepted =>
+                {
+                    var original = await LoadPendingOriginalAsync(accepted, ct);
+                    if (original == null) return;
+                    original.Status = AppointmentStatus.Rescheduled;
+                    if (original.AppointmentSlot is { Status: SlotStatus.Booked })
+                        original.AppointmentSlot.Status = SlotStatus.Available;
+                    replacedOriginal = true;
+                });
 
             if (outcome == AppointmentActionOutcome.Ok && appointment != null)
-                await SendAppointmentConfirmedPushAsync(appointment, ct);
+            {
+                if (replacedOriginal)
+                    await SendAppointmentPushAsync(
+                        appointment,
+                        "Appointment rescheduled",
+                        $"Your session has moved to {ClinicTime.ToLocal(appointment.AppointmentTime):MMM d 'at' h:mm tt}.",
+                        ct);
+                else
+                    await SendAppointmentConfirmedPushAsync(appointment, ct);
+            }
 
             return outcome;
         }
 
         public async Task<AppointmentActionOutcome> RejectAsync(Guid appointmentId, CancellationToken ct = default)
         {
-            // Reject -> slot back in the pool (spec 4.3 / D6).
+            // Reject -> slot back in the pool (spec 4.3 / D6). A rejected reschedule
+            // request leaves the original session booked as it was.
+            Appointment? keptOriginal = null;
             var (outcome, appointment) = await TransitionAsync(
                 appointmentId,
                 required: AppointmentStatus.Requested,
                 next: AppointmentStatus.Rejected,
                 slotNext: SlotStatus.Available,
-                ct);
+                ct,
+                beforeSave: async rejected => keptOriginal = await LoadPendingOriginalAsync(rejected, ct));
 
-            if (outcome == AppointmentActionOutcome.Ok && appointment != null)
+            if (outcome == AppointmentActionOutcome.Ok && appointment != null && keptOriginal != null)
+                await SendAppointmentPushAsync(
+                    appointment,
+                    "Reschedule request declined",
+                    $"We couldn't move your session to {ClinicTime.ToLocal(appointment.AppointmentTime):MMM d 'at' h:mm tt}. Your appointment on {ClinicTime.ToLocal(keptOriginal.AppointmentTime):MMM d 'at' h:mm tt} is still booked.",
+                    ct);
+            else if (outcome == AppointmentActionOutcome.Ok && appointment != null)
                 await SendAppointmentPushAsync(
                     appointment,
                     "Appointment request declined",
@@ -442,7 +476,8 @@ namespace PhysioLink.Infrastructure.Services
             AppointmentStatus required,
             AppointmentStatus next,
             SlotStatus slotNext,
-            CancellationToken ct)
+            CancellationToken ct,
+            Func<Appointment, Task>? beforeSave = null)
         {
             var appointment = await _dbContext.Appointments
                 .Include(a => a.AppointmentSlot)
@@ -456,8 +491,23 @@ namespace PhysioLink.Infrastructure.Services
             if (appointment.AppointmentSlot != null)
                 appointment.AppointmentSlot.Status = slotNext;
 
+            if (beforeSave != null)
+                await beforeSave(appointment);
+
             await _dbContext.SaveChangesAsync(ct);
             return (AppointmentActionOutcome.Ok, appointment);
+        }
+
+        // The still-confirmed session a reschedule request would replace, or null
+        // when this isn't a reschedule request or the original has since changed
+        // (e.g. the clinic cancelled it meanwhile).
+        private async Task<Appointment?> LoadPendingOriginalAsync(Appointment request, CancellationToken ct)
+        {
+            if (request.RescheduleOfAppointmentId is not Guid originalId) return null;
+            return await _dbContext.Appointments
+                .Include(a => a.AppointmentSlot)
+                .FirstOrDefaultAsync(a => a.AppointmentId == originalId
+                                          && a.Status == AppointmentStatus.Confirmed, ct);
         }
 
         private Task SendAppointmentConfirmedPushAsync(Appointment appointment, CancellationToken ct) =>

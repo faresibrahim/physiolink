@@ -25,6 +25,11 @@ namespace PhysioLink.Domain.Entities
         public DateTime AppointmentTime { get; set; }
         public AppointmentStatus Status { get; set; }
 
+        // Set on a patient's reschedule request: the confirmed appointment it would
+        // replace. The original stays Confirmed until the clinic accepts this
+        // request, which then marks the original Rescheduled and frees its slot.
+        public Guid? RescheduleOfAppointmentId { get; set; }
+
         // EF + object-initializer construction (the slot-based request flow).
         public Appointment()
         {

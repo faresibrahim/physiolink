@@ -124,6 +124,9 @@ namespace PhysioLink.Infrastructure.Migrations
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("RescheduleOfAppointmentId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -152,6 +155,8 @@ namespace PhysioLink.Infrastructure.Migrations
                     b.HasIndex("ClinicId");
 
                     b.HasIndex("PatientId");
+
+                    b.HasIndex("RescheduleOfAppointmentId");
 
                     b.HasIndex("TherapistId");
 
@@ -575,6 +580,11 @@ namespace PhysioLink.Infrastructure.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("PhysioLink.Domain.Entities.Appointment", null)
+                        .WithMany()
+                        .HasForeignKey("RescheduleOfAppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("PhysioLink.Domain.Entities.Therapist", null)
                         .WithMany()

@@ -13,5 +13,7 @@ namespace PhysioLink.Application.DTOs.Appointments
         public string Status { get; set; } = string.Empty;      // enum name, e.g. "Requested"
         public string StatusLabel { get; set; } = string.Empty; // honest wording for display
         public Guid? SlotId { get; set; }
+        // Set when this is a pending request to move another (confirmed) appointment.
+        public Guid? RescheduleOfAppointmentId { get; set; }
     }
 }

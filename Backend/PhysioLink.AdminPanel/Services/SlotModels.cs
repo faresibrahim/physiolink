@@ -43,4 +43,6 @@ public class AppointmentRequestResponse
     [JsonPropertyName("notes")]         public string? Notes { get; set; }
     [JsonPropertyName("requestedAt")]   public DateTime RequestedAt { get; set; }
     [JsonPropertyName("status")]        public string Status { get; set; } = string.Empty;
+    // Set when the patient is asking to move a confirmed session: its current time.
+    [JsonPropertyName("rescheduleFrom")] public DateTime? RescheduleFrom { get; set; }
 }

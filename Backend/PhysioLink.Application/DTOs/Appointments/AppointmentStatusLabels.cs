@@ -15,6 +15,7 @@ namespace PhysioLink.Application.DTOs.Appointments
             AppointmentStatus.Rejected => "Rejected",
             AppointmentStatus.Expired => "Expired",
             AppointmentStatus.CancelledByClinic => "Cancelled by clinic",
+            AppointmentStatus.Rescheduled => "Rescheduled",
             _ => status.ToString()
         };
     }

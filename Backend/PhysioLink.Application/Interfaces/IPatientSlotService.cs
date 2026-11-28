@@ -13,6 +13,11 @@ namespace PhysioLink.Application.Interfaces
         // pending appointment, race-safe via a conditional update (spec 3.2).
         Task<RequestSlotResult> RequestSlotAsync(Guid applicationUserId, RequestSlotDto request, CancellationToken ct = default);
 
+        // Moves one of the caller's appointments to another open slot. A confirmed
+        // appointment gets a linked reschedule request (the original stays booked
+        // until the clinic accepts it); a pending request is moved in place.
+        Task<RescheduleResult> RescheduleAsync(Guid applicationUserId, Guid appointmentId, RescheduleAppointmentDto request, CancellationToken ct = default);
+
         // The caller's appointments incl. pending/rejected/expired/cancelled state.
         Task<List<PatientAppointmentDto>> GetMyAppointmentsAsync(Guid applicationUserId, CancellationToken ct = default);
     }

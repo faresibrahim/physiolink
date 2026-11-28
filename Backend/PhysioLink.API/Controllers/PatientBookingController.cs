@@ -46,6 +46,26 @@ namespace PhysioLink.API.Controllers
             };
         }
 
+        // POST /api/v1/patients/me/appointments/{id}/reschedule  { slotId }
+        [HttpPost("appointments/{id:guid}/reschedule")]
+        public async Task<IActionResult> Reschedule(Guid id, [FromBody] RescheduleAppointmentDto request, CancellationToken ct)
+        {
+            if (User.GetApplicationUserId() is not { } userId) return Unauthorized();
+
+            var result = await _patientSlotService.RescheduleAsync(userId, id, request, ct);
+            return result.Outcome switch
+            {
+                RescheduleOutcome.Requested => StatusCode(StatusCodes.Status201Created, result.Appointment),
+                RescheduleOutcome.Moved => Ok(result.Appointment),
+                RescheduleOutcome.NotFound => NotFound(),
+                RescheduleOutcome.SlotUnavailable => Conflict("That slot is no longer available."),
+                RescheduleOutcome.TooLate => UnprocessableEntity(
+                    $"Sessions can't be rescheduled in the app within {RescheduleResult.Cutoff.TotalHours:0} hours of the start. Please contact your clinic."),
+                RescheduleOutcome.NotReschedulable => UnprocessableEntity("This appointment can't be rescheduled."),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            };
+        }
+
         // GET /api/v1/patients/me/appointments
         [HttpGet("appointments")]
         public async Task<IActionResult> GetMyAppointments(CancellationToken ct)

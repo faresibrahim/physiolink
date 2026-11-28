@@ -1113,4 +1113,10 @@
   <data name="Records and history are retained." xml:space="preserve">
     <value>يتم الاحتفاظ بالسجلات والسجل التاريخي.</value>
   </data>
+  <data name="Rescheduled" xml:space="preserve">
+    <value>أُعيدت جدولته</value>
+  </data>
+  <data name="Reschedule · was {0}" xml:space="preserve">
+    <value>إعادة جدولة · كان {0}</value>
+  </data>
 </root>

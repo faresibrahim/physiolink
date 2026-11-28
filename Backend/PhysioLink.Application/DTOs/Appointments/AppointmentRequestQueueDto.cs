@@ -15,5 +15,7 @@ namespace PhysioLink.Application.DTOs.Appointments
         public string? Notes { get; set; }
         public DateTime RequestedAt { get; set; }           // CreatedAt = request time
         public AppointmentStatus Status { get; set; }
+        // When the patient is asking to move a confirmed session: its current time.
+        public DateTime? RescheduleFrom { get; set; }
     }
 }

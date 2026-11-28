@@ -52,6 +52,12 @@ namespace PhysioLink.Infrastructure.Data.Configurations
                 .WithMany()
                 .HasForeignKey(p => p.AppointmentSlotId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // A reschedule request points back at the appointment it would replace.
+            builder.HasOne<Appointment>()
+                .WithMany()
+                .HasForeignKey(p => p.RescheduleOfAppointmentId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

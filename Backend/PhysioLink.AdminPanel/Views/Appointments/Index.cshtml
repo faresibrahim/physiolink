@@ -74,7 +74,8 @@
                         ("Confirmed", "Confirmed"),
                         ("Rejected", "Rejected"),
                         ("Expired", "Expired"),
-                        ("CancelledByClinic", "Cancelled")
+                        ("CancelledByClinic", "Cancelled"),
+                        ("Rescheduled", "Rescheduled")
                     };
                 }
                 @foreach (var (value, label) in statusOptions)
@@ -619,7 +620,7 @@
                 document.getElementById('rejectId').value  = appointmentId;
                 document.getElementById('cancelId').value  = appointmentId;
 
-                var labels = @Json.Serialize(new[] { "Requested", "Confirmed", "Completed", "CancelledByClinic", "Rejected", "Expired" }.ToDictionary(s => s, s => L[s == "Requested" ? "Pending" : s == "CancelledByClinic" ? "Cancelled" : s].Value));
+                var labels = @Json.Serialize(new[] { "Requested", "Confirmed", "Completed", "CancelledByClinic", "Rejected", "Expired", "Rescheduled" }.ToDictionary(s => s, s => L[s == "Requested" ? "Pending" : s == "CancelledByClinic" ? "Cancelled" : s].Value));
                 var badge = document.getElementById('statusActionBadge');
                 badge.className = 'status-pill status-' + String(status).toLowerCase();
                 badge.textContent = labels[status] || status;
